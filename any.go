@@ -48,7 +48,7 @@ func (a AnyType) ToBe(expected any) {
 	match := gocmp.Equal(a.actual, expected, a.opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.t.Errorf("Expected%s %T ...\n%s... %sto equal ...\n%s", preS(a.info), a.actual, verbatim(a.actual), notS(a.not), verbatim(expected))
+		a.t.Errorf("Expected%s %T ―――\n%s――― %sto equal ―――\n%s", preS(a.info), a.actual, verbatim(a.actual), notS(a.not), verbatim(expected))
 	}
 }
 
@@ -71,7 +71,7 @@ func (a AnyType) ToEqual(expected any) {
 	match := gocmp.Equal(convertedActual, expected, a.opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.t.Errorf("Expected%s %T ...\n%s... %sto be equivalent to %T ...\n%s", preS(a.info),
+		a.t.Errorf("Expected%s %T ―――\n%s――― %sto be equivalent to %T ―――\n%s", preS(a.info),
 			a.actual, verbatim(a.actual), notS(a.not), expected, verbatim(expected))
 	}
 }

@@ -24,11 +24,11 @@ func (a OrderedType[T]) ToBe(expected T) {
 
 	if a.not {
 		if a.actual == expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... not to be ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual != expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... to be ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― to be ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 }
@@ -41,11 +41,11 @@ func (a OrderedType[T]) ToBeGreaterThan(expected T) {
 
 	if a.not {
 		if a.actual > expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... not to be greater than ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual <= expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... to be greater than ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 }
@@ -58,11 +58,11 @@ func (a OrderedType[T]) ToBeLessThan(expected T) {
 
 	if a.not {
 		if a.actual < expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... not to be less than ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual >= expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... to be less than ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 }
@@ -75,11 +75,11 @@ func (a OrderedType[T]) ToBeLessThanOrEqualTo(expected T) {
 
 	if a.not {
 		if a.actual <= expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... not to be less than or equal to ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual > expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... to be less than or equal to ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 }
@@ -92,11 +92,11 @@ func (a OrderedType[T]) ToBeGreaterThanOrEqualTo(expected T) {
 
 	if a.not {
 		if a.actual >= expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... not to be greater than or equal to ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual < expected {
-			a.t.Errorf("Expected%s %T ...\n  %+v\n... to be greater than or equal to ...\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			a.t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 }

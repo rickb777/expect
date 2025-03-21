@@ -16,7 +16,7 @@ func TestAnyToEqual(t *testing.T) {
 
 	weight = 1710000001
 	expect.Any(c, weight, "weight").ToBe(1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected weight int ...\n  1710000001\n... to equal ...\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n  1710000001\n――― to equal ―――\n  1710000000\n")
 
 	var fa = 0.01347258873283863
 	var fb = 0.013473
@@ -33,7 +33,7 @@ func TestAnyNotToEqual(t *testing.T) {
 
 	weight = 1710000001
 	expect.Any(c, weight, "weight").Not().ToBe(1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected weight int ...\n  1710000001\n... not to equal ...\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n  1710000001\n――― not to equal ―――\n  1710000001\n")
 
 	var fa = 0.01347258873283863
 	var fb = 0.013573
@@ -50,10 +50,10 @@ func TestAnyToEqualBytes(t *testing.T) {
 
 	data = []byte("hello world")
 	expect.Any(c, data, "data").ToBe([]byte("hello dlrow"))
-	c.shouldHaveCalledErrorf(t, "Expected data []uint8 ...\n"+
+	c.shouldHaveCalledErrorf(t, "Expected data []uint8 ―――\n"+
 		"  [104 101 108 108 111 32 119 111 114 108 100]\n"+
 		"  []byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64}\n"+
-		"... to equal ...\n"+
+		"――― to equal ―――\n"+
 		"  [104 101 108 108 111 32 100 108 114 111 119]\n"+
 		"  []byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x64, 0x6c, 0x72, 0x6f, 0x77}\n")
 }
@@ -67,7 +67,7 @@ func TestAnyToBeEquivalentTo(t *testing.T) {
 
 	weight = 1235
 	expect.Any(c, weight, "weight").ToEqual(1234)
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ...\n  1235\n  0x4d3\n... to be equivalent to int ...\n  1234\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n  1235\n  0x4d3\n――― to be equivalent to int ―――\n  1234\n")
 }
 
 func TestAnyNotToBeEquivalentTo(t *testing.T) {
@@ -79,5 +79,5 @@ func TestAnyNotToBeEquivalentTo(t *testing.T) {
 
 	weight = 1235
 	expect.Any(c, weight, "weight").Not().ToEqual(1235)
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ...\n  1235\n  0x4d3\n... not to be equivalent to int ...\n  1235\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n  1235\n  0x4d3\n――― not to be equivalent to int ―――\n  1235\n")
 }

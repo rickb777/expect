@@ -34,7 +34,7 @@ func (a ErrorType) toHaveOccurred(not bool) {
 
 	if not {
 		if a.actual != nil {
-			a.t.Fatalf("Expected%s error ...\n  %s\n... not to have occurred.\n", preS(a.info), blank(a.actual.Error()))
+			a.t.Fatalf("Expected%s error ―――\n  %s\n――― not to have occurred.\n", preS(a.info), blank(a.actual.Error()))
 		}
 	} else {
 		if a.actual == nil {
@@ -55,7 +55,7 @@ func (a ErrorType) ToContain(substring string) {
 		msg := a.actual.Error()
 		match := strings.Contains(msg, substring)
 		if (!a.not && !match) || (a.not && match) {
-			a.t.Errorf("Expected%s error ...\n  %s\n... %sto contain ...\n  %s\n", preS(a.info), blank(msg), notS(a.not), substring)
+			a.t.Errorf("Expected%s error ―――\n  %s\n――― %sto contain ―――\n  %s\n", preS(a.info), blank(msg), notS(a.not), substring)
 		}
 	}
 }

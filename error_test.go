@@ -15,7 +15,7 @@ func TestErrorToBeNil(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(c, e1, "xyz").ToBeNil()
-	c.shouldHaveCalledFatalf(t, "Expected xyz error ...\n  something bad happened\n... not to have occurred.\n")
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToHaveOccurred(t *testing.T) {
@@ -45,7 +45,7 @@ func TestErrorNotToHaveOccurred(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(c, e1, "xyz").Not().ToHaveOccurred()
-	c.shouldHaveCalledFatalf(t, "Expected xyz error ...\n  something bad happened\n... not to have occurred.\n")
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToContain(t *testing.T) {
@@ -55,5 +55,5 @@ func TestErrorToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(c, e1, "xyz").ToContain("missing")
-	c.shouldHaveCalledErrorf(t, "Expected xyz error ...\n  something bad happened\n... to contain ...\n  missing\n")
+	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to contain ―――\n  missing\n")
 }

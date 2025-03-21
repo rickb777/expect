@@ -70,6 +70,7 @@ type StringyType[T Stringy] struct {
 	info   string
 	actual T
 	not    bool
+	trim   int
 }
 
 type ErrorType struct {
