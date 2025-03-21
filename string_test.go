@@ -2,49 +2,60 @@ package expect_test
 
 import (
 	"github.com/rickb777/expect"
+	"strings"
 	"testing"
 )
 
 type MyString string
 
-func TestStringToEqual(t *testing.T) {
+func TestStringToBe(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
 	expect.String(c, s).ToBe("hello")
-	if c.called {
-		t.Error("failed")
-	}
+	c.shouldNotHaveHadAnError(t)
 
-	c.reset()
+	expect.String(c, s).ToBe("")
+	c.shouldHaveCalledErrorf(t, "Expected ...\n  hello\n... to be ...\n  \"\"\n")
+}
 
-	expect.String(c, s).ToBe("world")
-	if !c.called {
-		t.Error("failed")
-	}
-	if c.message != "Expected ...\n  hello\n... to equal ...\n  world\n" {
-		t.Error(c.message)
-	}
+func TestStringToEqual(t *testing.T) {
+	c := &capture{}
+
+	numbers1 := strings.Repeat("0123456789", 10) + "_" + "0123456789"
+
+	expect.String(c, numbers1).ToEqual(numbers1)
+	c.shouldNotHaveHadAnError(t)
+
+	numbers2 := strings.Repeat("0123456789", 12)
+
+	expect.String(c, numbers1).ToEqual(numbers2)
+	c.shouldHaveCalledErrorf(t, "Expected ...\n"+
+		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789...\n"+
+		"... to equal ...\n"+
+		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789...\n")
+}
+
+func TestStringNotToBe(t *testing.T) {
+	c := &capture{}
+
+	var s MyString = "hello"
+	expect.String(c, s).Not().ToBe("world")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(c, s).Not().ToBe("hello")
+	c.shouldHaveCalledErrorf(t, "Expected ...\n  hello\n... not to be ...\n  hello\n")
 }
 
 func TestStringNotToEqual(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(c, s).Not().ToBe("world")
-	if c.called {
-		t.Error("failed")
-	}
+	expect.String(c, s).Not().ToEqual("world")
+	c.shouldNotHaveHadAnError(t)
 
-	c.reset()
-
-	expect.String(c, s).Not().ToBe("hello")
-	if !c.called {
-		t.Error("failed")
-	}
-	if c.message != "Expected ...\n  hello\n... not to equal ...\n  hello\n" {
-		t.Error(c.message)
-	}
+	expect.String(c, s).Not().ToEqual("hello")
+	c.shouldHaveCalledErrorf(t, "Expected ...\n  hello\n... not to equal ...\n  hello\n")
 }
 
 func TestStringToContain(t *testing.T) {
@@ -52,19 +63,10 @@ func TestStringToContain(t *testing.T) {
 
 	var s MyString = "hello"
 	expect.String(c, s).ToContain("ell")
-	if c.called {
-		t.Error("failed")
-	}
-
-	c.reset()
+	c.shouldNotHaveHadAnError(t)
 
 	expect.String(c, s).ToContain("world")
-	if !c.called {
-		t.Error("failed")
-	}
-	if c.message != "Expected ...\n  hello\n... to contain ...\n  world\n" {
-		t.Error(c.message)
-	}
+	c.shouldHaveCalledErrorf(t, "Expected ...\n  hello\n... to contain ...\n  world\n")
 }
 
 func TestStringNotToContain(t *testing.T) {
@@ -72,17 +74,8 @@ func TestStringNotToContain(t *testing.T) {
 
 	var s MyString = "hello"
 	expect.String(c, s).Not().ToContain("world")
-	if c.called {
-		t.Error("failed")
-	}
-
-	c.reset()
+	c.shouldNotHaveHadAnError(t)
 
 	expect.String(c, s).Not().ToContain("ell")
-	if !c.called {
-		t.Error("failed")
-	}
-	if c.message != "Expected ...\n  hello\n... not to contain ...\n  ell\n" {
-		t.Error(c.message)
-	}
+	c.shouldHaveCalledErrorf(t, "Expected ...\n  hello\n... not to contain ...\n  ell\n")
 }

@@ -6,8 +6,9 @@ import (
 )
 
 // String creates a string assertion. It accepts all string subtypes.
-// If present, the second parameter should be a string. If this is a format
-// string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+//
+// If present, the third parameter should be some information such as a string or a number. If this
+// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
 func String[T Stringy](t Tester, value T, info ...any) StringyType[T] {
 	return StringyType[T]{t: t, actual: value, info: makeInfo(info...)}
 }
@@ -28,7 +29,7 @@ func (a StringyType[T]) ToBe(expected T) {
 	ex := fmt.Sprint(expected)
 	match := ac == ex
 	if (!a.not && !match) || (a.not && match) {
-		a.t.Errorf("Expected%s ...\n  %s\n... %sto equal ...\n  %s\n", preS(a.info), trim100(ac), notS(a.not), trim100(ex))
+		a.t.Errorf("Expected%s ...\n  %s\n... %sto be ...\n  %s\n", preS(a.info), trim100(ac), notS(a.not), trim100(ex))
 	}
 }
 

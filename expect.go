@@ -7,6 +7,7 @@ import (
 	"log"
 )
 
+// Tester reports test errors and failures. Notably, [testing.T] implements this interface.
 type Tester interface {
 	Errorf(format string, args ...any)
 	Fatalf(format string, args ...any)
@@ -16,17 +17,24 @@ type helper interface {
 	Helper()
 }
 
-// JustLogIt is a tester that calls log.Fatalf on all test failures.
-func JustLogIt() Tester { return &justLogIt{} }
+// JustLogIt is a tester that calls log.Fatalf on all test errors and failures.
+var JustLogIt = SimpleTester(log.Fatalf, log.Fatalf)
 
-type justLogIt struct{}
-
-func (c *justLogIt) Errorf(message string, args ...any) {
-	log.Fatalf(message, args...)
+// SimpleTester is a tester that calls errorf on test errors and fatalf on test failures.
+func SimpleTester(errorf, fatalf func(format string, v ...any)) Tester {
+	return &simpleTester{errorf: errorf, fatalf: fatalf}
 }
 
-func (c *justLogIt) Fatalf(message string, args ...any) {
-	log.Fatalf(message, args...)
+type simpleTester struct {
+	errorf, fatalf func(format string, v ...any)
+}
+
+func (c *simpleTester) Errorf(message string, args ...any) {
+	c.errorf(message, args...)
+}
+
+func (c *simpleTester) Fatalf(message string, args ...any) {
+	c.fatalf(message, args...)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -77,7 +85,7 @@ func makeInfo(info ...any) string {
 	if len(info) > 1 {
 		return fmt.Sprintf(info[0].(string), info[1:]...)
 	} else if len(info) > 0 {
-		return info[0].(string)
+		return fmt.Sprintf("%v", info[0])
 	}
 	return ""
 }

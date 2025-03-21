@@ -19,8 +19,9 @@ var DefaultOptions = func() gocmp.Options {
 
 // Any creates an assertion for deep value comparison. This uses [cmp.Equal] so the manner of
 // comparison can be tweaked using that API - see also [AnyType.Using]
-// If present, the second parameter should be a string. If this is a format
-// string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+//
+// If present, the third parameter should be some information such as a string or a number. If this
+// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
 func Any(t Tester, value any, info ...any) AnyType {
 	return AnyType{t: t, actual: value, info: makeInfo(info...), opts: DefaultOptions()}
 }

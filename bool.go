@@ -1,8 +1,9 @@
 package expect
 
 // Bool creates a boolean assertion.
-// If present, the second parameter should be a string. If this is a format
-// string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+//
+// If present, the third parameter should be some information such as a string or a number. If this
+// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
 func Bool(t Tester, value bool, info ...any) BoolType {
 	return BoolType{t: t, actual: value, info: makeInfo(info...)}
 }
