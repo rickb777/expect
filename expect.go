@@ -39,45 +39,41 @@ func (c *simpleTester) Fatalf(message string, args ...any) {
 
 //-------------------------------------------------------------------------------------------------
 
+type assertion struct {
+	info  string
+	other []any
+	not   bool
+}
+
 type AnyType struct {
-	t      Tester
-	info   string
 	opts   gocmp.Options
 	actual any
-	not    bool
+	assertion
 }
 
-type BoolType struct {
-	t      Tester
-	info   string
-	actual bool
-	not    bool
+type BoolType[B ~bool] struct {
+	actual B
+	assertion
 }
 
-type OrderedType[T cmp.Ordered] struct {
-	t      Tester
-	info   string
-	actual T
-	not    bool
+type OrderedType[O cmp.Ordered] struct {
+	actual O
+	assertion
 }
 
 type Stringy interface {
 	~string
 }
 
-type StringyType[T Stringy] struct {
-	t      Tester
-	info   string
-	actual T
-	not    bool
-	trim   int
+type StringType[S Stringy] struct {
+	actual S
+	assertion
+	trim int
 }
 
 type ErrorType struct {
-	t      Tester
-	info   string
 	actual error
-	not    bool
+	assertion
 }
 
 //=================================================================================================
@@ -107,4 +103,16 @@ func notS(not bool) string {
 		return "not "
 	}
 	return ""
+}
+
+func allOtherArgumentsMustBeNil(t Tester, info string, other ...any) {
+	for i, o := range other {
+		if o != nil {
+			v := "value"
+			if _, ok := o.(error); ok {
+				v = "error"
+			}
+			t.Fatalf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n", preS(info), v, i+2, o, o)
+		}
+	}
 }

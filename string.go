@@ -6,29 +6,45 @@ import (
 	"unicode/utf8"
 )
 
-// String creates a string assertion. It accepts all string subtypes.
+// String creates a string assertion. It accepts all string subtypes. Strings must contain valid UTF8 encodings.
 //
+// If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
+// This is convenient if you want to make an assertion on a method/function that returns a value and an error,
+// a common pattern in Go.
+func String[S Stringy](value S, other ...any) StringType[S] {
+	return StringType[S]{actual: value, assertion: assertion{other: other}}
+}
+
+// Info adds a description of the assertion to be included in any error message.
 // If present, the third parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func String[T Stringy](t Tester, value T, info ...any) StringyType[T] {
-	return StringyType[T]{t: t, actual: value, info: makeInfo(info...)}
+func (a StringType[S]) Info(info ...any) StringType[S] {
+	a.info = makeInfo(info...)
+	return a
+}
+
+// I is a synonym for [Info].
+func (a StringType[S]) I(info ...any) StringType[S] {
+	return a.Info(info...)
 }
 
 // Trim shortens the error message for very long strings.
-func (a StringyType[T]) Trim(at int) StringyType[T] {
+// Trimming is disabled by default.
+func (a StringType[S]) Trim(at int) StringType[S] {
 	a.trim = at
 	return a
 }
 
 // Not inverts the assertion.
-func (a StringyType[T]) Not() StringyType[T] {
+func (a StringType[S]) Not() StringType[S] {
 	a.not = !a.not
 	return a
 }
 
 // ToContain asserts that the actual string contains the substring.
-func (a StringyType[T]) ToContain(substring T) {
-	if h, ok := a.t.(helper); ok {
+// The tester is normally [*testing.S].
+func (a StringType[S]) ToContain(substring S, t Tester) {
+	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
@@ -37,36 +53,36 @@ func (a StringyType[T]) ToContain(substring T) {
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n", preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
+		t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n", preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
 	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected strings have the same values and types.
-func (a StringyType[T]) ToBe(expected T) {
-	if h, ok := a.t.(helper); ok {
+// The tester is normally [*testing.S].
+func (a StringType[S]) ToBe(expected S, t Tester) {
+	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual("to be", fmt.Sprint(expected))
+	a.toEqual("to be", fmt.Sprint(expected), t)
 }
 
 // ToEqual asserts that the actual and expected strings have the same values.
-// Unlike [StringyType.ToBe], the concrete type may differ.
-func (a StringyType[T]) ToEqual(expected string) {
-	if h, ok := a.t.(helper); ok {
+// Unlike [StringType.ToBe], the concrete type may differ.
+// The tester is normally [*testing.S].
+func (a StringType[S]) ToEqual(expected string, t Tester) {
+	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual("to equal", expected)
+	a.toEqual("to equal", expected, t)
 }
 
-func (a StringyType[T]) toEqual(what, expected string) {
-	if h, ok := a.t.(helper); ok {
-		h.Helper()
-	}
-
+func (a StringType[S]) toEqual(what, expected string, t Tester) {
 	actual := fmt.Sprint(a.actual)
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
@@ -85,9 +101,11 @@ func (a StringyType[T]) toEqual(what, expected string) {
 			expected = "…" + string(ex[chop:])
 			pointer = rem + 1
 		}
-		a.t.Errorf("Expected%s ―――\n  %s\n%s\n  %s\n%s", preS(a.info),
+		t.Errorf("Expected%s ―――\n  %s\n%s\n  %s\n%s", preS(a.info),
 			trim(actual, a.trim), arrowMarker(notS(a.not), what, pointer), trim(expected, a.trim), firstDiff(diff))
 	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
 //=================================================================================================

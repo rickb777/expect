@@ -11,49 +11,49 @@ var e1 = errors.New("something bad happened")
 func TestErrorToBeNil(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(c, nil, "xyz").ToBeNil()
+	expect.Error(nil).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(c, e1, "xyz").ToBeNil()
+	expect.Error(e1).I("xyz").ToBeNil(c)
 	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToHaveOccurred(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(c, e1, "xyz").ToHaveOccurred()
+	expect.Error(e1).I("xyz").ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(c, nil, "xyz").ToHaveOccurred()
+	expect.Error(nil).I("xyz").ToHaveOccurred(c)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error to have occurred.\n")
 }
 
 func TestErrorNotToBeNil(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(c, e1, "xyz").Not().ToBeNil()
+	expect.Error(e1).I("xyz").Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(c, nil, "xyz").Not().ToBeNil()
+	expect.Error(nil).I("xyz").Not().ToBeNil(c)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error to have occurred.\n")
 }
 
 func TestErrorNotToHaveOccurred(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(c, nil, "xyz").Not().ToHaveOccurred()
+	expect.Error(nil).I("xyz").Not().ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(c, e1, "xyz").Not().ToHaveOccurred()
+	expect.Error(e1).I("xyz").Not().ToHaveOccurred(c)
 	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToContain(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(c, e1, "xyz").ToContain("something bad happened")
+	expect.Error(e1).I("xyz").ToContain("something bad happened", c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(c, e1, "xyz").ToContain("missing")
+	expect.Error(e1).I("xyz").ToContain("missing", c)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to contain ―――\n  missing\n")
 }
