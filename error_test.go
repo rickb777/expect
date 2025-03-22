@@ -8,10 +8,26 @@ import (
 
 var e1 = errors.New("something bad happened")
 
+func TestErrorNoErrorProvided(t *testing.T) {
+	c := &capture{}
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+
+	expect.Error(1, 2, "hello", true).I("xyz").ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+}
+
 func TestErrorToBeNil(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(nil).I("xyz").ToBeNil(c)
+	var err error
+	expect.Error(err).I("xyz").ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Error(1, 2, err).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(e1).I("xyz").ToBeNil(c)

@@ -40,6 +40,9 @@ func TestStringToBe(t *testing.T) {
 func TestStringToEqual(t *testing.T) {
 	c := &capture{}
 
+	expect.String([]byte("hello")).ToEqual("hello", t)
+	c.shouldNotHaveHadAnError(t)
+
 	numbers1 := strings.Repeat("01234µ6789", 5) + "_" + "01234«-»6789"
 
 	expect.String(numbers1).ToEqual(numbers1, t)

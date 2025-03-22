@@ -40,14 +40,24 @@ func (a BoolType[B]) ToBeFalse(t Tester) {
 	a.ToBe(false, t)
 }
 
-// ToBe asserts that the actual value is as expected.
+// ToBe asserts that the actual and expected bools have the same values and types.
 // The tester is normally [*testing.B].
 func (a BoolType[B]) ToBe(expected B, t Tester) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	if (!a.not && a.actual != expected) || (a.not && a.actual == expected) {
+	a.ToEqual(bool(expected), t)
+}
+
+// ToEqual asserts that the actual value is as expected.
+// The tester is normally [*testing.B].
+func (a BoolType[B]) ToEqual(expected bool, t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
 		t.Errorf("Expected%s %sto be %v\n", preS(a.info), notS(bool(a.not)), expected)
 	}
 

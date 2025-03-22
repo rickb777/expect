@@ -6,7 +6,9 @@ import (
 	"unicode/utf8"
 )
 
-// String creates a string assertion. It accepts all string subtypes. Strings must contain valid UTF8 encodings.
+// String creates a string assertion. Strings must contain valid UTF8 encodings.
+//
+// It accepts all string subtypes and []byte, []rune.
 //
 // If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
@@ -42,7 +44,7 @@ func (a StringType[S]) Not() StringType[S] {
 }
 
 // ToContain asserts that the actual string contains the substring.
-// The tester is normally [*testing.S].
+// The tester is normally [*testing.T].
 func (a StringType[S]) ToContain(substring S, t Tester) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
@@ -62,18 +64,18 @@ func (a StringType[S]) ToContain(substring S, t Tester) {
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected strings have the same values and types.
-// The tester is normally [*testing.S].
+// The tester is normally [*testing.T].
 func (a StringType[S]) ToBe(expected S, t Tester) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual("to be", fmt.Sprint(expected), t)
+	a.toEqual("to be", string(expected), t)
 }
 
 // ToEqual asserts that the actual and expected strings have the same values.
 // Unlike [StringType.ToBe], the concrete type may differ.
-// The tester is normally [*testing.S].
+// The tester is normally [*testing.T].
 func (a StringType[S]) ToEqual(expected string, t Tester) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
@@ -83,7 +85,11 @@ func (a StringType[S]) ToEqual(expected string, t Tester) {
 }
 
 func (a StringType[S]) toEqual(what, expected string, t Tester) {
-	actual := fmt.Sprint(a.actual)
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	actual := string(a.actual)
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		ac := []rune(actual)

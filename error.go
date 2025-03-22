@@ -1,10 +1,33 @@
 package expect
 
-import "strings"
+import (
+	"strings"
+)
 
-// Error creates an error assertion.
-func Error(value error) ErrorType {
-	return ErrorType{actual: value}
+// Error creates an error assertion. This considers the last error it finds in the supplied parameters.
+// All other parameters are ignored.
+func Error(value any, other ...any) ErrorType {
+	foundNil := false
+
+	for i := len(other) - 1; i >= 0; i-- {
+		if other[i] == nil {
+			foundNil = true
+		} else if err, ok := other[i].(error); ok {
+			return ErrorType{actual: err}
+		}
+	}
+
+	if value == nil {
+		foundNil = true
+	} else if err, ok := value.(error); ok {
+		return ErrorType{actual: err}
+	}
+
+	if foundNil {
+		return ErrorType{}
+	}
+
+	panic("No parameter was an error.")
 }
 
 // Info adds a description of the assertion to be included in any error message.

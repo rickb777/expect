@@ -26,8 +26,11 @@ var DefaultOptions = func() gocmp.Options {
 	return gocmp.Options{cmpopts.EquateApprox(ApproximateFloatFraction, 0), cmpopts.EquateEmpty()}
 }
 
-// Any creates an assertion for deep value comparison. This uses [cmp.Equal] so the manner of
-// comparison can be tweaked using that API - see also [AnyType.Using]
+// Any creates an assertion for deep value comparison of any type. This is very flexible but only
+// provides methods to determine whether a value is equal (or not equal) to what's expected
+// (see [AnyType.ToBe] and [AnyType.ToEqual]).
+//
+// This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [AnyType.Using]
 func Any(value any, other ...any) AnyType {
 	return AnyType{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
 }

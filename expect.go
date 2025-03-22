@@ -45,32 +45,37 @@ type assertion struct {
 	not   bool
 }
 
+// AnyType is used for equality assertions for any type.
 type AnyType struct {
 	opts   gocmp.Options
 	actual any
 	assertion
 }
 
+// BoolType is used for assertions about bools.
 type BoolType[B ~bool] struct {
 	actual B
 	assertion
 }
 
+// OrderedType is used for assertions about numbers and other ordered types.
 type OrderedType[O cmp.Ordered] struct {
 	actual O
 	assertion
 }
 
 type Stringy interface {
-	~string
+	~string | []byte | []rune
 }
 
+// StringType is used for assertions about strings.
 type StringType[S Stringy] struct {
 	actual S
 	assertion
 	trim int
 }
 
+// ErrorType is used for assertions about errors.
 type ErrorType struct {
 	actual error
 	assertion
