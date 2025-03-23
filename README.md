@@ -17,25 +17,25 @@
 
 There are **seven primary categories**, each introduce by a function:
 
-### [Any](https://pkg.go.dev/github.com/rickb777/expect#Any)
+### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...)
 This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below.
 
-### [String](https://pkg.go.dev/github.com/rickb777/expect#String)
+### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
 
-### [Number](https://pkg.go.dev/github.com/rickb777/expect#Number)
+### expect.[Number](https://pkg.go.dev/github.com/rickb777/expect#Number)(actual ...)
 This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type.
 
-### [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)
+### expect.[Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)(actual ...)
 This compares `bool` and any subclass.
 
-### [Map](https://pkg.go.dev/github.com/rickb777/expect#Map)
+### expect.[Map](https://pkg.go.dev/github.com/rickb777/expect#Map)(actual ...)
 This compares `map[K]V` where the map key `K` is a comparable type.
 
-### [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)
+### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
 This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices.
 
-### [Error](https://pkg.go.dev/github.com/rickb777/expect#Error)
+### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
 This compares `error` only.
 
 ## Application
@@ -50,9 +50,9 @@ Note that **Error** is different - it considers the *last* non-nil argument as i
 
 All categories include these methods
 
- * `Info(...)` method that provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
- * `Not()` method that inverts the assertion.
- * `ToBe(t, expected)` method that **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead).
+ * `Info(...)` method provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
+ * `Not()` method inverts the assertion.
+ * `ToBe(t, expected)` method **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead).
 
 Most categories also have
 
@@ -66,8 +66,12 @@ There are various other methods too
  * **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
  * **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
  * **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
- * **Slice** has `ToContainAll(t, substring)` and `ToContainAny(t, substring)`
+ * **Slice** has `ToContainAll(t, ...)` and `ToContainAny(t, ...)`
  * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
+
+### Size
+
+**Slice** and **Map** have a `ToHaveLength(t, expectedLength)` method.
 
 ## Options
 
