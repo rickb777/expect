@@ -2,6 +2,7 @@ package expect_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 )
 
@@ -37,6 +38,16 @@ func (c *capture) shouldHaveCalledErrorf(t *testing.T, message string) {
 	c.reset()
 }
 
+func (c *capture) shouldHaveCalledErrorfRE(t *testing.T, message string) {
+	t.Helper()
+	if c.errorfCalls == 0 {
+		t.Errorf("failed to call Errorf (and %d calls to Fatalf)", c.fatalfCalls)
+	} else if !regexp.MustCompile(message).MatchString(c.message) {
+		t.Error(c.message)
+	}
+	c.reset()
+}
+
 func (c *capture) shouldHaveCalledFatalf(t *testing.T, message string) {
 	t.Helper()
 	if c.fatalfCalls == 0 {
@@ -47,14 +58,24 @@ func (c *capture) shouldHaveCalledFatalf(t *testing.T, message string) {
 	c.reset()
 }
 
+func (c *capture) shouldHaveCalledFatalfRE(t *testing.T, message string) {
+	t.Helper()
+	if c.fatalfCalls == 0 {
+		t.Errorf("failed to call Fatalf (and %d calls to Errorf)", c.errorfCalls)
+	} else if !regexp.MustCompile(message).MatchString(c.message) {
+		t.Error(c.message)
+	}
+	c.reset()
+}
+
 func (c *capture) Helper() {}
 
 func (c *capture) Errorf(message string, args ...any) {
-	c.errorfCalls++
 	c.message = fmt.Sprintf(message, args...)
+	c.errorfCalls++
 }
 
 func (c *capture) Fatalf(message string, args ...any) {
-	c.fatalfCalls++
 	c.message = fmt.Sprintf(message, args...)
+	c.fatalfCalls++
 }

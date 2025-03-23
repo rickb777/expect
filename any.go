@@ -60,6 +60,8 @@ func (a AnyType[T]) Not() AnyType[T] {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBe asserts that the actual and expected data have the same values and types.
 // The tester is normally [*testing.T].
 func (a AnyType[T]) ToBe(t Tester, expected T) {
@@ -70,6 +72,8 @@ func (a AnyType[T]) ToBe(t Tester, expected T) {
 	a.toEqual(t, "be", expected)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToEqual asserts that the actual and expected data have the same values and similar types.
 // The tester is normally [*testing.T].
 func (a AnyType[T]) ToEqual(t Tester, expected any) {
@@ -79,6 +83,8 @@ func (a AnyType[T]) ToEqual(t Tester, expected any) {
 
 	a.toEqual(t, "equal", expected)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 func (a AnyType[T]) toEqual(t Tester, what string, expected any) {
 	if h, ok := t.(helper); ok {

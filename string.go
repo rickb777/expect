@@ -43,6 +43,8 @@ func (a StringType[S]) Not() StringType[S] {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToContain asserts that the actual string contains the substring.
 // The tester is normally [*testing.T].
 func (a StringType[S]) ToContain(substring S, t Tester) {
@@ -74,6 +76,8 @@ func (a StringType[S]) ToBe(t Tester, expected S) {
 	a.toEqual(t, "to be", string(expected))
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToEqual asserts that the actual and expected strings have the same values and similar types.
 // Unlike [StringType.ToBe], the concrete type may differ.
 // The tester is normally [*testing.T].
@@ -84,6 +88,8 @@ func (a StringType[S]) ToEqual(t Tester, expected string) {
 
 	a.toEqual(t, "to equal", expected)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 func (a StringType[S]) toEqual(t Tester, what, expected string) {
 	if h, ok := t.(helper); ok {

@@ -15,12 +15,13 @@
 
 ## Assertion Categories
 
-There are **six primary categories**, each introduce by a function:
+There are **seven primary categories**, each introduce by a function:
 
- * [Any](https://pkg.go.dev/github.com/rickb777/expect#Any) - expecially structs, maps, arrays, slices as handled by [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp); this only provides equality tests
+ * [Any](https://pkg.go.dev/github.com/rickb777/expect#Any) - expecially structs, maps, arrays, slices as handled by [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp); although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below
  * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) - `bool` and any subclass
  * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) `error` only
  * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) - `int` and all the signed/unsigned int and float length variants, plus all their subtypes (also includes  `string` because it is also is an ordered type); this provides inequality comparisons. 
+ * [Map](https://pkg.go.dev/github.com/rickb777/expect#Map) - `[K]V` where `K` is a comparable type
  * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) - `[]T` where `T` is a comparable type
  * [String](https://pkg.go.dev/github.com/rickb777/expect#String) - `string` and any subclass (more informative than `Any`)
 
@@ -43,6 +44,7 @@ There are various other methods too
  * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) has `ToBeTrue(t)` and `ToBeFalse(t)`
  * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) has `ToBeNil(t)` and `ToHaveOccurred(t)`
  * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) has `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)`
+ * [Map](https://pkg.go.dev/github.com/rickb777/expect#Map) has `ToContain(t, key, [value])`
  * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) has `ToContain{All|Any}(t, substring)`
  * [String](https://pkg.go.dev/github.com/rickb777/expect#String) has `ToContain(t, substring)`
 

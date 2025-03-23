@@ -28,17 +28,23 @@ func (a BoolType[B]) Not() BoolType[B] {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBeTrue asserts that the actual value is true.
 // The tester is normally [*testing.B].
 func (a BoolType[B]) ToBeTrue(t Tester) {
 	a.ToBe(t, true)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBeFalse asserts that the actual value is true.
 // The tester is normally [*testing.B].
 func (a BoolType[B]) ToBeFalse(t Tester) {
 	a.ToBe(t, false)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected items have the same values and types.
 // The tester is normally [*testing.B].
@@ -49,6 +55,8 @@ func (a BoolType[B]) ToBe(t Tester, expected B) {
 
 	a.ToEqual(t, bool(expected))
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToEqual asserts that the actual and expected items have the same values and similar types.
 // The tester is normally [*testing.B].

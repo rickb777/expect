@@ -59,6 +59,13 @@ type BoolType[B ~bool] struct {
 	assertion
 }
 
+// MapType is used for assertions about maps.
+type MapType[K comparable, V any] struct {
+	opts   gocmp.Options
+	actual map[K]V
+	assertion
+}
+
 // OrderedType is used for assertions about numbers and other ordered types.
 type OrderedType[O cmp.Ordered] struct {
 	actual O
@@ -137,6 +144,17 @@ func findFirstDiff[T comparable](a, b []T) int {
 		}
 	}
 	return math.MinInt
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func sliceContains[T comparable](list []T, wanted T) bool {
+	for _, v := range list {
+		if v == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 //-------------------------------------------------------------------------------------------------

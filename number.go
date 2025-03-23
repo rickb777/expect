@@ -31,6 +31,8 @@ func (a OrderedType[O]) Not() OrderedType[O] {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBe asserts that the actual and expected numbers have the same values and types.
 // The tester is normally [*testing.T].
 func (a OrderedType[O]) ToBe(t Tester, expected O) {
@@ -52,6 +54,8 @@ func (a OrderedType[O]) ToBe(t Tester, expected O) {
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToBeGreaterThan asserts that the actual values is greater than the threshold value.
 // The tester is normally [*testing.T].
@@ -75,6 +79,8 @@ func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBeLessThan asserts that the actual values is less than the threshold value.
 // The tester is normally [*testing.T].
 func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
@@ -97,6 +103,8 @@ func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBeLessThanOrEqualTo asserts that the actual values is less than or equal to the threshold value.
 // The tester is normally [*testing.T].
 func (a OrderedType[O]) ToBeLessThanOrEqualTo(t Tester, threshold O) {
@@ -118,6 +126,8 @@ func (a OrderedType[O]) ToBeLessThanOrEqualTo(t Tester, threshold O) {
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToBeGreaterThanOrEqualTo asserts that the actual values is greater than or equal to the threshold value.
 // The tester is normally [*testing.T].

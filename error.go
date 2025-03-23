@@ -49,17 +49,23 @@ func (a ErrorType) Not() ErrorType {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBeNil asserts that the error did not occur.
 // The tester is normally [*testing.T].
 func (a ErrorType) ToBeNil(t Tester) {
 	a.toHaveOccurred(t, !a.not)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToHaveOccurred asserts that the error occurred.
 // The tester is normally [*testing.T].
 func (a ErrorType) ToHaveOccurred(t Tester) {
 	a.toHaveOccurred(t, a.not)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToHaveOccurred asserts that the error occurred.
 func (a ErrorType) toHaveOccurred(t Tester, not bool) {
@@ -78,6 +84,8 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 		}
 	}
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the error occurred and its message contains the substring.
 // The tester is normally [*testing.T].

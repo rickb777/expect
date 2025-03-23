@@ -35,9 +35,11 @@ func (a SliceType[T]) Not() SliceType[T] {
 	return a
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToBe asserts that the actual and expected slices have the same values and types.
 // The tester is normally [*testing.T].
-func (a SliceType[T]) ToBe(t Tester, expected []T) {
+func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -53,6 +55,8 @@ func (a SliceType[T]) ToBe(t Tester, expected []T) {
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToHaveLength asserts that the slice has the expected length.
 // The tester is normally [*testing.T].
@@ -70,6 +74,8 @@ func (a SliceType[T]) ToHaveLength(t Tester, expected int) {
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
+
+//-------------------------------------------------------------------------------------------------
 
 // ToContainAll asserts that the slice contains all of the values listed.
 // The tester is normally [*testing.T].
@@ -107,6 +113,8 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
+//-------------------------------------------------------------------------------------------------
+
 // ToContainAny asserts that the slice contains any of the values listed.
 // The tester is normally [*testing.T].
 func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
@@ -143,13 +151,4 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
-}
-
-func sliceContains[T comparable](list []T, wanted T) bool {
-	for _, v := range list {
-		if v == wanted {
-			return true
-		}
-	}
-	return false
 }

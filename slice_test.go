@@ -15,10 +15,10 @@ func TestSliceToBe(t *testing.T) {
 	c := &capture{}
 
 	var s = MyBytes("abcdef")
-	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, MyBytes("abcdef"))
+	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, MyBytes("abcdef")...)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Slice(s).I("MyBytes").ToBe(c, nil)
+	expect.Slice(s).I("MyBytes").ToBe(c, MyBytes(nil)...)
 	c.shouldHaveCalledErrorf(t, "Expected MyBytes []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
 		"  []byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
@@ -26,7 +26,7 @@ func TestSliceToBe(t *testing.T) {
 		"  []\n"+
 		"  []byte(nil)\n")
 
-	expect.Slice(s).ToBe(c, MyBytes("abcµdef"))
+	expect.Slice(s).ToBe(c, MyBytes("abcµdef")...)
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
 		"  []byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
@@ -40,10 +40,10 @@ func TestSliceNotToBe(t *testing.T) {
 	c := &capture{}
 
 	var s = MyBytes("abcdef")
-	expect.Slice(s).Not().ToBe(c, MyBytes("abcdeg"))
+	expect.Slice(s).Not().ToBe(c, MyBytes("abcdeg")...)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Slice(s).Not().ToBe(c, s)
+	expect.Slice(s).Not().ToBe(c, s...)
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
 		"  []byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
