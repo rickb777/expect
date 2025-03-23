@@ -17,13 +17,26 @@
 
 There are **seven primary categories**, each introduce by a function:
 
- * [Any](https://pkg.go.dev/github.com/rickb777/expect#Any) - This compares any types, but is especially structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below
- * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) - This compares `bool` and any subclass.
- * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) - This compares `error` only.
- * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) - This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type.
- * [Map](https://pkg.go.dev/github.com/rickb777/expect#Map) - This compares `map[K]V` where the map key `K` is a comparable type.
- * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) - This compares `[]T` where `T` is a comparable type.
- * [String](https://pkg.go.dev/github.com/rickb777/expect#String) - This compares `string` and any subclass. It is more informative than `Any`.
+### [Any](https://pkg.go.dev/github.com/rickb777/expect#Any)
+This compares any types, but is especially structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below
+
+### [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)
+This compares `bool` and any subclass.
+
+### [Error](https://pkg.go.dev/github.com/rickb777/expect#Error)
+This compares `error` only.
+
+### [Number](https://pkg.go.dev/github.com/rickb777/expect#Number)
+This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type.
+
+### [Map](https://pkg.go.dev/github.com/rickb777/expect#Map)
+This compares `map[K]V` where the map key `K` is a comparable type.
+
+### [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)
+This compares `[]T` where `T` is a comparable type.
+
+### [String](https://pkg.go.dev/github.com/rickb777/expect#String)
+This compares `string` and any subclass. It is more informative than `Any`.
 
 These functions all take the actual value under test as their input. Other parameters can also be passed in; this allows the input to be a function with a multi-value return, for example. In this case, if any of the other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) is subtly different - it considers the *last* non-nil argument as its actual input.
 
