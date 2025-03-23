@@ -17,14 +17,14 @@ func Error(value any, other ...any) ErrorType {
 		}
 	}
 
-	if value == nil {
-		foundNil = true
-	} else if err, ok := value.(error); ok {
-		return ErrorType{actual: err}
-	}
-
 	if foundNil {
 		return ErrorType{}
+	}
+
+	if value == nil {
+		return ErrorType{}
+	} else if err, ok := value.(error); ok {
+		return ErrorType{actual: err}
 	}
 
 	panic("No parameter was an error.")
