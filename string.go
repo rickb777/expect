@@ -18,16 +18,16 @@ func String[S Stringy](value S, other ...any) StringType[S] {
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// If present, the third parameter should be some information such as a string or a number. If this
+// The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a StringType[S]) Info(info ...any) StringType[S] {
-	a.info = makeInfo(info...)
+func (a StringType[S]) Info(info any, other ...any) StringType[S] {
+	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a StringType[S]) I(info ...any) StringType[S] {
-	return a.Info(info...)
+func (a StringType[S]) I(info any, other ...any) StringType[S] {
+	return a.Info(info, other...)
 }
 
 // Trim shortens the error message for very long strings.
@@ -55,7 +55,8 @@ func (a StringType[S]) ToContain(substring S, t Tester) {
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n", preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
+		t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n",
+			preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
@@ -65,26 +66,26 @@ func (a StringType[S]) ToContain(substring S, t Tester) {
 
 // ToBe asserts that the actual and expected strings have the same values and types.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToBe(expected S, t Tester) {
+func (a StringType[S]) ToBe(t Tester, expected S) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual("to be", string(expected), t)
+	a.toEqual(t, "to be", string(expected))
 }
 
-// ToEqual asserts that the actual and expected strings have the same values.
+// ToEqual asserts that the actual and expected strings have the same values and similar types.
 // Unlike [StringType.ToBe], the concrete type may differ.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToEqual(expected string, t Tester) {
+func (a StringType[S]) ToEqual(t Tester, expected string) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual("to equal", expected, t)
+	a.toEqual(t, "to equal", expected)
 }
 
-func (a StringType[S]) toEqual(what, expected string, t Tester) {
+func (a StringType[S]) toEqual(t Tester, what, expected string) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -95,38 +96,30 @@ func (a StringType[S]) toEqual(what, expected string, t Tester) {
 		ac := []rune(actual)
 		ex := []rune(expected)
 		diff := findFirstDiff(ac, ex)
-		pointer := diff
+		pointer := diff + 1
 		if diff > 100 || (100 > a.trim && a.trim > 0) {
 			rem := 70
 			if 70 > a.trim && a.trim > 0 {
 				rem = a.trim
 				a.trim = 0
 			}
-			chop := diff - rem
+			chop := (diff - rem) + 1
 			actual = "…" + string(ac[chop:])
 			expected = "…" + string(ex[chop:])
 			pointer = rem + 1
 		}
-		t.Errorf("Expected%s ―――\n  %s\n%s\n  %s\n%s", preS(a.info),
-			trim(actual, a.trim), arrowMarker(notS(a.not), what, pointer), trim(expected, a.trim), firstDiff(diff))
+		t.Errorf("Expected%s ―――\n  %s\n%s\n  %s\n%s",
+			preS(a.info),
+			trim(actual, a.trim),
+			arrowMarker(notS(a.not), what, pointer),
+			trim(expected, a.trim),
+			firstDifferenceInfo(diff))
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
 //=================================================================================================
-
-func findFirstDiff(a, b []rune) int {
-	shortest := min(len(a), len(b))
-	for i := 0; i < shortest; i++ {
-		ra := a[i]
-		rb := b[i]
-		if ra != rb {
-			return i + 1
-		}
-	}
-	return -1
-}
 
 func arrowMarker(not, label string, i int) string {
 	indicator := fmt.Sprintf("――― %s%s ―――", not, label)
@@ -138,11 +131,11 @@ func arrowMarker(not, label string, i int) string {
 	return indicator + strings.Repeat(" ", nSpaces) + "↕"
 }
 
-func firstDiff(i int) string {
+func firstDifferenceInfo(i int) string {
 	if i < 0 {
 		return ""
 	}
-	return fmt.Sprintf("――― the first difference is at character %d\n", i)
+	return fmt.Sprintf("――― the first difference is at index %d\n", i)
 }
 
 func trim(s string, trim int) string {

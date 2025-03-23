@@ -13,16 +13,16 @@ func Number[O cmp.Ordered](value O, other ...any) OrderedType[O] {
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// If present, the third parameter should be some information such as a string or a number. If this
+// The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a OrderedType[O]) Info(info ...any) OrderedType[O] {
-	a.info = makeInfo(info...)
+func (a OrderedType[O]) Info(info any, other ...any) OrderedType[O] {
+	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a OrderedType[O]) I(info ...any) OrderedType[O] {
-	return a.Info(info...)
+func (a OrderedType[O]) I(info any, other ...any) OrderedType[O] {
+	return a.Info(info, other...)
 }
 
 // Not inverts the assertion.
@@ -31,25 +31,22 @@ func (a OrderedType[O]) Not() OrderedType[O] {
 	return a
 }
 
-// ToEqual is a synonym for ToBe.
-func (a OrderedType[O]) ToEqual(expected O, t Tester) {
-	a.ToBe(expected, t)
-}
-
 // ToBe asserts that the actual and expected numbers have the same values and types.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBe(expected O, t Tester) {
+func (a OrderedType[O]) ToBe(t Tester, expected O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if a.not {
 		if a.actual == expected {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, expected)
 		}
 	} else {
 		if a.actual != expected {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be ―――\n  %+v\n", preS(a.info), a.actual, a.actual, expected)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, expected)
 		}
 	}
 
@@ -58,18 +55,20 @@ func (a OrderedType[O]) ToBe(expected O, t Tester) {
 
 // ToBeGreaterThan asserts that the actual values is greater than the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeGreaterThan(threshold O, t Tester) {
+func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if a.not {
 		if a.actual > threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	} else {
 		if a.actual <= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	}
 
@@ -78,18 +77,20 @@ func (a OrderedType[O]) ToBeGreaterThan(threshold O, t Tester) {
 
 // ToBeLessThan asserts that the actual values is less than the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeLessThan(threshold O, t Tester) {
+func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if a.not {
 		if a.actual < threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	} else {
 		if a.actual >= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	}
 
@@ -98,18 +99,20 @@ func (a OrderedType[O]) ToBeLessThan(threshold O, t Tester) {
 
 // ToBeLessThanOrEqualTo asserts that the actual values is less than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeLessThanOrEqualTo(threshold O, t Tester) {
+func (a OrderedType[O]) ToBeLessThanOrEqualTo(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if a.not {
 		if a.actual <= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than or equal to ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	} else {
 		if a.actual > threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than or equal to ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	}
 
@@ -118,18 +121,20 @@ func (a OrderedType[O]) ToBeLessThanOrEqualTo(threshold O, t Tester) {
 
 // ToBeGreaterThanOrEqualTo asserts that the actual values is greater than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeGreaterThanOrEqualTo(threshold O, t Tester) {
+func (a OrderedType[O]) ToBeGreaterThanOrEqualTo(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if a.not {
 		if a.actual >= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than or equal to ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	} else {
 		if a.actual < threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than or equal to ―――\n  %+v\n", preS(a.info), a.actual, a.actual, threshold)
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than or equal to ―――\n  %+v\n",
+				preS(a.info), a.actual, a.actual, threshold)
 		}
 	}
 

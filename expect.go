@@ -5,6 +5,7 @@ import (
 	"fmt"
 	gocmp "github.com/google/go-cmp/cmp"
 	"log"
+	"math"
 )
 
 // Tester reports test errors and failures. Notably, [testing.T] implements this interface.
@@ -46,7 +47,7 @@ type assertion struct {
 }
 
 // AnyType is used for equality assertions for any type.
-type AnyType struct {
+type AnyType[T any] struct {
 	opts   gocmp.Options
 	actual any
 	assertion
@@ -61,6 +62,13 @@ type BoolType[B ~bool] struct {
 // OrderedType is used for assertions about numbers and other ordered types.
 type OrderedType[O cmp.Ordered] struct {
 	actual O
+	assertion
+}
+
+// SliceType is used for assertions about slices.
+type SliceType[T comparable] struct {
+	opts   gocmp.Options
+	actual []T
 	assertion
 }
 
@@ -83,13 +91,11 @@ type ErrorType struct {
 
 //=================================================================================================
 
-func makeInfo(info ...any) string {
-	if len(info) > 1 {
-		return fmt.Sprintf(info[0].(string), info[1:]...)
-	} else if len(info) > 0 {
-		return fmt.Sprintf("%v", info[0])
+func makeInfo(info any, other ...any) string {
+	if len(other) > 1 {
+		return fmt.Sprintf(info.(string), other...)
 	}
-	return ""
+	return fmt.Sprintf("%v", info)
 }
 
 func prefix(pfx, s string) string {
@@ -109,6 +115,31 @@ func notS(not bool) string {
 	}
 	return ""
 }
+
+func verbatim(v any) string {
+	a := fmt.Sprintf("  %+v\n", v)
+	b := fmt.Sprintf("  %#v\n", v)
+	if a == b {
+		return blank(a)
+	}
+	return a + b
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func findFirstDiff[T comparable](a, b []T) int {
+	shortest := min(len(a), len(b))
+	for i := 0; i < shortest; i++ {
+		ra := a[i]
+		rb := b[i]
+		if ra != rb {
+			return i
+		}
+	}
+	return math.MinInt
+}
+
+//-------------------------------------------------------------------------------------------------
 
 func allOtherArgumentsMustBeNil(t Tester, info string, other ...any) {
 	for i, o := range other {

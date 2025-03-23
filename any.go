@@ -1,7 +1,6 @@
 package expect
 
 import (
-	"fmt"
 	gocmp "github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"reflect"
@@ -31,57 +30,57 @@ var DefaultOptions = func() gocmp.Options {
 // (see [AnyType.ToBe] and [AnyType.ToEqual]).
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [AnyType.Using]
-func Any(value any, other ...any) AnyType {
-	return AnyType{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
+func Any[T any](value T, other ...any) AnyType[T] {
+	return AnyType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// If present, the third parameter should be some information such as a string or a number. If this
+// The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a AnyType) Info(info ...any) AnyType {
-	a.info = makeInfo(info...)
+func (a AnyType[T]) Info(info any, other ...any) AnyType[T] {
+	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a AnyType) I(info ...any) AnyType {
-	return a.Info(info...)
+func (a AnyType[T]) I(info any, other ...any) AnyType[T] {
+	return a.Info(info, other...)
 }
 
 // Using replaces the default comparison options with those specified here.
 // You can also set [DefaultOptions] instead.
-func (a AnyType) Using(opt ...gocmp.Option) AnyType {
+func (a AnyType[T]) Using(opt ...gocmp.Option) AnyType[T] {
 	a.opts = opt
 	return a
 }
 
 // Not inverts the assertion.
-func (a AnyType) Not() AnyType {
+func (a AnyType[T]) Not() AnyType[T] {
 	a.not = !a.not
 	return a
 }
 
 // ToBe asserts that the actual and expected data have the same values and types.
 // The tester is normally [*testing.T].
-func (a AnyType) ToBe(expected any, t Tester) {
+func (a AnyType[T]) ToBe(t Tester, expected T) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	match := gocmp.Equal(a.actual, expected, a.opts)
-
-	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s %T ―――\n%s――― %sto equal ―――\n%s", preS(a.info), a.actual, verbatim(a.actual), notS(a.not), verbatim(expected))
-	}
-
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.toEqual(t, "be", expected)
 }
 
-// ToEqual asserts that the actual and expected data have the same underlying values, but the
-// concrete types may differ. For example, an int and a uint with the same numeric value are
-// considered equal.
+// ToEqual asserts that the actual and expected data have the same values and similar types.
 // The tester is normally [*testing.T].
-func (a AnyType) ToEqual(expected any, t Tester) {
+func (a AnyType[T]) ToEqual(t Tester, expected any) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.toEqual(t, "equal", expected)
+}
+
+func (a AnyType[T]) toEqual(t Tester, what string, expected any) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -97,20 +96,9 @@ func (a AnyType) ToEqual(expected any, t Tester) {
 	match := gocmp.Equal(convertedActual, expected, a.opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s %T ―――\n%s――― %sto be equivalent to %T ―――\n%s", preS(a.info),
-			a.actual, verbatim(a.actual), notS(a.not), expected, verbatim(expected))
+		t.Errorf("Expected%s %T ―――\n%s――― %sto %s %T ―――\n%s", preS(a.info),
+			a.actual, verbatim(a.actual), notS(a.not), what, expected, verbatim(expected))
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
-}
-
-//=================================================================================================
-
-func verbatim(v any) string {
-	a := fmt.Sprintf("  %+v\n", v)
-	b := fmt.Sprintf("  %#v\n", v)
-	if a == b {
-		return blank(a)
-	}
-	return a + b
 }

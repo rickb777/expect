@@ -37,7 +37,7 @@ func TestErrorToBeNil(t *testing.T) {
 func TestErrorToHaveOccurred(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(e1).I("xyz").ToHaveOccurred(c)
+	expect.Error(1, 2, 3, e1).I("xyz").ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(nil).I("xyz").ToHaveOccurred(c)
@@ -67,9 +67,12 @@ func TestErrorNotToHaveOccurred(t *testing.T) {
 func TestErrorToContain(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(e1).I("xyz").ToContain("something bad happened", c)
+	expect.Error(e1).I("xyz").ToContain(c, "something bad happened")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToContain("missing", c)
+	expect.Error(e1).I("xyz").ToContain(c, "missing")
 	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to contain ―――\n  missing\n")
+
+	expect.Error(0, nil).ToContain(c, "something bad happened")
+	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")
 }

@@ -13,37 +13,43 @@
  * Type safety thanks to Go generics
  * No dependencies other than `github.com/google/go-cmp`
 
-## Five Assertion Categories
+## Assertion Categories
 
-There are five primary categories:
+There are **six primary categories**, each introduce by a function:
 
- * *Strings* - `string` and any subclass
- * *Numbers* - all ordered types such as `int`, `float32`, plus all the signed/unsigned int and float length variants, plus all their subtypes, plus `string` and any subclass
- * *Bools* - `bool` and any subclass
- * *Errors* - `error` only
- * *Everything else* - structs, maps, arrays, slices as handled by [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp)
+ * [Any](https://pkg.go.dev/github.com/rickb777/expect#Any) - expecially structs, maps, arrays, slices as handled by [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp); this only provides equality tests
+ * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) - `bool` and any subclass
+ * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) `error` only
+ * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) - `int` and all the signed/unsigned int and float length variants, plus all their subtypes (also includes  `string` because it is also is an ordered type); this provides inequality comparisons. 
+ * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) - `[]T` where `T` is a comparable type
+ * [String](https://pkg.go.dev/github.com/rickb777/expect#String) - `string` and any subclass (more informative than `Any`)
 
-The five kinds of assertion are introduced by the five functions
-[Any](https://pkg.go.dev/github.com/rickb777/expect#Any),
-[Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool),
-[Error](https://pkg.go.dev/github.com/rickb777/expect#Error),
-[Number](https://pkg.go.dev/github.com/rickb777/expect#Number), and
-[String](https://pkg.go.dev/github.com/rickb777/expect#String).
 These functions all take the actual value under test as their input. Other parameters can also be passed in; this allows the input to be a function with a multi-value return, for example. In this case, if any of the other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) is subtly different - it considers the *last* non-nil argument as its actual input.
 
-All five of these have 
+All of these have 
 
- * a `ToBe(expected, t)` method that tests for equality (except for `Error`, which has `ToBeNil(t)` instead)
- * a `ToEqual(expected,t )` method that also tests for equality, ignoring whether the concrete types match or not (`Error` doesn't have this though)
+ * a `ToBe(t, expected)` method that tests for equality (except for `Error`, which has `ToBeNil(t)` instead)
  * a `Not()` method that inverts the assertion
  * an `Info(...)` method that provides information in any failure message arising. There is a terse synonym `I(...)` too.
 
-All of the assertion methods listed above and below include a `t Tester` (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)) parameter; normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+Most of them have
+
+ * a `ToEqual(t, expected)` method that also tests for equality *ignoring* whether the concrete types match or not (`Error`, `Number` and `Slice` don't have this though)
+
+All of the assertion methods `ToXxxx` listed above and below include a `t Tester` (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)) parameter; normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
 There are various other methods too
 
  * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) has `ToBeTrue(t)` and `ToBeFalse(t)`
  * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) has `ToBeNil(t)` and `ToHaveOccurred(t)`
- * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) has `ToBeGreaterThan[OrEqualTo](threshold, t)` and `ToBeLessThan[OrEqualTo](threshold, t)`
- * [String](https://pkg.go.dev/github.com/rickb777/expect#String) has `ToContain(substring, t)`
+ * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) has `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)`
+ * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) has `ToContain{All|Any}(t, substring)`
+ * [String](https://pkg.go.dev/github.com/rickb777/expect#String) has `ToContain(t, substring)`
 
+## Status
+
+This is not yet production-ready.
+
+## History
+
+This API was mostly inspired by [Gomega](https://github.com/onsi/gomega), which had some great ideas but is overly complex to use.

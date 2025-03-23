@@ -10,16 +10,16 @@ func Bool[B ~bool](value B, other ...any) BoolType[B] {
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// If present, the third parameter should be some information such as a string or a number. If this
+// The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a BoolType[B]) Info(info ...any) BoolType[B] {
-	a.info = makeInfo(info...)
+func (a BoolType[B]) Info(info any, other ...any) BoolType[B] {
+	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a BoolType[B]) I(info ...any) BoolType[B] {
-	return a.Info(info...)
+func (a BoolType[B]) I(info any, other ...any) BoolType[B] {
+	return a.Info(info, other...)
 }
 
 // Not inverts the assertion.
@@ -31,28 +31,28 @@ func (a BoolType[B]) Not() BoolType[B] {
 // ToBeTrue asserts that the actual value is true.
 // The tester is normally [*testing.B].
 func (a BoolType[B]) ToBeTrue(t Tester) {
-	a.ToBe(true, t)
+	a.ToBe(t, true)
 }
 
 // ToBeFalse asserts that the actual value is true.
 // The tester is normally [*testing.B].
 func (a BoolType[B]) ToBeFalse(t Tester) {
-	a.ToBe(false, t)
+	a.ToBe(t, false)
 }
 
-// ToBe asserts that the actual and expected bools have the same values and types.
+// ToBe asserts that the actual and expected items have the same values and types.
 // The tester is normally [*testing.B].
-func (a BoolType[B]) ToBe(expected B, t Tester) {
+func (a BoolType[B]) ToBe(t Tester, expected B) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.ToEqual(bool(expected), t)
+	a.ToEqual(t, bool(expected))
 }
 
-// ToEqual asserts that the actual value is as expected.
+// ToEqual asserts that the actual and expected items have the same values and similar types.
 // The tester is normally [*testing.B].
-func (a BoolType[B]) ToEqual(expected bool, t Tester) {
+func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
