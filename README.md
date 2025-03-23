@@ -23,11 +23,11 @@ This compares any types, but is especially structs, maps, arrays, slices. Althou
 ### [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)
 This compares `bool` and any subclass.
 
-### [Error](https://pkg.go.dev/github.com/rickb777/expect#Error)
-This compares `error` only.
-
 ### [Number](https://pkg.go.dev/github.com/rickb777/expect#Number)
 This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type.
+
+### [String](https://pkg.go.dev/github.com/rickb777/expect#String)
+This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
 
 ### [Map](https://pkg.go.dev/github.com/rickb777/expect#Map)
 This compares `map[K]V` where the map key `K` is a comparable type.
@@ -35,33 +35,43 @@ This compares `map[K]V` where the map key `K` is a comparable type.
 ### [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)
 This compares `[]T` where `T` is a comparable type.
 
-### [String](https://pkg.go.dev/github.com/rickb777/expect#String)
-This compares `string` and any subclass. It is more informative than `Any`.
+### [Error](https://pkg.go.dev/github.com/rickb777/expect#Error)
+This compares `error` only.
 
-These functions all take the actual value under test as their input. Other parameters can also be passed in; this allows the input to be a function with a multi-value return, for example. In this case, if any of the other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) is subtly different - it considers the *last* non-nil argument as its actual input.
+## Application
 
-All of these include these methods
+These functions all take the actual value under test as their input.
 
- * `ToBe(t, expected)` method that tests for equality (except for `Error`, which has `ToBeNil(t)` instead)
- * `Not()` method that inverts the assertion
+Other parameters can also be passed in; this allows the input to be a function with a multi-value return, for example. In this case, if any of the other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message.
+
+Note that [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) is subtly different - it considers the *last* non-nil argument as its actual input.
+
+## Methods
+
+All categories include these methods
+
  * `Info(...)` method that provides information in any failure message arising. There is a terse synonym `I(...)` too.
+ * `Not()` method that inverts the assertion
+ * `ToBe(t, expected)` method that **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead)
 
-Most of them have
+Most categories have
 
- * a `ToEqual(t, expected)` method that also tests for equality *ignoring* whether the concrete types match or not (`Error`, `Number` and `Slice` don't have this though)
+ * `ToEqual(t, expected)` method that also tests for equality ignoring whether the concrete types match or not (**Error**, **Number** and **Slice** don't have this though)
 
 All of the assertion methods `ToXxxx` listed above and below include a `t Tester` (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)) parameter; normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
 There are various other methods too
 
- * [Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool) has `ToBeTrue(t)` and `ToBeFalse(t)`
- * [Error](https://pkg.go.dev/github.com/rickb777/expect#Error) has `ToBeNil(t)` and `ToHaveOccurred(t)`
- * [Number](https://pkg.go.dev/github.com/rickb777/expect#Number) has `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)`
- * [Map](https://pkg.go.dev/github.com/rickb777/expect#Map) has `ToContain(t, key, [value])`
- * [Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice) has `ToContain{All|Any}(t, substring)`
- * [String](https://pkg.go.dev/github.com/rickb777/expect#String) has `ToContain(t, substring)`
+ * **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
+ * **Number** has `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)`
+ * **String** has `ToContain(t, substring)`
+ * **Map** has `ToContain(t, key, [value])`
+ * **Slice** has `ToContain{All|Any}(t, substring)`
+ * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
 
-`Any`, `Map`, and `Slice` use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
+## Options
+
+**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
 
 ## Status
 
