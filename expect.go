@@ -160,6 +160,10 @@ func sliceContains[T comparable](list []T, wanted T) bool {
 //-------------------------------------------------------------------------------------------------
 
 func allOtherArgumentsMustBeNil(t Tester, info string, other ...any) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
 	for i, o := range other {
 		if o != nil {
 			v := "value"
