@@ -51,7 +51,7 @@ Note that **Error** is different - it considers the *last* non-nil argument as i
 All categories include these methods
 
  * `Info(...)` method provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
- * `Not()` method inverts the assertion.
+ * `Not()` method inverts the assertion defined by the `ToXxxx` method that follows it.
  * `ToBe(t, expected)` method **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead).
 
 Most categories also have

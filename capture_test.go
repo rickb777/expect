@@ -33,7 +33,7 @@ func (c *capture) shouldHaveCalledErrorf(t *testing.T, message string) {
 	if c.errorfCalls == 0 {
 		t.Errorf("failed to call Errorf (and %d calls to Fatalf)", c.fatalfCalls)
 	} else if c.message != message {
-		t.Error(c.message)
+		t.Errorf("%s\n―――%d―――\n%#v", c.message, len(c.message), []byte(c.message))
 	}
 	c.reset()
 }

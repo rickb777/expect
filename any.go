@@ -1,9 +1,11 @@
 package expect
 
 import (
+	"fmt"
 	gocmp "github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"reflect"
+	"strings"
 )
 
 // ApproximateFloatFraction provides an option that compares any (a, b float32) or (a, b float64)
@@ -69,7 +71,7 @@ func (a AnyType[T]) ToBe(t Tester, expected T) {
 		h.Helper()
 	}
 
-	a.toEqual(t, "be", expected)
+	a.toEqual(t, "be", a.actual, expected, true)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -81,30 +83,72 @@ func (a AnyType[T]) ToEqual(t Tester, expected any) {
 		h.Helper()
 	}
 
-	a.toEqual(t, "equal", expected)
-}
-
-//-------------------------------------------------------------------------------------------------
-
-func (a AnyType[T]) toEqual(t Tester, what string, expected any) {
-	if h, ok := t.(helper); ok {
-		h.Helper()
-	}
-
 	convertedActual := a.actual
+	sameType := true
 
 	if a.actual != nil &&
 		expected != nil &&
 		reflect.TypeOf(a.actual).ConvertibleTo(reflect.TypeOf(expected)) {
 		convertedActual = reflect.ValueOf(a.actual).Convert(reflect.TypeOf(expected)).Interface()
+		sameType = false
 	}
 
-	match := gocmp.Equal(convertedActual, expected, a.opts)
+	a.toEqual(t, "equal", convertedActual, expected, sameType)
+}
 
-	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s %T ―――\n%s――― %sto %s %T ―――\n%s", preS(a.info),
-			a.actual, verbatim(a.actual), notS(a.not), what, expected, verbatim(expected))
+//-------------------------------------------------------------------------------------------------
+
+func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameType bool) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	isStruct := reflect.TypeOf(a.actual).Kind() == reflect.Struct
+
+	opts := append(a.opts, allowUnexported(a.actual, expected))
+
+	diffs := gocmp.Diff(expected, actual, opts)
+
+	expectedType := fmt.Sprintf(" %T", expected)
+	if sameType {
+		expectedType = ""
+	}
+
+	if !a.not && diffs != "" {
+		if isStruct {
+			t.Errorf("Expected%s struct to %s as shown (-want, +got) ―――\n%s",
+				preS(a.info), what, strings.ReplaceAll(diffs, " ", " "))
+		} else {
+			t.Errorf("Expected%s %T ―――\n%s――― to %s%s ―――\n%s",
+				preS(a.info), a.actual, verbatim(a.actual), what, expectedType, verbatim(expected))
+		}
+	} else if a.not && diffs == "" {
+		t.Errorf("Expected%s %T not to %s%s ―――\n%s",
+			preS(a.info), a.actual, what, expectedType, verbatim(expected))
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// allowUnexported returns an [Option] that allows [Equal] to forcibly introspect
+// unexported fields of the specified struct types.
+func allowUnexported(types ...interface{}) gocmp.Option {
+	m := make(map[reflect.Type]bool)
+	for _, typ := range types {
+		discoverStructTypes(reflect.TypeOf(typ), m)
+	}
+	return gocmp.Exporter(func(t reflect.Type) bool { return m[t] })
+}
+
+func discoverStructTypes(t reflect.Type, m map[reflect.Type]bool) {
+	if t.Kind() == reflect.Struct {
+		if _, exists := m[t]; !exists {
+			m[t] = true
+			for i := 0; i < t.NumField(); i++ {
+				discoverStructTypes(t.Field(i).Type, m)
+			}
+		}
+	}
 }

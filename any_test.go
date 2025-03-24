@@ -9,6 +9,16 @@ import (
 
 type Weight32 uint32
 
+type Info struct {
+	Yin  string
+	yang string
+}
+
+type MoreInfo struct {
+	Extra    string
+	original Info
+}
+
 func TestAnyToBe(t *testing.T) {
 	c := &capture{}
 
@@ -34,7 +44,37 @@ func TestAnyToBe(t *testing.T) {
 
 	weight = 101
 	expect.Any(weight).I("weight").ToBe(c, 100)
-	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n  101\n――― to be int ―――\n  100\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n  101\n――― to be ―――\n  100\n")
+
+	i1 := Info{Yin: "a", yang: "b"}
+	expect.Any(i1).ToBe(c, i1)
+	c.shouldNotHaveHadAnError(t)
+
+	i2 := Info{Yin: "a", yang: "U"}
+	expect.Any(i1).Info("foo").ToBe(c, i2)
+	c.shouldHaveCalledErrorf(t, "Expected foo struct to be as shown (-want, +got) ―――\n"+
+		"  expect_test.Info{\n"+
+		"  \tYin:  \"a\",\n"+
+		"- \tyang: \"U\",\n"+
+		"+ \tyang: \"b\",\n"+
+		"  }\n")
+
+	m1 := MoreInfo{Extra: "ok", original: Info{Yin: "a", yang: "b"}}
+	expect.Any(i1).ToBe(c, i1)
+	c.shouldNotHaveHadAnError(t)
+
+	m2 := MoreInfo{Extra: "ok", original: Info{Yin: "a", yang: "c"}}
+	expect.Any(m1).Info("foo").ToBe(c, m2)
+	c.shouldHaveCalledErrorf(t, `Expected foo struct to be as shown (-want, +got) ―――
+  expect_test.MoreInfo{
+  	Extra: "ok",
+  	original: expect_test.Info{
+  		Yin:  "a",
+- 		yang: "c",
++ 		yang: "b",
+  	},
+  }
+`)
 
 	var fa = 0.01347258873283863
 	var fb = 0.013473
@@ -51,7 +91,7 @@ func TestAnyNotToBe(t *testing.T) {
 
 	weight = 101
 	expect.Any(weight).I("weight").Not().ToBe(c, 101)
-	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n  101\n――― not to be int ―――\n  101\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight int not to be ―――\n  101\n")
 
 	var fa = 0.01347258873283863
 	var fb = 0.013573
@@ -74,7 +114,7 @@ func TestAnyToBeBytes(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected data []uint8 ―――\n"+
 		"  [104 101 108 108 111 32 119 111 114 108 100]\n"+
 		"  []byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64}\n"+
-		"――― to be []uint8 ―――\n"+
+		"――― to be ―――\n"+
 		"  [104 101 108 108 111 32 100 108 114 111 119]\n"+
 		"  []byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x64, 0x6c, 0x72, 0x6f, 0x77}\n")
 }
@@ -100,5 +140,5 @@ func TestAnyNotToEqual(t *testing.T) {
 
 	weight = 1001
 	expect.Any(weight).I("weight").Not().ToEqual(c, int(1001))
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n  1001\n  0x3e9\n――― not to equal int ―――\n  1001\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 not to equal int ―――\n  1001\n")
 }
