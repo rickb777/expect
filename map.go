@@ -49,7 +49,9 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 		h.Helper()
 	}
 
-	match := gocmp.Equal(a.actual, expected, a.opts)
+	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
+
+	match := gocmp.Equal(a.actual, expected, opts)
 
 	if (!a.not && !match) || (a.not && match) {
 		t.Errorf("Expected%s %T len:%d ―――\n  %+v\n――― %sto be len:%d ―――\n  %+v\n",
@@ -71,6 +73,8 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 
 	value, present := a.actual[expectedKey]
 
+	types := gatherTypes(nil, a.actual, expectedKey)
+
 	expectedKeyValue := ""
 	evi := ""
 	expectedKeyS := quotedString(expectedKey)
@@ -82,7 +86,11 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 		} else {
 			evi = " and it should match"
 		}
+
+		types = gatherTypes(types, expectedValue[0])
 	}
+
+	opts := append(a.opts, allowUnexported(types))
 
 	if !a.not {
 		if !present {
@@ -90,14 +98,14 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 				preS(a.info), a.actual, len(a.actual),
 				expectedKeyS, strings.Join(toString(keys(a.actual)), ", "))
 
-		} else if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], a.opts) {
+		} else if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], opts) {
 			t.Errorf("Expected%s %T len:%d ―――\n  %s: %+v\n――― to contain %s%s ―――\n%s",
 				preS(a.info), a.actual, len(a.actual), expectedKeyS, value,
 				expectedKeyS, evi, expectedKeyValue)
 		}
 
 	} else if present {
-		if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], a.opts) {
+		if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], opts) {
 			t.Errorf("Expected%s %T len:%d contains ―――\n"+
 				"  %s: %+v\n"+
 				"――― but should contain ―――\n%s",

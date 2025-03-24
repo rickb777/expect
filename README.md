@@ -75,10 +75,11 @@ There are various other methods too
 
 ## Options
 
-**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use. By default, the two options used are
+**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use. By default, the three options used are
 
- * compare floating point numbers within the tolerance set by `ApproximateFloatFraction`,
- * treat maps/slices that are empty the same as those that are nil.
+ * All fields in structs are compared (i.e. exported and unexported fields); all structs in maps and slices are treated likewise. 
+ * Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
+ * Maps/slices that are empty are treated the same as those that are nil.
 
 ## Status
 

@@ -105,7 +105,7 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 
 	isStruct := reflect.TypeOf(a.actual).Kind() == reflect.Struct
 
-	opts := append(a.opts, allowUnexported(a.actual, expected))
+	opts := append(a.opts, allowUnexported(gatherTypes(nil, actual, expected)))
 
 	diffs := gocmp.Diff(expected, actual, opts)
 
@@ -132,13 +132,21 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 
 //-------------------------------------------------------------------------------------------------
 
-// allowUnexported returns an [Option] that allows [Equal] to forcibly introspect
-// unexported fields of the specified struct types.
-func allowUnexported(types ...interface{}) gocmp.Option {
-	m := make(map[reflect.Type]bool)
+type typeSet map[reflect.Type]bool
+
+func gatherTypes(m typeSet, types ...interface{}) typeSet {
+	if m == nil {
+		m = make(typeSet)
+	}
 	for _, typ := range types {
 		discoverStructTypes(reflect.TypeOf(typ), m)
 	}
+	return m
+}
+
+// allowUnexported returns an [Option] that allows [Equal] to forcibly introspect
+// unexported fields of the specified struct types.
+func allowUnexported(m typeSet) gocmp.Option {
 	return gocmp.Exporter(func(t reflect.Type) bool { return m[t] })
 }
 

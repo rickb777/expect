@@ -11,8 +11,8 @@ function v
 v go mod download
 v go mod tidy
 
-v gofmt -l -w -s *.go
-
 v go test ./...
+
+v gofmt -l -w -s *.go
 
 v go vet ./...

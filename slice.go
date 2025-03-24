@@ -44,7 +44,13 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 		h.Helper()
 	}
 
-	match := gocmp.Equal(a.actual, expected, a.opts)
+	types := gatherTypes(nil, a.actual)
+	for _, v := range expected {
+		types = gatherTypes(types, v)
+	}
+	opts := append(a.opts, allowUnexported(types))
+
+	match := gocmp.Equal(a.actual, expected, opts)
 
 	if (!a.not && !match) || (a.not && match) {
 		diff := findFirstDiff(a.actual, expected)
