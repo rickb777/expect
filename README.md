@@ -15,7 +15,7 @@
 
 ## Assertion Categories
 
-There are **seven primary categories**, each introduce by a function:
+There are **eight primary categories**, each introduce by a function:
 
 ### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...)
 This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below.
@@ -38,9 +38,12 @@ This compares `[]T` but only where `T` is a comparable type. Use **Any** for oth
 ### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
 This compares `error` only.
 
+### expect.[Func](https://pkg.go.dev/github.com/rickb777/expect#Func)(func)
+This runs some function and checks whether it panicked.
+
 ## Application
 
-The seven primary functions all take the actual value under test as their input.
+The eight primary functions all take the actual value under test as their input.
 
 Other parameters can also be passed in. If any of these other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. This allows, for example, the input to be a function with a multi-value return. 
 
@@ -68,6 +71,7 @@ There are various other methods too
  * **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
  * **Slice** has `ToContainAll(t, ...)` and `ToContainAny(t, ...)`
  * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
+ * **Func** has `ToPanic(t)` and `ToPanicWithMessage(t, string)`
 
 ### Size
 

@@ -1,9 +1,7 @@
 package expect
 
 import (
-	"cmp"
 	"fmt"
-	gocmp "github.com/google/go-cmp/cmp"
 	"log"
 	"math"
 )
@@ -52,63 +50,25 @@ type assertion struct {
 	not   bool
 }
 
-// AnyType is used for equality assertions for any type.
-type AnyType[T any] struct {
-	opts   gocmp.Options
-	actual any
-	assertion
-}
-
-// BoolType is used for assertions about bools.
-type BoolType[B ~bool] struct {
-	actual B
-	assertion
-}
-
-// MapType is used for assertions about maps.
-type MapType[K comparable, V any] struct {
-	opts   gocmp.Options
-	actual map[K]V
-	assertion
-}
-
-// OrderedType is used for assertions about numbers and other ordered types.
-type OrderedType[O cmp.Ordered] struct {
-	actual O
-	assertion
-}
-
-// SliceType is used for assertions about slices.
-type SliceType[T comparable] struct {
-	opts   gocmp.Options
-	actual []T
-	assertion
-}
-
-type Stringy interface {
-	~string | []byte | []rune
-}
-
-// StringType is used for assertions about strings.
-type StringType[S Stringy] struct {
-	actual S
-	assertion
-	trim int
-}
-
-// ErrorType is used for assertions about errors.
-type ErrorType struct {
-	actual error
-	assertion
-}
-
 //=================================================================================================
 
 func makeInfo(info any, other ...any) string {
-	if len(other) > 1 {
+	format, isString := info.(string)
+
+	if len(other) == 0 {
+		if isString {
+			return format
+		} else {
+			return fmt.Sprintf("%v", info)
+		}
+	}
+
+	if isString {
 		return fmt.Sprintf(info.(string), other...)
 	}
-	return fmt.Sprintf("%v", info)
+
+	args := append([]any{info}, other...)
+	return fmt.Sprint(args...)
 }
 
 func prefix(pfx, s string) string {

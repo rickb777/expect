@@ -6,6 +6,17 @@ import (
 	"unicode/utf8"
 )
 
+type Stringy interface {
+	~string | []byte | []rune
+}
+
+// StringType is used for assertions about strings.
+type StringType[S Stringy] struct {
+	actual S
+	assertion
+	trim int
+}
+
 // String creates a string assertion. Strings must contain valid UTF8 encodings.
 //
 // It accepts all string subtypes and []byte, []rune.

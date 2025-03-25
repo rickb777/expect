@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+// AnyType is used for equality assertions for any type.
+type AnyType[T any] struct {
+	opts   gocmp.Options
+	actual any
+	assertion
+}
+
 // ApproximateFloatFraction provides an option that compares any (a, b float32) or (a, b float64)
 // pair. Change this if needed. See [cmpopts.EquateApprox] and [DefaultOptions].
 //

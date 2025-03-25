@@ -2,6 +2,13 @@ package expect
 
 import gocmp "github.com/google/go-cmp/cmp"
 
+// SliceType is used for assertions about slices.
+type SliceType[T comparable] struct {
+	opts   gocmp.Options
+	actual []T
+	assertion
+}
+
 // Slice creates an assertion for deep value comparison of slices of any type.
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [SliceType.Using]

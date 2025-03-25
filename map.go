@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+// MapType is used for assertions about maps.
+type MapType[K comparable, V any] struct {
+	opts   gocmp.Options
+	actual map[K]V
+	assertion
+}
+
 // Map creates an assertion for deep value comparison of maps of any type.
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [MapType.Using]

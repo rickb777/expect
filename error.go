@@ -4,6 +4,12 @@ import (
 	"strings"
 )
 
+// ErrorType is used for assertions about errors.
+type ErrorType struct {
+	actual error
+	assertion
+}
+
 // Error creates an error assertion. This considers the last error it finds in the supplied parameters.
 // All other parameters are ignored.
 func Error(value any, other ...any) ErrorType {

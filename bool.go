@@ -1,5 +1,11 @@
 package expect
 
+// BoolType is used for assertions about bools.
+type BoolType[B ~bool] struct {
+	actual B
+	assertion
+}
+
 // Bool creates a boolean assertion.
 //
 // If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
@@ -31,7 +37,7 @@ func (a BoolType[B]) Not() BoolType[B] {
 //-------------------------------------------------------------------------------------------------
 
 // ToBeTrue asserts that the actual value is true.
-// The tester is normally [*testing.B].
+// The tester is normally [*testing.T].
 func (a BoolType[B]) ToBeTrue(t Tester) {
 	a.ToBe(t, true)
 }
@@ -39,7 +45,7 @@ func (a BoolType[B]) ToBeTrue(t Tester) {
 //-------------------------------------------------------------------------------------------------
 
 // ToBeFalse asserts that the actual value is true.
-// The tester is normally [*testing.B].
+// The tester is normally [*testing.T].
 func (a BoolType[B]) ToBeFalse(t Tester) {
 	a.ToBe(t, false)
 }
@@ -47,7 +53,7 @@ func (a BoolType[B]) ToBeFalse(t Tester) {
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected items have the same values and types.
-// The tester is normally [*testing.B].
+// The tester is normally [*testing.T].
 func (a BoolType[B]) ToBe(t Tester, expected B) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
@@ -59,14 +65,14 @@ func (a BoolType[B]) ToBe(t Tester, expected B) {
 //-------------------------------------------------------------------------------------------------
 
 // ToEqual asserts that the actual and expected items have the same values and similar types.
-// The tester is normally [*testing.B].
+// The tester is normally [*testing.T].
 func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
-		t.Errorf("Expected%s %sto be %v\n", preS(a.info), notS(bool(a.not)), expected)
+		t.Errorf("Expected%s %sto be %v\n", preS(a.info), notS(a.not), expected)
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)

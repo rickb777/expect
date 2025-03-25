@@ -2,6 +2,12 @@ package expect
 
 import "cmp"
 
+// OrderedType is used for assertions about numbers and other ordered types.
+type OrderedType[O cmp.Ordered] struct {
+	actual O
+	assertion
+}
+
 // Number creates an ordering assertion. It accepts all numbers, and also coincidentally accepts strings.
 // Its methods are the full set of ordering comparisons, i.e. >, >=, <, <=, ==, and !=.
 //
