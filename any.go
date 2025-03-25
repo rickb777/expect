@@ -139,7 +139,7 @@ func gatherTypes(m typeSet, types ...interface{}) typeSet {
 		m = make(typeSet)
 	}
 	for _, typ := range types {
-		discoverStructTypes(reflect.TypeOf(typ), m)
+		discoverTypes(reflect.TypeOf(typ), m)
 	}
 	return m
 }
@@ -150,13 +150,21 @@ func allowUnexported(m typeSet) gocmp.Option {
 	return gocmp.Exporter(func(t reflect.Type) bool { return m[t] })
 }
 
-func discoverStructTypes(t reflect.Type, m map[reflect.Type]bool) {
-	if t.Kind() == reflect.Struct {
+func discoverTypes(t reflect.Type, m map[reflect.Type]bool) {
+	switch t.Kind() {
+	case reflect.Struct:
 		if _, exists := m[t]; !exists {
 			m[t] = true
 			for i := 0; i < t.NumField(); i++ {
-				discoverStructTypes(t.Field(i).Type, m)
+				discoverTypes(t.Field(i).Type, m)
 			}
 		}
+
+	case reflect.Slice, reflect.Pointer, reflect.Interface:
+		discoverTypes(t.Elem(), m)
+
+	case reflect.Map:
+		discoverTypes(t.Key(), m)
+		discoverTypes(t.Elem(), m)
 	}
 }

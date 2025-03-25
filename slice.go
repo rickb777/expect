@@ -44,10 +44,7 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 		h.Helper()
 	}
 
-	types := gatherTypes(nil, a.actual)
-	for _, v := range expected {
-		types = gatherTypes(types, v)
-	}
+	types := gatherTypes(nil, a.actual, expected)
 	opts := append(a.opts, allowUnexported(types))
 
 	match := gocmp.Equal(a.actual, expected, opts)

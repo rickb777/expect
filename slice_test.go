@@ -11,7 +11,7 @@ type MyBytes []byte
 
 //func stringTest(e error) (string, error) { return "", e }
 
-func TestSliceToBe(t *testing.T) {
+func TestSliceToBe_byte(t *testing.T) {
 	c := &capture{}
 
 	var s = MyBytes("abcdef")
@@ -34,6 +34,26 @@ func TestSliceToBe(t *testing.T) {
 		"  [97 98 99 194 181 100 101 102]\n"+
 		"  []byte{0x61, 0x62, 0x63, 0xc2, 0xb5, 0x64, 0x65, 0x66}\n"+
 		"――― the first difference is at index 3\n")
+}
+
+func TestSliceToBe_struct(t *testing.T) {
+	c := &capture{}
+
+	i1 := Info{Yin: "a", yang: "b"}
+	i2 := Info{Yin: "c", yang: "d"}
+
+	var s = []Info{i1, i2}
+	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, i1, i2)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Slice(s).I("Foo").ToBe(c, i2)
+	c.shouldHaveCalledErrorf(t, "Expected Foo []expect_test.Info len:2 ―――\n"+
+		"  [{Yin:a yang:b} {Yin:c yang:d}]\n"+
+		"  []expect_test.Info{expect_test.Info{Yin:\"a\", yang:\"b\"}, expect_test.Info{Yin:\"c\", yang:\"d\"}}\n"+
+		"――― to be len:1 ―――\n"+
+		"  [{Yin:c yang:d}]\n"+
+		"  []expect_test.Info{expect_test.Info{Yin:\"c\", yang:\"d\"}}\n"+
+		"――― the first difference is at index 0\n")
 }
 
 func TestSliceNotToBe(t *testing.T) {

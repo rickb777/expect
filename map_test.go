@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMapToBe(t *testing.T) {
+func TestMapToBe_string_int(t *testing.T) {
 	c := &capture{}
 
 	m := map[string]int{"a": 1, "b": 2}
@@ -18,6 +18,25 @@ func TestMapToBe(t *testing.T) {
 		"  map\\[[ab]:[12] [ab]:[12]\\]\n"+
 		"――― to be len:2 ―――\n"+
 		"  map\\[[ac]:[13] [ac]:[13]\\]\n$")
+
+}
+
+type Thing struct {
+	A int
+}
+
+func TestMapToBe_struct_struct(t *testing.T) {
+	c := &capture{}
+
+	m := map[Thing]Info{{A: 1}: {Yin: "i"}}
+	expect.Map(m).Using(cmpopts.EquateEmpty()).ToBe(c, m)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).I("foo").ToBe(c, map[Thing]Info{})
+	c.shouldHaveCalledErrorf(t, "Expected foo map[expect_test.Thing]expect_test.Info len:1 ―――\n"+
+		"  map[{A:1}:{Yin:i yang:}]\n"+
+		"――― to be len:0 ―――\n"+
+		"  map[]\n")
 
 }
 
