@@ -167,7 +167,7 @@ func discoverTypes(t reflect.Type, m map[reflect.Type]bool) {
 			}
 		}
 
-	case reflect.Slice, reflect.Pointer, reflect.Interface:
+	case reflect.Slice, reflect.Pointer:
 		discoverTypes(t.Elem(), m)
 
 	case reflect.Map:
