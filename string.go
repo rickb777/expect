@@ -58,7 +58,7 @@ func (a StringType[S]) Not() StringType[S] {
 
 // ToContain asserts that the actual string contains the substring.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToContain(substring S, t Tester) {
+func (a StringType[S]) ToContain(t Tester, substring S) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}

@@ -108,10 +108,10 @@ func TestStringToContain(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).ToContain("ell", t)
+	expect.String(s).ToContain(t, "ell")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String(s).ToContain("world", c)
+	expect.String(s).ToContain(c, "world")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to contain ―――\n  world\n")
 }
 
@@ -119,9 +119,9 @@ func TestStringNotToContain(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).Not().ToContain("world", t)
+	expect.String(s).Not().ToContain(t, "world")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String(s).Not().ToContain("ell", c)
+	expect.String(s).Not().ToContain(c, "ell")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to contain ―――\n  ell\n")
 }
