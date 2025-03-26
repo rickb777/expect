@@ -70,7 +70,41 @@ func (a AnyType[T]) Not() AnyType[T] {
 }
 
 //-------------------------------------------------------------------------------------------------
-// TODO ToBeNil
+
+func isNilish(val any) bool {
+	if val == nil {
+		return true
+	}
+
+	v := reflect.ValueOf(val)
+	k := v.Kind()
+	switch k {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer,
+		reflect.UnsafePointer, reflect.Interface, reflect.Slice:
+		return v.IsNil()
+	}
+
+	return false
+}
+
+// ToBeNil asserts that the actual value is nil / is not nil.
+// The tester is normally [*testing.T].
+func (a AnyType[T]) ToBeNil(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if !a.not && !isNilish(a.actual) {
+		t.Errorf("Expected%s %T ―――\n%s――― to be nil\n",
+			preS(a.info), a.actual, verbatim(a.actual))
+	} else if a.not && isNilish(a.actual) {
+		t.Errorf("Expected%s %T not to be nil\n",
+			preS(a.info), a.actual)
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected data have the same values and types.

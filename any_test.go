@@ -119,7 +119,24 @@ func TestAnyToBeBytes(t *testing.T) {
 		"  []byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x64, 0x6c, 0x72, 0x6f, 0x77}\n")
 }
 
-func TestAnyToEqual(t *testing.T) {
+func TestAnyToBeNilOrNot(t *testing.T) {
+	c := &capture{}
+
+	var weight *int
+	expect.Any(weight).ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Any("hello").I("weight").ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\n  hello\n  \"hello\"\n――― to be nil\n")
+
+	expect.Any(1).Not().ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Any(weight).I("weight").Not().ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected weight *int not to be nil\n")
+}
+
+func TestAnyToEqualOrNot(t *testing.T) {
 	c := &capture{}
 
 	var weight Weight32 = 1000
@@ -127,18 +144,13 @@ func TestAnyToEqual(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	weight = 1001
-	expect.Any(weight).I("weight").ToEqual(c, int(1000))
+	expect.Any(weight).I("weight").ToEqual(c, 1000)
 	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n  1001\n  0x3e9\n――― to equal int ―――\n  1000\n")
-}
 
-func TestAnyNotToEqual(t *testing.T) {
-	c := &capture{}
-
-	var weight Weight32 = 1000
-	expect.Any(weight).Not().ToEqual(c, int(1001))
+	expect.Any(weight).Not().ToEqual(c, 1000)
 	c.shouldNotHaveHadAnError(t)
 
 	weight = 1001
-	expect.Any(weight).I("weight").Not().ToEqual(c, int(1001))
+	expect.Any(weight).I("weight").Not().ToEqual(c, 1001)
 	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 not to equal int ―――\n  1001\n")
 }

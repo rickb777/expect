@@ -70,7 +70,7 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 }
 
 //-------------------------------------------------------------------------------------------------
-//TODO ToBeEmpty ToHaveLength
+//TODO ToBeEmpty ToHaveLength ToBeNil
 //-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the map contains a particular key. If present, the expected value must also match.

@@ -46,6 +46,8 @@ func (a SliceType[T]) Not() SliceType[T] {
 }
 
 //-------------------------------------------------------------------------------------------------
+// TODO ToBeNil
+//-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected slices have the same values and types.
 // The tester is normally [*testing.T].

@@ -20,10 +20,10 @@ func (c *capture) reset() {
 func (c *capture) shouldNotHaveHadAnError(t *testing.T) {
 	t.Helper()
 	if c.errorfCalls > 0 {
-		t.Errorf("failed: Errorf called %d times", c.errorfCalls)
+		t.Errorf("failed: Errorf called %d times\n%s", c.errorfCalls, c.message)
 	}
 	if c.fatalfCalls > 0 {
-		t.Errorf("failed: Fatalf called %d times", c.fatalfCalls)
+		t.Errorf("failed: Fatalf called %d times\n%s", c.fatalfCalls, c.message)
 	}
 	c.reset()
 }
