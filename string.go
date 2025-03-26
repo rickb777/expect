@@ -55,6 +55,8 @@ func (a StringType[S]) Not() StringType[S] {
 }
 
 //-------------------------------------------------------------------------------------------------
+//TODO ToBeEmpty ToHaveLength
+//-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the actual string contains the substring.
 // The tester is normally [*testing.T].

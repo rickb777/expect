@@ -69,7 +69,7 @@ There are various other methods too
  * **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
  * **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
  * **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
- * **Slice** has `ToContainAll(t, ...)` and `ToContainAny(t, ...)`
+ * **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
  * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
  * **Func** has `ToPanic(t)` and `ToPanicWithMessage(t, string)`
 

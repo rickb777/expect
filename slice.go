@@ -1,6 +1,9 @@
 package expect
 
-import gocmp "github.com/google/go-cmp/cmp"
+import (
+	"fmt"
+	gocmp "github.com/google/go-cmp/cmp"
+)
 
 // SliceType is used for assertions about slices.
 type SliceType[T comparable] struct {
@@ -68,6 +71,18 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 
 //-------------------------------------------------------------------------------------------------
 
+// ToBeEmpty asserts that the slice has zero length.
+// The tester is normally [*testing.T].
+func (a SliceType[T]) ToBeEmpty(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.toHaveLength(t, 0, "to be empty")
+}
+
+//-------------------------------------------------------------------------------------------------
+
 // ToHaveLength asserts that the slice has the expected length.
 // The tester is normally [*testing.T].
 func (a SliceType[T]) ToHaveLength(t Tester, expected int) {
@@ -75,11 +90,26 @@ func (a SliceType[T]) ToHaveLength(t Tester, expected int) {
 		h.Helper()
 	}
 
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (a SliceType[T]) toHaveLength(t Tester, expected int, what string) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
 	actual := len(a.actual)
 
+	as := ""
+	if len(a.actual) > 0 {
+		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
+	}
+
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― %sto have length %d\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, notS(a.not), expected)
+		t.Errorf("Expected%s %T len:%d %s%s%s\n",
+			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)

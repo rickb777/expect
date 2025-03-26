@@ -99,6 +99,25 @@ func TestSliceToHaveLength(t *testing.T) {
 		"――― to have length 90\n")
 }
 
+func TestSliceToBeEmpty(t *testing.T) {
+	c := &capture{}
+
+	expect.Slice([]byte{}).ToBeEmpty(c)
+	c.shouldNotHaveHadAnError(t)
+
+	var s = MyBytes("abcdef")
+	expect.Slice(s).Not().ToBeEmpty(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Slice(s).ToBeEmpty(c)
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
+		"  [97 98 99 100 101 102]\n"+
+		"――― to be empty\n")
+
+	expect.Slice([]byte{}).Not().ToBeEmpty(c)
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:0 not to be empty\n")
+}
+
 func TestSliceToContainAll(t *testing.T) {
 	c := &capture{}
 

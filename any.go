@@ -70,6 +70,8 @@ func (a AnyType[T]) Not() AnyType[T] {
 }
 
 //-------------------------------------------------------------------------------------------------
+// TODO ToBeNil
+//-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected data have the same values and types.
 // The tester is normally [*testing.T].
