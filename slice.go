@@ -12,7 +12,7 @@ type SliceType[T comparable] struct {
 	assertion
 }
 
-// Slice creates an assertion for deep value comparison of slices of any type.
+// Slice creates an assertion for deep value comparison of slices of any comparable type.
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [SliceType.Using]
 func Slice[T comparable](value []T, other ...any) SliceType[T] {

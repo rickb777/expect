@@ -58,8 +58,9 @@ func (a FuncType) ToPanic(t Tester) {
 
 //-------------------------------------------------------------------------------------------------
 
-// ToPanicWithMessage asserts that the function did / did not panic.
-// Use substring to check that the panic passed a string containing that value.
+// ToPanicWithMessage asserts that the function did panic.
+// It is not useful to use [FuncType.Not] with this.
+// The substring is used to check that the panic passed a string containing that value.
 // The tester is normally [*testing.B].
 func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 	if h, ok := t.(helper); ok {
@@ -74,9 +75,12 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 		if e := recover(); e != nil {
 			if s, ok := e.(string); ok {
 				if !strings.Contains(s, substring) {
-					t.Errorf("Expected%s to panic with message containing ―――\n  %s\n――― but got ―――\n  %s\n",
+					t.Errorf("Expected%s to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
 						preS(a.info), substring, s)
 				}
+			} else {
+				t.Errorf("Expected%s to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
+					preS(a.info), substring, e, e)
 			}
 		}
 	}()

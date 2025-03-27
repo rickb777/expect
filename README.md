@@ -43,29 +43,47 @@ This runs some function and checks whether it panicked.
 
 ## Application
 
-The eight primary functions all take the actual value under test as their input.
+The eight primary functions above all take the actual value under test as their input.
 
 Other parameters can also be passed in. If any of these other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. This allows, for example, the input to be a function with a multi-value return. 
 
-Note that **Error** is different - it considers the *last* non-nil argument as its actual input. Any preceding arguments are ignored.
+Note that **Error** is different - it considers the /last/ non-nil argument as its actual input. Any preceding arguments are ignored.
 
-## Methods
+## Basic Methods
 
-All categories include these methods
+All categories include these general methods
 
- * `Info(...)` method provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
- * `Not()` method inverts the assertion defined by the `ToXxxx` method that follows it.
- * `ToBe(t, expected)` method **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead).
+ * `Info(...)` provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
+ * `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described below)
 
-Many categories also have
+**String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
 
- * `ToEqual(t, expected)` method that also tests for equality ignoring whether the concrete types match or not (**Error**, **Number**, **Map** and **Slice** don't have this though)
+## Assertions
 
-All of the assertion methods `ToXxxx` listed above and below require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+The assertions are all infinitive verbs, i.e. methods such as `ToBe`. All of them require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+
+Many categories have
+
+ * `ToBe(t, expected)` **tests for equality**.
+ * `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not
+ * `ToBeNil(t)` tests for nil value.
+
+| Category | `ToBe` | `ToEqual` | `ToBeNil` |
+|----------|--------|-----------|-----------|
+| Any      | Yes    | -         | Yes       |
+| String   | Yes    | Yes       | -         |
+| Number   | Yes    | -         | -         |
+| Bool     | Yes    | Yes       | -         |
+| Map      | Yes    | -         | Yes       |
+| Slice    | Yes    | -         | Yes       |
+| Error    | -      | -         | Yes       |
+| Func     | -      | -         | -         |
 
 ### Size / Length
 
-**String**, **Slice** and **Map** have a `ToHaveLength(t, expectedLength)` method, plus `ToBeEmpty(t)`.
+**String**, **Slice** and **Map** have a `ToHaveLength(t, expected)` method, plus `ToBeEmpty(t)`.
+
+`ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
 
 ### Others
 
@@ -83,13 +101,13 @@ There are various other methods too
 
 **Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use. By default, the three options used are
 
- * All fields in structs are compared (i.e. exported and unexported fields); all structs in maps and slices are treated likewise. 
+ * All fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise. 
  * Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
  * Maps/slices that are empty are treated the same as those that are nil.
 
 ## Status
 
-This is not yet production-ready.
+This is now ready for beta testing.
 
 ## History
 

@@ -36,9 +36,47 @@ var DefaultOptions = func() gocmp.Options {
 
 // Any creates an assertion for deep value comparison of any type. This is very flexible but only
 // provides methods to determine whether a value is equal (or not equal) to what's expected
-// (see [AnyType.ToBe] and [AnyType.ToEqual]).
+// (see [AnyType.ToBe], [AnyType.ToBeNil] and [AnyType.ToEqual]).
 //
-// This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [AnyType.Using]
+// For alternative comparisons, see the more-specialized [String], [Number], [Bool], [Slice],
+// [Map], [Error] and [Func] functions.
+//
+// Any uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [AnyType.Using]
+//
+//   - If the values have an Equal method of the form "(T) Equal(T) bool" or
+//     "(T) Equal(I) bool" where T is assignable to I, then it uses the result of
+//     x.Equal(y) even if x or y is nil.
+//
+//   - Lastly, it tries to compare x and y based on their basic kinds.
+//     Simple kinds like booleans, integers, floats, complex numbers, strings,
+//     and channels are compared using the equivalent of the == operator in Go.
+//     Functions are only equal if they are both nil, otherwise they are unequal.
+//
+// Structs are equal if recursively calling Equal on all fields report equal. All
+// struct fields are compared and this is repeated recursively. Unless the compare
+// options are changed, it does not matter whether fields exported on unexported.
+//
+// Slices are equal if they are both nil or both non-nil, where recursively
+// calling Equal on all non-ignored slice or array elements report equal.
+// Unless the compare options are changed, empty non-nil slices and nil slices
+// are equal.
+//
+// Maps are equal if they are both nil or both non-nil, where recursively
+// calling Equal on all non-ignored map entries report equal.
+// Map keys are equal according to the == operator.
+// To use custom comparisons for map keys, consider using
+// [github.com/google/go-cmp/cmp/cmpopts.SortMaps].
+// Unless the compare options are changed, empty non-nil maps and nil maps
+// are equal.
+//
+// Pointers and interfaces are equal if they are both nil or both non-nil,
+// where they have the same underlying concrete type and recursively
+// calling Equal on the underlying values reports equal.
+//
+// Before recursing into a pointer, slice element, or map, the current path
+// is checked to detect whether the address has already been visited.
+// If there is a cycle, then the pointed at values are considered equal
+// only if both addresses were previously visited in the same path step.
 func Any[T any](value T, other ...any) AnyType[T] {
 	return AnyType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
 }
