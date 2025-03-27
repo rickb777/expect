@@ -70,8 +70,6 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 }
 
 //-------------------------------------------------------------------------------------------------
-//TODO ToBeEmpty ToHaveLength ToBeNil
-//-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the map contains a particular key. If present, the expected value must also match.
 // The tester is normally [*testing.T].
@@ -131,8 +129,6 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
 
-//-------------------------------------------------------------------------------------------------
-
 func quotedString(v any) string {
 	switch s := v.(type) {
 	case string:
@@ -142,13 +138,27 @@ func quotedString(v any) string {
 	}
 }
 
+//-------------------------------------------------------------------------------------------------
+
+// ToBeEmpty asserts that the map has zero length.
+// The tester is normally [*testing.T].
+func (a MapType[K, V]) ToBeEmpty(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.toHaveLength(t, 0, "to be empty")
+}
+
+//-------------------------------------------------------------------------------------------------
+
 // ToHaveSize is a synonym for ToHaveLength.
 // The tester is normally [*testing.T].
 func (a MapType[K, V]) ToHaveSize(t Tester, expected int) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
-	a.toHaveLength(t, "size", expected)
+	a.toHaveLength(t, expected, fmt.Sprintf("to have size %d", expected))
 }
 
 // ToHaveLength asserts that the map has the expected length.
@@ -157,21 +167,26 @@ func (a MapType[K, V]) ToHaveLength(t Tester, expected int) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
-	a.toHaveLength(t, "length", expected)
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
 }
 
 // ToHaveLength asserts that the map has the expected length.
 // The tester is normally [*testing.T].
-func (a MapType[K, V]) toHaveLength(t Tester, what string, expected int) {
+func (a MapType[K, V]) toHaveLength(t Tester, expected int, what string) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
 	actual := len(a.actual)
 
+	as := ""
+	if len(a.actual) > 0 {
+		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
+	}
+
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― %sto have %s %d\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, notS(a.not), what, expected)
+		t.Errorf("Expected%s %T len:%d %s%s%s\n",
+			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)

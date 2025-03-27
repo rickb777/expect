@@ -56,7 +56,7 @@ func (a StringType[S]) Not() StringType[S] {
 
 //-------------------------------------------------------------------------------------------------
 
-// ToBeEmpty asserts that the slice has zero length.
+// ToBeEmpty asserts that the string has zero length.
 // The tester is normally [*testing.T].
 func (a StringType[S]) ToBeEmpty(t Tester) {
 	if h, ok := t.(helper); ok {
@@ -68,7 +68,7 @@ func (a StringType[S]) ToBeEmpty(t Tester) {
 
 //-------------------------------------------------------------------------------------------------
 
-// ToHaveLength asserts that the slice has the expected length.
+// ToHaveLength asserts that the string has the expected length.
 // The tester is normally [*testing.T].
 func (a StringType[S]) ToHaveLength(t Tester, expected int) {
 	if h, ok := t.(helper); ok {
@@ -89,7 +89,7 @@ func (a StringType[S]) toHaveLength(t Tester, expected int, what string) {
 
 	as := ""
 	if len(a.actual) > 0 {
-		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
+		as = fmt.Sprintf("―――\n  %v\n――― ", trim(string(a.actual), a.trim))
 	}
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
@@ -109,8 +109,8 @@ func (a StringType[S]) ToContain(t Tester, substring S) {
 		h.Helper()
 	}
 
-	ac := fmt.Sprint(a.actual)
-	ex := fmt.Sprint(substring)
+	ac := string(a.actual)
+	ex := string(substring)
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {

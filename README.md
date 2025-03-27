@@ -57,27 +57,29 @@ All categories include these methods
  * `Not()` method inverts the assertion defined by the `ToXxxx` method that follows it.
  * `ToBe(t, expected)` method **tests for equality** (except for **Error**, which has `ToBeNil(t)` instead).
 
-Most categories also have
+Many categories also have
 
- * `ToEqual(t, expected)` method that also tests for equality ignoring whether the concrete types match or not (**Error**, **Number** and **Slice** don't have this though)
+ * `ToEqual(t, expected)` method that also tests for equality ignoring whether the concrete types match or not (**Error**, **Number**, **Map** and **Slice** don't have this though)
 
 All of the assertion methods `ToXxxx` listed above and below require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
+### Size / Length
+
+**String**, **Slice** and **Map** have a `ToHaveLength(t, expectedLength)` method, plus `ToBeEmpty(t)`.
+
+### Others
+
 There are various other methods too
 
-* **String** has `ToContain(t, substring)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
-* **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
-* **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
+* **String** has `ToContain(t, substring)` 
+* **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`
+* **Map** has `ToContain(t, key, [value])` (the value, if present, must match what is held in the map)
 * **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
 * **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
  * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
  * **Func** has `ToPanic(t)` and `ToPanicWithMessage(t, string)`
 
-### Size
-
-**Slice** and **Map** have a `ToHaveLength(t, expectedLength)` method.
-
-## Options
+## Compare Options
 
 **Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use. By default, the three options used are
 

@@ -128,6 +128,11 @@ func TestStringToHaveLength(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
 		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n"+
 		"――― to have length 90\n")
+
+	expect.String(longString).Trim(80).ToHaveLength(c, 90)
+	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
+		"  01234567890123456789012345678901234567890123456789012345678901234567890123456789…\n"+
+		"――― to have length 90\n")
 }
 
 func TestStringToBeEmpty(t *testing.T) {
