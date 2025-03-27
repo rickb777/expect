@@ -65,11 +65,11 @@ All of the assertion methods `ToXxxx` listed above and below require a `t Tester
 
 There are various other methods too
 
- * **String** has `ToContain(t, substring)`
- * **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
- * **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
- * **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
- * **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
+* **String** has `ToContain(t, substring)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
+* **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`, `ToHaveLength(t, n)` and `ToBeEmpty(t)`
+* **Map** has `ToContain(t, key, [value])`; the value, if present, must match what is held in the map.
+* **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
+* **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
  * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
  * **Func** has `ToPanic(t)` and `ToPanicWithMessage(t, string)`
 

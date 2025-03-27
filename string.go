@@ -55,7 +55,51 @@ func (a StringType[S]) Not() StringType[S] {
 }
 
 //-------------------------------------------------------------------------------------------------
-//TODO ToBeEmpty ToHaveLength
+
+// ToBeEmpty asserts that the slice has zero length.
+// The tester is normally [*testing.T].
+func (a StringType[S]) ToBeEmpty(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.toHaveLength(t, 0, "to be empty")
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToHaveLength asserts that the slice has the expected length.
+// The tester is normally [*testing.T].
+func (a StringType[S]) ToHaveLength(t Tester, expected int) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (a StringType[S]) toHaveLength(t Tester, expected int, what string) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	actual := len(a.actual)
+
+	as := ""
+	if len(a.actual) > 0 {
+		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
+	}
+
+	if (!a.not && actual != expected) || (a.not && actual == expected) {
+		t.Errorf("Expected%s %T len:%d %s%s%s\n",
+			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
 //-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the actual string contains the substring.

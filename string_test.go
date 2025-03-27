@@ -104,6 +104,50 @@ func TestStringNotToEqual(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to equal ―――\n  hello\n")
 }
 
+func TestStringToHaveLength(t *testing.T) {
+	c := &capture{}
+
+	expect.String("abcdef").ToHaveLength(c, 6)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("abcdef").Not().ToHaveLength(c, 5)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("abcdef").ToHaveLength(c, 5)
+	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
+		"  abcdef\n"+
+		"――― to have length 5\n")
+
+	expect.String("abcdef").Not().ToHaveLength(c, 6)
+	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
+		"  abcdef\n"+
+		"――― not to have length 6\n")
+
+	var longString = strings.Repeat("0123456789", 10)
+	expect.String(longString).ToHaveLength(c, 90)
+	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
+		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n"+
+		"――― to have length 90\n")
+}
+
+func TestStringToBeEmpty(t *testing.T) {
+	c := &capture{}
+
+	expect.String([]byte{}).ToBeEmpty(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("foo").Not().ToBeEmpty(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("abcdef").ToBeEmpty(c)
+	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
+		"  abcdef\n"+
+		"――― to be empty\n")
+
+	expect.String([]byte{}).Not().ToBeEmpty(c)
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:0 not to be empty\n")
+}
+
 func TestStringToContain(t *testing.T) {
 	c := &capture{}
 
