@@ -60,46 +60,50 @@ All categories include these general methods
 
 ## Assertions
 
-The assertions are all infinitive verbs, i.e. methods such as `ToBe`. All of them require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+The assertions are all infinitive verbs, i.e. methods such as `ToBe`.
+
+All of them require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
 Many categories have
 
- * `ToBe(t, expected)` **tests for equality**.
+ * `ToBe(t, expected)` **tests for equality**, whereas
  * `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not
- * `ToBeNil(t)` tests for nil value.
 
-| Category | `ToBe` | `ToEqual` | `ToBeNil` |
-|----------|--------|-----------|-----------|
-| Any      | Yes    | -         | Yes       |
-| String   | Yes    | Yes       | -         |
-| Number   | Yes    | -         | -         |
-| Bool     | Yes    | Yes       | -         |
-| Map      | Yes    | -         | Yes       |
-| Slice    | Yes    | -         | Yes       |
-| Error    | -      | -         | Yes       |
-| Func     | -      | -         | -         |
+The assertions available are as follows.
 
-### Size / Length
+|                          | Any | String | Number | Bool | Map | Slice | Error | Func |
+|--------------------------|-----|--------|--------|------|-----|-------|-------|------|
+| `ToBe`                   | Yes | Yes    | Yes    | Yes  | Yes | Yes   | -     | -    |
+| `ToEqual`                | Yes | Yes    | -      | Yes  | -   | -     | -     | -    |
+| `ToBeNil`                | Yes | -      | -      | -    | Yes | Yes   | Yes   | -    |
+| `ToBeEmpty`              | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
+| `ToHaveLength`           | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
+| `ToContain`              | -   | Yes    | -      | -    | Yes | -     | -     | -    |
+| `ToContainAll`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
+| `ToContainAny`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
+| `ToBeTrue`               | -   | -      | -      | Yes  | -   | -     | -     | -    |
+| `ToBeFalse`              | -   | -      | -      | Yes  | -   | -     | -     | -    |
+| `ToBeGreaterThan`        | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToBeGreaterThanOrEqual` | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToBeLessThan`           | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToBeLessThanOrEqual`    | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToHaveOccurred`         | -   | -      | -      | -    | -   | -     | Yes   | -    |
+| `ToPanic`                | -   | -      | -      | -    | -   | -     | -     | Yes  |
+| `ToPanicWithMessage`     | -   | -      | -      | -    | -   | -     | -     | Yes  |
 
-**String**, **Slice** and **Map** have a `ToHaveLength(t, expected)` method, plus `ToBeEmpty(t)`.
+### Synonyms
 
-`ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
+For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
 
 ### Others
 
-There are various other methods too
+**Map** has `ToContain(t, key, [value])` - the value, if present, must match what is held in the map.
 
-* **String** has `ToContain(t, substring)` 
-* **Slice** has `ToContainAll(t, ...)`, `ToContainAny(t, ...)`
-* **Map** has `ToContain(t, key, [value])` (the value, if present, must match what is held in the map)
-* **Number** has four `ToBeGreaterThan[OrEqualTo](t, threshold)` and `ToBeLessThan[OrEqualTo](t, threshold)` methods
-* **Bool** has `ToBeTrue(t)` and `ToBeFalse(t)`
- * **Error** has `ToBeNil(t)` and `ToHaveOccurred(t)`
- * **Func** has `ToPanic(t)` and `ToPanicWithMessage(t, string)`
+## Comparison Options
 
-## Compare Options
+**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
 
-**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use. By default, the three options used are
+By default, the three options used are
 
  * All fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise. 
  * Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.

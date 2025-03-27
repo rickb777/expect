@@ -54,6 +54,28 @@ func TestMapNotToBe(t *testing.T) {
 		"  map\\[[ac]:[13] [ab]:[12]\\]\n$")
 }
 
+func TestMapToBeNilOrNot(t *testing.T) {
+	c := &capture{}
+
+	m := map[string]int{"a": 1}
+	var empty map[int]int
+
+	expect.Map(empty).ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).I("stuff").ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff map[string]int len:1 ―――\n"+
+		"  map[a:1]\n"+
+		"  map[string]int{\"a\":1}\n"+
+		"――― to be nil\n")
+
+	expect.Map(m).Not().ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(empty).I("stuff").Not().ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff map[int]int not to be nil\n")
+}
+
 func TestMapToHaveLength(t *testing.T) {
 	c := &capture{}
 

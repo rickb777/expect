@@ -49,6 +49,26 @@ func (a MapType[K, V]) Not() MapType[K, V] {
 
 //-------------------------------------------------------------------------------------------------
 
+// ToBeNil asserts that the actual value is nil / is not nil.
+// The tester is normally [*testing.T].
+func (a MapType[K, V]) ToBeNil(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if !a.not && !isNilish(a.actual) {
+		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil\n",
+			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+	} else if a.not && isNilish(a.actual) {
+		t.Errorf("Expected%s %T not to be nil\n",
+			preS(a.info), a.actual)
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
+//-------------------------------------------------------------------------------------------------
+
 // ToBe asserts that the actual and expected maps have the same values and types.
 // The tester is normally [*testing.T].
 func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
