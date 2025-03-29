@@ -184,7 +184,7 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 		h.Helper()
 	}
 
-	isStruct := reflect.TypeOf(a.actual).Kind() == reflect.Struct
+	isStruct := actual != nil && reflect.TypeOf(actual).Kind() == reflect.Struct
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, actual, expected)))
 
@@ -232,20 +232,22 @@ func allowUnexported(m typeSet) gocmp.Option {
 }
 
 func discoverTypes(t reflect.Type, m map[reflect.Type]bool) {
-	switch t.Kind() {
-	case reflect.Struct:
-		if _, exists := m[t]; !exists {
-			m[t] = true
-			for i := 0; i < t.NumField(); i++ {
-				discoverTypes(t.Field(i).Type, m)
+	if t != nil {
+		switch t.Kind() {
+		case reflect.Struct:
+			if _, exists := m[t]; !exists {
+				m[t] = true
+				for i := 0; i < t.NumField(); i++ {
+					discoverTypes(t.Field(i).Type, m)
+				}
 			}
+
+		case reflect.Slice, reflect.Pointer:
+			discoverTypes(t.Elem(), m)
+
+		case reflect.Map:
+			discoverTypes(t.Key(), m)
+			discoverTypes(t.Elem(), m)
 		}
-
-	case reflect.Slice, reflect.Pointer:
-		discoverTypes(t.Elem(), m)
-
-	case reflect.Map:
-		discoverTypes(t.Key(), m)
-		discoverTypes(t.Elem(), m)
 	}
 }

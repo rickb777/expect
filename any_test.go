@@ -80,6 +80,10 @@ func TestAnyToBe(t *testing.T) {
 	var fb = 0.013473
 	expect.Any(fa).ToBe(c, fb)
 	c.shouldNotHaveHadAnError(t)
+
+	var undefined any
+	expect.Any(undefined).Not().ToBe(c, 123)
+	c.shouldNotHaveHadAnError(t)
 }
 
 func TestAnyNotToBe(t *testing.T) {
