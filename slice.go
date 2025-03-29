@@ -46,7 +46,25 @@ func (a SliceType[T]) Not() SliceType[T] {
 }
 
 //-------------------------------------------------------------------------------------------------
-// TODO ToBeNil
+
+// ToBeNil asserts that the actual value is nil / is not nil.
+// The tester is normally [*testing.T].
+func (a SliceType[T]) ToBeNil(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if !a.not && !isNilish(a.actual) {
+		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil\n",
+			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+	} else if a.not && isNilish(a.actual) {
+		t.Errorf("Expected%s %T not to be nil\n",
+			preS(a.info), a.actual)
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected slices have the same values and types.

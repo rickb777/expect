@@ -64,11 +64,6 @@ The assertions are all infinitive verbs, i.e. methods such as `ToBe`.
 
 All of them require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
-Many categories have
-
- * `ToBe(t, expected)` **tests for equality**, whereas
- * `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not
-
 The assertions available are as follows.
 
 |                          | Any | String | Number | Bool | Map | Slice | Error | Func |
@@ -78,7 +73,7 @@ The assertions available are as follows.
 | `ToBeNil`                | Yes | -      | -      | -    | Yes | Yes   | Yes   | -    |
 | `ToBeEmpty`              | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
 | `ToHaveLength`           | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
-| `ToContain`              | -   | Yes    | -      | -    | Yes | -     | -     | -    |
+| `ToContain`              | -   | Yes    | -      | -    | Yes | -     | Yes   | -    |
 | `ToContainAll`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
 | `ToContainAny`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
 | `ToBeTrue`               | -   | -      | -      | Yes  | -   | -     | -     | -    |
@@ -91,15 +86,46 @@ The assertions available are as follows.
 | `ToPanic`                | -   | -      | -      | -    | -   | -     | -     | Yes  |
 | `ToPanicWithMessage`     | -   | -      | -      | -    | -   | -     | -     | Yes  |
 
+Many categories have
+
+* `ToBe(t, expected)` **tests for equality**, whereas
+* `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not
+
+Another group of related assertions is
+
+* `ToBeNil(t)` verifies that the actual value is a nil pointer
+* `ToBeEmpty(t)` verifies that the actual value has zero size
+* `ToHaveLength(t, length)` verifies that the length of the actual value is as specified.
+
+Containment tests are achieved using
+
+* `ToContain(t, substring)` verifies that the substring is included within the actual string or error message. Maps are special: they can have an optional value, so `ToContain(t, key, [value])` tests that the key is present and that the the value, if present, must match what is held in the map.
+* `ToContainAll(t, ...)` verifies that all the values are present
+* `ToContainAny(t, ...)` verifies that any of the values are present
+
+Boolean shorthands are
+
+* `ToBeTrue(t)` is the same as `ToBe(t, true)`
+* `ToBeFalse(t)` is the same as `ToBe(t, false)`
+
+Numeric inequalities are
+
+* `ToBeGreaterThan(t, threshold)` i.e. actual > threshold
+* `ToBeGreaterThanOrEqual(t, threshold)` i.e. actual >= threshold
+* `ToBeLessThan(t, threshold)` i.e. actual < threshold
+* `ToBeLessThanOrEqual(t, threshold)` i.e. actual <= threshold
+
+Note that these assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string.
+
+Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)`. These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
+
+Functions that panic can be tested with a zero-argument function that calls the code under test and then uses `ToPanic()`. If `panic(value)` value is a string, `ToPanicWithMessage(t, substring)` can check the actual message. 
+
 ### Synonyms
 
 For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
 
-### Others
-
-**Map** has `ToContain(t, key, [value])` - the value, if present, must match what is held in the map.
-
-## Comparison Options
+## Options for Controlling How The Comparisons Work
 
 **Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
 

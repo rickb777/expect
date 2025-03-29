@@ -72,6 +72,28 @@ func TestSliceNotToBe(t *testing.T) {
 		"  []byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n")
 }
 
+func TestSliceToBeNilOrNot(t *testing.T) {
+	c := &capture{}
+
+	s := []int{1, 2, 3}
+	var empty []int
+
+	expect.Slice(empty).ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Slice(s).I("stuff").ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff []int len:3 ―――\n"+
+		"  [1 2 3]\n"+
+		"  []int{1, 2, 3}\n"+
+		"――― to be nil\n")
+
+	expect.Slice(s).Not().ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Slice(empty).I("stuff").Not().ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff []int not to be nil\n")
+}
+
 func TestSliceToHaveLength(t *testing.T) {
 	c := &capture{}
 
