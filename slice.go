@@ -156,18 +156,20 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain all %d but none were found\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, len(expected))
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found\n",
+				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
 		} else if len(found) < len(expected)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain all %d but only these %d were found\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, len(expected), len(found), found)
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but only %s found ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual,
+				allN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain all %d but these %d were missing\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, len(expected), len(missing), missing)
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but %s missing ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual,
+				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain all %d but they were all present\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, len(expected))
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but they were all present\n",
+			preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
@@ -193,22 +195,25 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	if !a.not && len(found) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain any of %d but none were present\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, len(expected))
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present\n",
+			preS(a.info), a.actual, len(a.actual), a.actual, anyOfN.FormatInt(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain any of %d but they were all present\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, len(expected))
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present\n",
+				preS(a.info), a.actual, len(a.actual), a.actual,
+				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 		} else if len(missing) < len(expected)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain any of %d but only these %d were missing\n  %v\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but only %s missing ―――\n  %v\n",
 				preS(a.info), a.actual, len(a.actual), a.actual,
-				len(expected), len(missing), missing)
+				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain any of %d but these %d were found\n  %v\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s found ―――\n  %v\n",
 				preS(a.info), a.actual, len(a.actual), a.actual,
-				len(expected), len(found), found)
+				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		}
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
 }
+
+// TODO ToContain

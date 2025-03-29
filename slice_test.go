@@ -155,13 +155,13 @@ func TestSliceToContainAll(t *testing.T) {
 	expect.Slice(s).ToContainAll(c, 'b', 'd', 'f', 'h', 'j')
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
-		"――― to contain all 5 but these 2 were missing\n"+
+		"――― to contain all 5 but these 2 were missing ―――\n"+
 		"  [104 106]\n")
 
 	expect.Slice(s).ToContainAll(c, 'd', 'f', 'h', 'j', 'l', 'n')
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
-		"――― to contain all 6 but only these 2 were found\n"+
+		"――― to contain all 6 but only these 2 were found ―――\n"+
 		"  [100 102]\n")
 }
 
@@ -206,12 +206,12 @@ func TestSliceNotToContainAny(t *testing.T) {
 	expect.Slice(s).Not().ToContainAny(c, 'd', 'f', 'b', 'a', 'l', 'n')
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
-		"――― not to contain any of 6 but only these 2 were missing\n"+
+		"――― not to contain any of 6 but only these 2 were missing ―――\n"+
 		"  [108 110]\n")
 
 	expect.Slice(s).Not().ToContainAny(c, 'b', 'm', 'f', 'h', 'j')
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
-		"――― not to contain any of 5 but these 2 were found\n"+
+		"――― not to contain any of 5 but these 2 were found ―――\n"+
 		"  [98 102]\n")
 }

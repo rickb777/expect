@@ -2,6 +2,7 @@ package expect
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -67,6 +68,8 @@ func (a StringType[S]) ToBeEmpty(t Tester) {
 }
 
 //-------------------------------------------------------------------------------------------------
+// TODO ToHaveLengthGreaterThan ToHaveLengthLessThan ToMatch
+//-------------------------------------------------------------------------------------------------
 
 // ToHaveLength asserts that the string has the expected length.
 // The tester is normally [*testing.T].
@@ -116,6 +119,26 @@ func (a StringType[S]) ToContain(t Tester, substring S) {
 	if (!a.not && !match) || (a.not && match) {
 		t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n",
 			preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToMatch asserts that the actual string matches a regular expression.
+// The tester is normally [*testing.T].
+func (a StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	ac := string(a.actual)
+	match := pattern.MatchString(ac)
+
+	if (!a.not && !match) || (a.not && match) {
+		t.Errorf("Expected%s ―――\n  %s\n――― %sto match ―――\n  %s\n",
+			preS(a.info), trim(ac, a.trim), notS(a.not), pattern)
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)

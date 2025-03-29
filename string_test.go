@@ -3,6 +3,7 @@ package expect_test
 import (
 	"errors"
 	"github.com/rickb777/expect"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -173,4 +174,26 @@ func TestStringNotToContain(t *testing.T) {
 
 	expect.String(s).Not().ToContain(c, "ell")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to contain ―――\n  ell\n")
+}
+
+func TestStringToMatch(t *testing.T) {
+	c := &capture{}
+
+	var s MyString = "hello"
+	expect.String(s).ToMatch(t, regexp.MustCompile("^.*ll.*$"))
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToMatch(c, regexp.MustCompile("^x-ll-$"))
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to match ―――\n  ^x-ll-$\n")
+}
+
+func TestStringNotToMatch(t *testing.T) {
+	c := &capture{}
+
+	var s MyString = "hello"
+	expect.String(s).Not().ToMatch(t, regexp.MustCompile("world"))
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).Not().ToMatch(c, regexp.MustCompile("^.*ll.*$"))
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to match ―――\n  ^.*ll.*$\n")
 }

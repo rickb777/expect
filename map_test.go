@@ -162,3 +162,85 @@ func TestMapNotToContain(t *testing.T) {
 		"――― but should contain ―――\n"+
 		"  \"a\": 7\n")
 }
+
+func TestMapToContainAll(t *testing.T) {
+	c := &capture{}
+
+	m := map[byte]int{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+	expect.Map(m).ToContainAll(c, 'a', 'b', 'c')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).ToContainAll(c, 'z', 'y', 'x', 'w', 'v')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― to contain all 5 but none were found\n")
+
+	expect.Map(m).ToContainAll(c, 'b', 'c', 'a', 'h', 'j')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― to contain all 5 but these 2 were missing ―――\n"+
+		"  [104 106]\n")
+
+	expect.Map(m).ToContainAll(c, 'c', 'f', 'a', 'j', 'l', 'n')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― to contain all 6 but only these 2 were found ―――\n"+
+		"  [99 97]\n")
+}
+
+func TestMapNotToContainAll(t *testing.T) {
+	c := &capture{}
+
+	m := map[byte]int{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+	expect.Map(m).Not().ToContainAll(c, 'b', 'd', 'f', 'z')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).Not().ToContainAll(c, 'a', 'b', 'c')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― not to contain all 3 but they were all present\n")
+}
+
+func TestMapToContainAny(t *testing.T) {
+	c := &capture{}
+
+	m := map[byte]int{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+	expect.Map(m).ToContainAny(c, 'z', 'b', 'd', 'f', 'w')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).ToContainAny(c, 'z', 'y', 'x', 'w', 'v')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― to contain any of 5 but none were present\n")
+}
+
+func TestMapNotToContainAny(t *testing.T) {
+	c := &capture{}
+
+	m := map[byte]int{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
+	expect.Map(m).Not().ToContainAny(c, 'm', 'n', 'o', 'p')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).Not().ToContainAny(c, 'a', 'j', 'z')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― not to contain any of 3 but this was found ―――\n"+
+		"  [97]\n")
+
+	expect.Map(m).Not().ToContainAny(c, 'a', 'c', 'e')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― not to contain any of 3 but they were all present\n")
+
+	expect.Map(m).Not().ToContainAny(c, 'd', 'a', 'l', 'b')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― not to contain any of 4 but only this was missing ―――\n"+
+		"  [108]\n")
+
+	expect.Map(m).Not().ToContainAny(c, 'b', 'm', 'c', 'h', 'j')
+	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
+		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
+		"――― not to contain any of 5 but these 2 were found ―――\n"+
+		"  [98 99]\n")
+}

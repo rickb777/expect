@@ -74,8 +74,9 @@ The assertions available are as follows.
 | `ToBeEmpty`              | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
 | `ToHaveLength`           | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
 | `ToContain`              | -   | Yes    | -      | -    | Yes | -     | Yes   | -    |
-| `ToContainAll`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
-| `ToContainAny`           | -   | -      | -      | -    | -   | Yes   | -     | -    |
+| `ToContainAll`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
+| `ToContainAny`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
+| `ToMatch`                | -   | Yes    | -      | -    | -   | -     | -     | -    |
 | `ToBeTrue`               | -   | -      | -      | Yes  | -   | -     | -     | -    |
 | `ToBeFalse`              | -   | -      | -      | Yes  | -   | -     | -     | -    |
 | `ToBeGreaterThan`        | -   | -      | Yes    | -    | -   | -     | -     | -    |
@@ -102,6 +103,7 @@ Containment tests are achieved using
 * `ToContain(t, substring)` verifies that the substring is included within the actual string or error message. Maps are special: they can have an optional value, so `ToContain(t, key, [value])` tests that the key is present and that the the value, if present, must match what is held in the map.
 * `ToContainAll(t, ...)` verifies that all the values are present
 * `ToContainAny(t, ...)` verifies that any of the values are present
+* `ToMatch(t, ...)` verifies that the string matches a regular expression
 
 Boolean shorthands are
 

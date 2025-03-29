@@ -92,6 +92,8 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 }
 
 //-------------------------------------------------------------------------------------------------
+// TODO ToMatch
+//-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the error occurred and its message contains the substring.
 // The tester is normally [*testing.T].
