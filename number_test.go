@@ -86,50 +86,130 @@ func TestNumberNotToBeLessThan(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be less than ―――\n  1710000001\n")
 }
 
-func TestNumberToBeGreaterThanOrEqualTo(t *testing.T) {
+func TestNumberToBeGreaterThanOrEqual(t *testing.T) {
 	c := &capture{}
 
 	var utcTime Seconds32 = 1710000001
-	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqualTo(c, 1710000000)
+	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqual(c, 1710000000)
 	c.shouldNotHaveHadAnError(t)
 
 	utcTime = 1710000000
-	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqualTo(c, 1710000001)
+	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqual(c, 1710000001)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be greater than or equal to ―――\n  1710000001\n")
 }
 
-func TestNumberNotToBeGreaterThanOrEqualTo(t *testing.T) {
+func TestNumberNotToBeGreaterThanOrEqual(t *testing.T) {
 	c := &capture{}
 
 	var utcTime Seconds32 = 1710000000
-	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThanOrEqualTo(c, 1710000001)
+	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThanOrEqual(c, 1710000001)
 	c.shouldNotHaveHadAnError(t)
 
 	utcTime = 1710000001
-	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThanOrEqualTo(c, 1710000000)
+	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThanOrEqual(c, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000001\n――― not to be greater than or equal to ―――\n  1710000000\n")
 }
 
-func TestNumberToBeLessThanOrEqualTo(t *testing.T) {
+func TestNumberToBeLessThanOrEqual(t *testing.T) {
 	c := &capture{}
 
 	var utcTime Seconds32 = 1710000000
-	expect.Number(utcTime).ToBeLessThanOrEqualTo(c, 1710000001)
+	expect.Number(utcTime).ToBeLessThanOrEqual(c, 1710000001)
 	c.shouldNotHaveHadAnError(t)
 
 	utcTime = 1710000001
-	expect.Number(utcTime).I("utcTime").ToBeLessThanOrEqualTo(c, 1710000000)
+	expect.Number(utcTime).I("utcTime").ToBeLessThanOrEqual(c, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000001\n――― to be less than or equal to ―――\n  1710000000\n")
 }
 
-func TestNumberNotToBeLessThanOrEqualTo(t *testing.T) {
+func TestNumberNotToBeLessThanOrEqual(t *testing.T) {
 	c := &capture{}
 
 	var utcTime Seconds32 = 1710000001
-	expect.Number(utcTime).Not().ToBeLessThanOrEqualTo(c, 1710000000)
+	expect.Number(utcTime).Not().ToBeLessThanOrEqual(c, 1710000000)
 	c.shouldNotHaveHadAnError(t)
 
 	utcTime = 1710000000
-	expect.Number(utcTime).I("utcTime").Not().ToBeLessThanOrEqualTo(c, 1710000001)
+	expect.Number(utcTime).I("utcTime").Not().ToBeLessThanOrEqual(c, 1710000001)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be less than or equal to ―――\n  1710000001\n")
+}
+
+func TestNumberToBeBetween(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000001
+	expect.Number(utcTime).ToBeBetween(c, 1710000000, 1710000002)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000000
+	expect.Number(utcTime).I("utcTime").ToBeBetween(c, 1710000001, 1710000002)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
+		"  1710000000\n"+
+		"――― to be between ―――\n"+
+		"  1710000001 … 1710000002 (exclusive)\n")
+
+	expect.Number(utcTime).I("utcTime").ToBeBetween(c, 1710000002, 1710000000)
+	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 >= maximum 1710000000.\n")
+}
+
+func TestNumberNotToBeBetween(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000001
+	expect.Number(utcTime).Not().ToBeBetween(c, 1710000002, 1710000003)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000001
+	expect.Number(utcTime).I("utcTime").Not().ToBeBetween(c, 1710000000, 1710000002)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
+		"  1710000001\n"+
+		"――― not to be between ―――\n"+
+		"  1710000000 … 1710000002 (exclusive)\n")
+
+	expect.Number(utcTime).I("utcTime").Not().ToBeBetween(c, 1710000002, 1710000000)
+	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 >= maximum 1710000000.\n")
+}
+
+func TestNumberToBeBetweenOrEqual(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000000
+	expect.Number(utcTime).ToBeBetweenOrEqual(c, 1710000000, 1710000002)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000001
+	expect.Number(utcTime).ToBeBetweenOrEqual(c, 1710000000, 1710000002)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000002
+	expect.Number(utcTime).ToBeBetweenOrEqual(c, 1710000000, 1710000002)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000000
+	expect.Number(utcTime).I("utcTime").ToBeBetweenOrEqual(c, 1710000001, 1710000002)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
+		"  1710000000\n"+
+		"――― to be between ―――\n"+
+		"  1710000001 … 1710000002 (inclusive)\n")
+
+	expect.Number(utcTime).I("utcTime").ToBeBetweenOrEqual(c, 1710000002, 1710000000)
+	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")
+}
+
+func TestNumberNotToBeBetweenOrEqual(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000001
+	expect.Number(utcTime).Not().ToBeBetweenOrEqual(c, 1710000002, 1710000003)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000001
+	expect.Number(utcTime).I("utcTime").Not().ToBeBetweenOrEqual(c, 1710000000, 1710000002)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
+		"  1710000001\n"+
+		"――― not to be between ―――\n"+
+		"  1710000000 … 1710000002 (inclusive)\n")
+
+	expect.Number(utcTime).I("utcTime").Not().ToBeBetweenOrEqual(c, 1710000002, 1710000000)
+	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")
 }

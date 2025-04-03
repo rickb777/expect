@@ -111,9 +111,9 @@ func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 
 //-------------------------------------------------------------------------------------------------
 
-// ToBeLessThanOrEqualTo asserts that the actual values is less than or equal to the threshold value.
+// ToBeLessThanOrEqual asserts that the actual values is less than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeLessThanOrEqualTo(t Tester, threshold O) {
+func (a OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -135,9 +135,9 @@ func (a OrderedType[O]) ToBeLessThanOrEqualTo(t Tester, threshold O) {
 
 //-------------------------------------------------------------------------------------------------
 
-// ToBeGreaterThanOrEqualTo asserts that the actual values is greater than or equal to the threshold value.
+// ToBeGreaterThanOrEqual asserts that the actual values is greater than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeGreaterThanOrEqualTo(t Tester, threshold O) {
+func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -151,6 +151,62 @@ func (a OrderedType[O]) ToBeGreaterThanOrEqualTo(t Tester, threshold O) {
 		if a.actual < threshold {
 			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than or equal to ―――\n  %+v\n",
 				preS(a.info), a.actual, a.actual, threshold)
+		}
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToBeBetweenOrEqual asserts that the actual values is between two threshold values.
+// The assertion succeeds if minimum <= value <= maximum.
+// The tester is normally [*testing.T].
+func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if minimum > maximum {
+		t.Errorf("Impossible test%s %T: minimum %v > maximum %v.\n",
+			preS(a.info), a.actual, minimum, maximum)
+	} else if a.not {
+		if minimum <= a.actual && a.actual <= maximum {
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be between ―――\n  %+v … %v (inclusive)\n",
+				preS(a.info), a.actual, a.actual, minimum, maximum)
+		}
+	} else {
+		if a.actual < minimum || a.actual > maximum {
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be between ―――\n  %+v … %v (inclusive)\n",
+				preS(a.info), a.actual, a.actual, minimum, maximum)
+		}
+	}
+
+	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToBeBetween asserts that the actual values is between two threshold values.
+// The assertion succeeds if minimum < value < maximum.
+// The tester is normally [*testing.T].
+func (a OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if minimum >= maximum {
+		t.Errorf("Impossible test%s %T: minimum %v >= maximum %v.\n",
+			preS(a.info), a.actual, minimum, maximum)
+	} else if a.not {
+		if minimum < a.actual && a.actual < maximum {
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be between ―――\n  %+v … %v (exclusive)\n",
+				preS(a.info), a.actual, a.actual, minimum, maximum)
+		}
+	} else {
+		if a.actual <= minimum || a.actual >= maximum {
+			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be between ―――\n  %+v … %v (exclusive)\n",
+				preS(a.info), a.actual, a.actual, minimum, maximum)
 		}
 	}
 

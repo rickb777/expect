@@ -83,6 +83,8 @@ The assertions available are as follows.
 | `ToBeGreaterThanOrEqual` | -   | -      | Yes    | -    | -   | -     | -     | -    |
 | `ToBeLessThan`           | -   | -      | Yes    | -    | -   | -     | -     | -    |
 | `ToBeLessThanOrEqual`    | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToBeBetween`            | -   | -      | Yes    | -    | -   | -     | -     | -    |
+| `ToBeBetweenOrEqual`     | -   | -      | Yes    | -    | -   | -     | -     | -    |
 | `ToHaveOccurred`         | -   | -      | -      | -    | -   | -     | Yes   | -    |
 | `ToPanic`                | -   | -      | -      | -    | -   | -     | -     | Yes  |
 | `ToPanicWithMessage`     | -   | -      | -      | -    | -   | -     | -     | Yes  |
@@ -116,6 +118,8 @@ Numeric inequalities are
 * `ToBeGreaterThanOrEqual(t, threshold)` i.e. actual >= threshold
 * `ToBeLessThan(t, threshold)` i.e. actual < threshold
 * `ToBeLessThanOrEqual(t, threshold)` i.e. actual <= threshold
+* `ToBeBetween(t, min, max)` i.e. min < actual < max
+* `ToBeBetweenOrEqual(t, min, max)` i.e. min <= actual <= max
 
 Note that these assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string.
 
