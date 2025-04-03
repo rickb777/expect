@@ -83,6 +83,9 @@ func TestMapToHaveLength(t *testing.T) {
 	expect.Map(m).ToHaveLength(c, 1)
 	c.shouldNotHaveHadAnError(t)
 
+	expect.Map(m).ToHaveSize(c, 1)
+	c.shouldNotHaveHadAnError(t)
+
 	expect.Map(m).Not().ToHaveLength(c, 5)
 	c.shouldNotHaveHadAnError(t)
 
@@ -170,6 +173,9 @@ func TestMapToContainAll(t *testing.T) {
 	expect.Map(m).ToContainAll(c, 'a', 'b', 'c')
 	c.shouldNotHaveHadAnError(t)
 
+	expect.Map(m).ToContainAll(c, 'a')
+	c.shouldNotHaveHadAnError(t)
+
 	expect.Map(m).ToContainAll(c, 'z', 'y', 'x', 'w', 'v')
 	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
 		"  map[97:1 98:2 99:3 100:4 101:5]\n"+
@@ -206,6 +212,9 @@ func TestMapToContainAny(t *testing.T) {
 
 	m := map[byte]int{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
 	expect.Map(m).ToContainAny(c, 'z', 'b', 'd', 'f', 'w')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Map(m).ToContainAny(c, 'b')
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToContainAny(c, 'z', 'y', 'x', 'w', 'v')

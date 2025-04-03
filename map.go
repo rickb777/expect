@@ -229,7 +229,7 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 		h.Helper()
 	}
 
-	if len(expectedKey) == 0 {
+	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
 		return
 	}
@@ -273,7 +273,7 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 		h.Helper()
 	}
 
-	if len(expectedKey) == 0 {
+	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
 		return
 	}
