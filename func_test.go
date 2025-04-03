@@ -36,3 +36,17 @@ func TestFuncNotToPanic(t *testing.T) {
 	expect.Func(func() { panic("ouch") }).I("my func").Not().ToPanic(c)
 	c.shouldHaveCalledErrorf(t, "Expected my func not to panic.\n")
 }
+
+func ExampleFuncType_ToPanic() {
+	var t *testing.T
+
+	expect.Func(func() { panic(101) }).ToPanic(t)
+
+	expect.Func(func() {}).Not().ToPanic(t)
+}
+
+func ExampleFuncType_ToPanicWithMessage() {
+	var t *testing.T
+
+	expect.Func(func() { panic("boo") }).ToPanicWithMessage(t, "boo")
+}

@@ -198,3 +198,34 @@ func TestStringNotToMatch(t *testing.T) {
 	expect.String(s).Not().ToMatch(c, regexp.MustCompile("^.*ll.*$"))
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to match ―――\n  ^.*ll.*$\n")
 }
+
+func ExampleStringType_ToBe() {
+	var t *testing.T
+
+	// string matching can use any string, or subtype of string
+	s := "hello"
+	expect.String(s).ToBe(t, "hello")
+
+	var i int // some loop counter
+	expect.String(s).Info("loop %d", i).Not().ToBe(t, "goodbye")
+}
+
+func ExampleStringType_ToMatch() {
+	var t *testing.T
+
+	s := "hello"
+	expect.String(s).ToMatch(t, regexp.MustCompile("^he"))
+
+	var i int // some loop counter
+	expect.String(s).Info("loop %d", i).Not().ToMatch(t, regexp.MustCompile(".*bye$"))
+}
+
+func ExampleStringType_ToContain() {
+	var t *testing.T
+
+	s := "Once more unto the breach"
+	expect.String(s).ToContain(t, "unto")
+
+	var i int // some loop counter
+	expect.String(s).Info("loop %d", i).Not().ToContain(t, "foobar")
+}

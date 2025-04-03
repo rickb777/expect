@@ -30,6 +30,10 @@ func TestErrorToBeNil(t *testing.T) {
 	expect.Error(1, 2, err).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
+	thingUnderTest := func() (string, error) { return "foo", nil }
+	expect.Error(thingUnderTest()).I("xyz").ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
 	expect.Error(e1).I("xyz").ToBeNil(c)
 	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
@@ -75,4 +79,18 @@ func TestErrorToContain(t *testing.T) {
 
 	expect.Error(0, nil).ToContain(c, "something bad happened")
 	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")
+}
+
+func ExampleErrorType_ToBeNil() {
+	var t *testing.T
+
+	var err error
+	// ... something under test goes here
+	expect.Error(err).ToBeNil(t)
+	expect.Error(err).Not().ToHaveOccurred(t)
+
+	// if there's a function that returns various results and an error...
+	thingUnderTest := func() (string, error) { return "", nil }
+	// ...the function return parameters can be passed straight in
+	expect.Error(thingUnderTest()).Not().ToHaveOccurred(t)
 }

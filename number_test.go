@@ -213,3 +213,36 @@ func TestNumberNotToBeBetweenOrEqual(t *testing.T) {
 	expect.Number(utcTime).I("utcTime").Not().ToBeBetweenOrEqual(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")
 }
+
+func ExampleOrderedType_ToBe() {
+	var t *testing.T
+
+	// number matching can use any size of int or uint or float, or subtype of any of them
+	v := 123
+	expect.Number(v).ToBe(t, 123)
+
+	var i int // some loop counter
+	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
+}
+
+func ExampleOrderedType_ToBeBetween() {
+	var t *testing.T
+
+	// number matching can use any size of int or uint or float, or subtype of any of them
+	v := 123
+	expect.Number(v).ToBeBetween(t, 100, 200)
+
+	var i int // some loop counter
+	expect.Number(v).Info("loop %d", i).Not().ToBeBetween(t, 1, 10)
+}
+
+func ExampleOrderedType_ToBeGreaterThan() {
+	var t *testing.T
+
+	// number matching can use any size of int or uint or float, or subtype of any of them
+	v := 123
+	expect.Number(v).ToBeGreaterThan(t, 100)
+
+	var i int // some loop counter
+	expect.Number(v).Info("loop %d", i).Not().ToBeGreaterThan(t, 200)
+}

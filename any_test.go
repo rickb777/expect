@@ -159,3 +159,21 @@ func TestAnyToEqualOrNot(t *testing.T) {
 	expect.Any(weight).I("weight").Not().ToEqual(c, 1001)
 	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 not to equal int ―――\n  1001\n")
 }
+
+func ExampleAnyType_ToBe() {
+	var t *testing.T
+
+	type pair struct {
+		a, b int
+	}
+
+	// Any matching is most useful for structs (but can test anything)
+	v := pair{1, 2}
+	expect.Any(v).ToBe(t, pair{1, 2})
+	expect.Any(v).Not().ToBe(t, pair{3, 4})
+
+	var i int // some loop counter
+
+	// Info gives more information when the test fails, such as within a loop
+	expect.Any(v).Info("loop %d", i).ToBe(t, pair{1, 2})
+}

@@ -244,3 +244,39 @@ func TestMapNotToContainAny(t *testing.T) {
 		"――― not to contain any of 5 but these 2 were found ―――\n"+
 		"  [98 99]\n")
 }
+
+func ExampleMapType_ToBe() {
+	var t *testing.T
+
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+	// ToBe verifies all the keys and values match
+	expect.Map(m).ToBe(t, map[string]int{"a": 1, "b": 2, "c": 3})
+}
+
+func ExampleMapType_ToContain() {
+	var t *testing.T
+
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+
+	// verify one key is present
+	expect.Map(m).ToContain(t, "b")
+
+	// verify one key and its value match
+	expect.Map(m).ToContain(t, "b", 2)
+}
+
+func ExampleMapType_ToContainAll() {
+	var t *testing.T
+
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+
+	expect.Map(m).ToContainAll(t, "a", "b")
+}
+
+func ExampleMapType_ToContainAny() {
+	var t *testing.T
+
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+
+	expect.Map(m).ToContainAny(t, "z", "b")
+}
