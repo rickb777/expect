@@ -44,7 +44,7 @@ func (a FuncType) ToPanic(t Tester) {
 	defer func() {
 		if e := recover(); e != nil {
 			if a.not {
-				t.Errorf("Expected%s not to panic\n", preS(a.info))
+				t.Errorf("Expected%s not to panic.\n", preS(a.info))
 			}
 		}
 	}()
@@ -52,7 +52,7 @@ func (a FuncType) ToPanic(t Tester) {
 	a.actual()
 
 	if !a.not {
-		t.Errorf("Expected%s to panic\n", preS(a.info))
+		t.Errorf("Expected%s to panic.\n", preS(a.info))
 	}
 }
 
@@ -87,5 +87,5 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 
 	a.actual()
 
-	t.Errorf("Expected%s to panic\n", preS(a.info))
+	t.Errorf("Expected%s to panic.\n", preS(a.info))
 }

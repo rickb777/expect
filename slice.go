@@ -55,10 +55,10 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 	}
 
 	if !a.not && !isNilish(a.actual) {
-		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil\n",
+		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil.\n",
 			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		t.Errorf("Expected%s %T not to be nil\n",
+		t.Errorf("Expected%s %T not to be nil.\n",
 			preS(a.info), a.actual)
 	}
 
@@ -68,6 +68,7 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected slices have the same values and types.
+// The values must be in the same order.
 // The tester is normally [*testing.T].
 func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 	if h, ok := t.(helper); ok {
@@ -98,7 +99,7 @@ func (a SliceType[T]) ToBeEmpty(t Tester) {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, 0, "to be empty")
+	a.toHaveLength(t, 0, "to be empty.", true)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -110,12 +111,12 @@ func (a SliceType[T]) ToHaveLength(t Tester, expected int) {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d.", expected), true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
-func (a SliceType[T]) toHaveLength(t Tester, expected int, what string) {
+func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActual bool) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -123,7 +124,7 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string) {
 	actual := len(a.actual)
 
 	as := ""
-	if len(a.actual) > 0 {
+	if showActual && len(a.actual) > 0 {
 		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
 	}
 
@@ -156,7 +157,7 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found.\n",
 				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
 		} else if len(found) < len(expected)/2 {
 			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but only %s found ―――\n  %v\n",
@@ -168,7 +169,7 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but they were all present\n",
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but they were all present.\n",
 			preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
 	}
 
@@ -195,11 +196,11 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	if !a.not && len(found) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present\n",
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present.\n",
 			preS(a.info), a.actual, len(a.actual), a.actual, anyOfN.FormatInt(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
 				preS(a.info), a.actual, len(a.actual), a.actual,
 				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 		} else if len(missing) < len(expected)/2 {

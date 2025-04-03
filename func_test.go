@@ -12,7 +12,7 @@ func TestFuncToPanic(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Func(func() {}).Info("my func").ToPanic(c)
-	c.shouldHaveCalledErrorf(t, "Expected my func to panic\n")
+	c.shouldHaveCalledErrorf(t, "Expected my func to panic.\n")
 
 	expect.Func(func() { panic("happy") }).Info("my func").ToPanicWithMessage(c, "ouch")
 	c.shouldHaveCalledErrorf(t, "Expected my func to panic with a message containing ―――\n"+
@@ -34,5 +34,5 @@ func TestFuncNotToPanic(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Func(func() { panic("ouch") }).I("my func").Not().ToPanic(c)
-	c.shouldHaveCalledErrorf(t, "Expected my func not to panic\n")
+	c.shouldHaveCalledErrorf(t, "Expected my func not to panic.\n")
 }

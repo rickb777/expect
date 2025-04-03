@@ -27,7 +27,7 @@ func TestStringToBe(t *testing.T) {
 		"  abcµdef-0123456789\n"+
 		"――― to be ―――\n"+
 		"  abcµdfe-0123456789\n"+
-		"――― the first difference is at index 5\n")
+		"――― the first difference is at index 5.\n")
 
 	numbers1 := strings.Repeat("01234µ6789", 6)
 	expect.String(numbers1+"<").Trim(50).ToBe(c, numbers1+">")
@@ -35,7 +35,7 @@ func TestStringToBe(t *testing.T) {
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ6789<\n"+
 		"――― to be ―――                                       ↕\n"+
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ6789>\n"+
-		"――― the first difference is at index 60\n")
+		"――― the first difference is at index 60.\n")
 }
 
 func TestStringToEqual(t *testing.T) {
@@ -54,7 +54,7 @@ func TestStringToEqual(t *testing.T) {
 		"  abcµdef-0123456789\n"+
 		"――― to equal ―――\n"+
 		"  abcµdfe-0123456789\n"+
-		"――― the first difference is at index 5\n")
+		"――― the first difference is at index 5.\n")
 
 	numbers2 := strings.Repeat("01234µ6789", 7)
 
@@ -63,21 +63,21 @@ func TestStringToEqual(t *testing.T) {
 		"  01234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»6789\n"+
 		"――― to equal ―――                                    ↕\n"+
 		"  01234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789\n"+
-		"――― the first difference is at index 50\n")
+		"――― the first difference is at index 50.\n")
 
 	expect.String(numbers2+numbers1).ToEqual(c, numbers2+numbers2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»6789\n"+
 		"――― to equal ―――                                                        ↕\n"+
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789\n"+
-		"――― the first difference is at index 120\n")
+		"――― the first difference is at index 120.\n")
 
 	expect.String(numbers2+numbers1+numbers2).Trim(100).ToEqual(c, numbers2+numbers2+numbers2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»678901234µ678901234µ6…\n"+
 		"――― to equal ―――                                                        ↕\n"+
 		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789…\n"+
-		"――― the first difference is at index 120\n")
+		"――― the first difference is at index 120.\n")
 }
 
 func TestStringNotToBe(t *testing.T) {
@@ -91,7 +91,8 @@ func TestStringNotToBe(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to be ―――\n  hello\n")
 
 	expect.String(stringTest(errors.New("bang"))).I("data").Not().ToBe(c, "")
-	c.shouldHaveCalledFatalf(t, "Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t, "Expected data ―――\n  \"\"\n――― not to be ―――\n  \"\"\n",
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
 }
 
 func TestStringNotToEqual(t *testing.T) {
@@ -117,23 +118,23 @@ func TestStringToHaveLength(t *testing.T) {
 	expect.String("abcdef").ToHaveLength(c, 5)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
 		"  abcdef\n"+
-		"――― to have length 5\n")
+		"――― to have length 5.\n")
 
 	expect.String("abcdef").Not().ToHaveLength(c, 6)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
 		"  abcdef\n"+
-		"――― not to have length 6\n")
+		"――― not to have length 6.\n")
 
 	var longString = strings.Repeat("0123456789", 10)
 	expect.String(longString).ToHaveLength(c, 90)
 	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
 		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n"+
-		"――― to have length 90\n")
+		"――― to have length 90.\n")
 
 	expect.String(longString).Trim(80).ToHaveLength(c, 90)
 	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
 		"  01234567890123456789012345678901234567890123456789012345678901234567890123456789…\n"+
-		"――― to have length 90\n")
+		"――― to have length 90.\n")
 }
 
 func TestStringToBeEmpty(t *testing.T) {
@@ -148,10 +149,10 @@ func TestStringToBeEmpty(t *testing.T) {
 	expect.String("abcdef").ToBeEmpty(c)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
 		"  abcdef\n"+
-		"――― to be empty\n")
+		"――― to be empty.\n")
 
 	expect.String([]byte{}).Not().ToBeEmpty(c)
-	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:0 not to be empty\n")
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:0 not to be empty.\n")
 }
 
 func TestStringToContain(t *testing.T) {

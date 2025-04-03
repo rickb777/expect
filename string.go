@@ -64,7 +64,7 @@ func (a StringType[S]) ToBeEmpty(t Tester) {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, 0, "to be empty")
+	a.toHaveLength(t, 0, "to be empty.")
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ func (a StringType[S]) ToHaveLength(t Tester, expected int) {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d.", expected))
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ func firstDifferenceInfo(i int) string {
 	if i < 0 {
 		return ""
 	}
-	return fmt.Sprintf("――― the first difference is at index %d\n", i)
+	return fmt.Sprintf("――― the first difference is at index %d.\n", i)
 }
 
 func trim(s string, trim int) string {

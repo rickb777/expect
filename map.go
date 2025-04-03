@@ -99,7 +99,7 @@ func (a MapType[K, V]) ToBeEmpty(t Tester) {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, 0, "to be empty")
+	a.toHaveLength(t, 0, "to be empty.")
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ func (a MapType[K, V]) ToHaveSize(t Tester, expected int) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
-	a.toHaveLength(t, expected, fmt.Sprintf("to have size %d", expected))
+	a.toHaveLength(t, expected, fmt.Sprintf("to have size %d.", expected))
 }
 
 // ToHaveLength asserts that the map has the expected length.
@@ -119,7 +119,7 @@ func (a MapType[K, V]) ToHaveLength(t Tester, expected int) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
-	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d", expected))
+	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d.", expected))
 }
 
 // ToHaveLength asserts that the map has the expected length.
@@ -247,7 +247,7 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found.\n",
 				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)))
 		} else if len(found) < len(expectedKey)/2 {
 			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but only %s found ―――\n  %v\n",
@@ -257,7 +257,7 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present\n",
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
 			preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
 	}
 
@@ -290,11 +290,11 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 	}
 
 	if !a.not && len(found) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present\n",
+		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present.\n",
 			preS(a.info), a.actual, len(a.actual), a.actual, anyOfN.FormatInt(len(expectedKey)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present\n",
+			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
 				preS(a.info), a.actual, len(a.actual), a.actual,
 				anyOfN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
 		} else if len(missing) < len(expectedKey)/2 {

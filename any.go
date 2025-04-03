@@ -133,10 +133,10 @@ func (a AnyType[T]) ToBeNil(t Tester) {
 	}
 
 	if !a.not && !isNilish(a.actual) {
-		t.Errorf("Expected%s %T ―――\n%s――― to be nil\n",
+		t.Errorf("Expected%s %T ―――\n%s――― to be nil.\n",
 			preS(a.info), a.actual, verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		t.Errorf("Expected%s %T not to be nil\n",
+		t.Errorf("Expected%s %T not to be nil.\n",
 			preS(a.info), a.actual)
 	}
 

@@ -34,7 +34,8 @@ func TestNumberNotToBe(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be ―――\n  1710000000\n")
 
 	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToBe(c, 0)
-	c.shouldHaveCalledFatalf(t, "Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t, "Expected data int ―――\n  0\n――― not to be ―――\n  0\n",
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
 }
 
 func TestNumberToBeGreaterThan(t *testing.T) {

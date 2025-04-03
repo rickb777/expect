@@ -103,7 +103,8 @@ func TestAnyNotToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any(boolTest(errors.New("bang"))).I("data").Not().ToBe(c, false)
-	c.shouldHaveCalledFatalf(t, "Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t, "Expected data bool not to be ―――\n  false\n",
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
 }
 
 func TestAnyToBeBytes(t *testing.T) {
@@ -131,13 +132,13 @@ func TestAnyToBeNilOrNot(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any("hello").I("weight").ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\n  hello\n  \"hello\"\n――― to be nil\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\n  hello\n  \"hello\"\n――― to be nil.\n")
 
 	expect.Any(1).Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any(weight).I("weight").Not().ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected weight *int not to be nil\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight *int not to be nil.\n")
 }
 
 func TestAnyToEqualOrNot(t *testing.T) {

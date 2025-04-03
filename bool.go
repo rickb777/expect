@@ -72,7 +72,7 @@ func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 	}
 
 	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
-		t.Errorf("Expected%s %sto be %v\n", preS(a.info), notS(a.not), expected)
+		t.Errorf("Expected%s %sto be %v.\n", preS(a.info), notS(a.not), expected)
 	}
 
 	allOtherArgumentsMustBeNil(t, a.info, a.other...)
