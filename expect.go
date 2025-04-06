@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 )
 
 // Tester reports test errors and failures. Notably, [testing.T] implements this interface.
 type Tester interface {
-	Errorf(format string, args ...any)
-	Fatalf(format string, args ...any)
+	Error(args ...any)
+	Fatal(args ...any)
 }
 
 type helper interface {
@@ -17,37 +18,97 @@ type helper interface {
 }
 
 // JustLogIt is a tester that calls log.Fatalf on all test errors and failures.
-var JustLogIt = SimpleTester(log.Fatalf, log.Fatalf)
+var JustLogIt = SimpleTester(log.Fatal, log.Fatal)
 
 // SimpleTester is a tester that calls errorf on test errors and fatalf on test failures.
-func SimpleTester(errorf, fatalf func(format string, v ...any)) Tester {
-	return &simpleTester{errorf: errorf, fatalf: fatalf}
+func SimpleTester(errorFn, fatalFn func(v ...any)) Tester {
+	return &simpleTester{errorFn: errorFn, fatalFn: fatalFn}
 }
 
 type simpleTester struct {
-	errorf, fatalf func(format string, v ...any)
+	errorFn, fatalFn func(v ...any)
 }
 
-func (c *simpleTester) Errorf(message string, args ...any) {
-	c.errorf(message, args...)
+func (c *simpleTester) Error(args ...any) {
+	c.errorFn(args...)
 }
 
-func (c *simpleTester) Fatalf(message string, args ...any) {
-	c.fatalf(message, args...)
-}
-
-//-------------------------------------------------------------------------------------------------
-
-func deepEqual() {
-
+func (c *simpleTester) Fatal(args ...any) {
+	c.fatalFn(args...)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 type assertion struct {
-	info  string
-	other []any
-	not   bool
+	info              string
+	otherActual       []any
+	not               bool
+	passes            int
+	actualDescription string
+	actualSeparator   bool
+	moreMessages      []string
+}
+
+func (a *assertion) describeActual1line(message string, args ...any) {
+	a.actualDescription = fmt.Sprintf(message, args...)
+	a.actualSeparator = false
+}
+
+func (a *assertion) describeActualMulti(message string, args ...any) {
+	a.actualDescription = fmt.Sprintf(message, args...)
+	a.actualSeparator = true
+}
+
+func (a *assertion) addExpectation(message string, args ...any) {
+	a.moreMessages = append(a.moreMessages, fmt.Sprintf(message, args...))
+}
+
+func (a *assertion) applyAll(t Tester) {
+	if t != nil && a.passes == 0 {
+		if h, ok := t.(helper); ok {
+			h.Helper()
+		}
+
+		as := ""
+		if a.actualSeparator {
+			as = "――― "
+		}
+
+		if a.not {
+			t.Error(a.actualDescription + join(as+"not ", a.moreMessages, "\n――― and not "))
+		} else {
+			t.Error(a.actualDescription + join(as, a.moreMessages, "\n――― or "))
+		}
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func join(before string, messages []string, separator string) string {
+	if len(messages) == 0 {
+		return ""
+	}
+	return before + strings.Join(messages, separator)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (a *assertion) allOtherArgumentsMustBeNil(t Tester) {
+	if a != nil {
+		if h, ok := t.(helper); ok {
+			h.Helper()
+		}
+
+		for i, o := range a.otherActual {
+			if o != nil {
+				v := "value"
+				if _, ok := o.(error); ok {
+					v = "error"
+				}
+				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n", preS(a.info), v, i+2, o, o))
+			}
+		}
+	}
 }
 
 //=================================================================================================
@@ -121,22 +182,4 @@ func sliceContains[T comparable](list []T, wanted T) bool {
 		}
 	}
 	return false
-}
-
-//-------------------------------------------------------------------------------------------------
-
-func allOtherArgumentsMustBeNil(t Tester, info string, other ...any) {
-	if h, ok := t.(helper); ok {
-		h.Helper()
-	}
-
-	for i, o := range other {
-		if o != nil {
-			v := "value"
-			if _, ok := o.(error); ok {
-				v = "error"
-			}
-			t.Fatalf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n", preS(info), v, i+2, o, o)
-		}
-	}
 }

@@ -19,7 +19,7 @@ type MapType[K comparable, V any] struct {
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [MapType.Using]
 func Map[K comparable, V any](value map[K]V, other ...any) MapType[K, V] {
-	return MapType[K, V]{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
+	return MapType[K, V]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -57,15 +57,19 @@ func (a MapType[K, V]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if !a.not && !isNilish(a.actual) {
-		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil\n",
+		a.describeActual1line("Expected%s %T len:%d ―――\n%s――― to be nil\n",
 			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		t.Errorf("Expected%s %T not to be nil\n",
+		a.describeActual1line("Expected%s %T not to be nil\n",
 			preS(a.info), a.actual)
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -77,17 +81,21 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
 	match := gocmp.Equal(a.actual, expected, opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s %T len:%d ―――\n  %+v\n――― %sto be len:%d ―――\n  %+v\n",
+		a.describeActual1line("Expected%s %T len:%d ―――\n  %+v\n――― %sto be len:%d ―――\n  %+v\n",
 			preS(a.info), a.actual, len(a.actual), a.actual,
 			notS(a.not), len(expected), expected)
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -129,19 +137,23 @@ func (a MapType[K, V]) toHaveLength(t Tester, expected int, what string) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	actual := len(a.actual)
 
-	as := ""
-	if len(a.actual) > 0 {
-		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
-	}
-
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
-		t.Errorf("Expected%s %T len:%d %s%s%s\n",
-			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
+		if len(a.actual) > 0 {
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("%s\n", what)
+		} else {
+			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.addExpectation("%s\n", what)
+		}
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -153,16 +165,16 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	value, present := a.actual[expectedKey]
 
 	types := gatherTypes(nil, a.actual, expectedKey)
 
-	expectedKeyValue := ""
 	evi := ""
 	expectedKeyS := quotedString(expectedKey)
 
 	if len(expectedValue) > 0 {
-		expectedKeyValue = fmt.Sprintf("  %s: %+v\n", expectedKeyS, expectedValue[0])
 		if a.not {
 			evi = " but it should not match"
 		} else {
@@ -176,32 +188,32 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 
 	if !a.not {
 		if !present {
-			t.Errorf("Expected%s %T len:%d to contain %s; keys are ―――\n  [%s]\n",
+			a.describeActual1line("Expected%s %T len:%d to contain %s; keys are ―――\n  [%s]\n",
 				preS(a.info), a.actual, len(a.actual),
 				expectedKeyS, strings.Join(toString(keys(a.actual)), ", "))
-
 		} else if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], opts) {
-			t.Errorf("Expected%s %T len:%d ―――\n  %s: %+v\n――― to contain %s%s ―――\n%s",
-				preS(a.info), a.actual, len(a.actual), expectedKeyS, value,
-				expectedKeyS, evi, expectedKeyValue)
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %s: %+v\n", preS(a.info), a.actual, len(a.actual), expectedKeyS, value)
+			a.addExpectation("to contain %s%s ―――\n  %s: %+v\n", expectedKeyS, evi, expectedKeyS, expectedValue[0])
+		} else {
+			a.passes++
 		}
 
 	} else if present {
-		if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], opts) {
-			t.Errorf("Expected%s %T len:%d contains ―――\n"+
-				"  %s: %+v\n"+
-				"――― but should contain ―――\n%s",
-				preS(a.info), a.actual, len(a.actual),
-				expectedKeyS, value, expectedKeyValue)
+		if len(expectedValue) > 0 && gocmp.Equal(value, expectedValue[0], opts) {
+			a.describeActual1line("Expected%s %T len:%d not to contain ―――\n  %s: %+v\n――― but it does.\n",
+				preS(a.info), a.actual, len(a.actual), expectedKeyS, value)
 
 		} else {
-			t.Errorf("Expected%s %T len:%d not to contain %s; keys are ―――\n  [%s]\n",
+			a.describeActual1line("Expected%s %T len:%d not to contain %s; keys are ―――\n  [%s]\n",
 				preS(a.info), a.actual, len(a.actual),
 				expectedKeyS, strings.Join(toString(keys(a.actual)), ", "))
 		}
+
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 func quotedString(v any) string {
@@ -229,6 +241,8 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
 		return
@@ -247,21 +261,23 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found.\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)))
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expectedKey)))
 		} else if len(found) < len(expectedKey)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but only %s found ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s found ―――\n  %v\n", allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but %s missing ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s missing ―――\n  %v\n", allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+		a.addExpectation("to contain %s but %s present.\n", allN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -272,6 +288,8 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
@@ -290,25 +308,24 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 	}
 
 	if !a.not && len(found) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present.\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, anyOfN.FormatInt(len(expectedKey)))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expectedKey)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
-				anyOfN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s present.\n", anyOfN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
 		} else if len(missing) < len(expectedKey)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but only %s missing ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
-				anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s missing ―――\n  %v\n", anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s found ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
-				anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s found ―――\n  %v\n", anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
 		}
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------

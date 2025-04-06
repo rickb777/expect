@@ -12,7 +12,7 @@ type BoolType[B ~bool] struct {
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
 func Bool[B ~bool](value B, other ...any) BoolType[B] {
-	return BoolType[B]{actual: value, assertion: assertion{other: other}}
+	return BoolType[B]{actual: value, assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -39,6 +39,10 @@ func (a BoolType[B]) Not() BoolType[B] {
 // ToBeTrue asserts that the actual value is true.
 // The tester is normally [*testing.T].
 func (a BoolType[B]) ToBeTrue(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
 	a.ToBe(t, true)
 }
 
@@ -47,6 +51,10 @@ func (a BoolType[B]) ToBeTrue(t Tester) {
 // ToBeFalse asserts that the actual value is true.
 // The tester is normally [*testing.T].
 func (a BoolType[B]) ToBeFalse(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
 	a.ToBe(t, false)
 }
 
@@ -71,9 +79,13 @@ func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
-		t.Errorf("Expected%s %sto be %v.\n", preS(a.info), notS(a.not), expected)
+		a.describeActual1line("Expected%s %sto be %v.\n", preS(a.info), notS(a.not), expected)
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }

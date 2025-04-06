@@ -18,7 +18,7 @@
 There are **eight primary categories**, each introduce by a function:
 
 ### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...)
-This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below.
+This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below. This `a.Equal(b)` method if it is present - so this compares types such as `time.Time` correctly. Otherwise it behaves like `reflect.DeepEqual`.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
@@ -30,10 +30,10 @@ This compares `int` and all the signed/unsigned int and float length variants, p
 This compares `bool` and any subclass.
 
 ### expect.[Map](https://pkg.go.dev/github.com/rickb777/expect#Map)(actual ...)
-This compares `map[K]V` where the map key `K` is a comparable type.
+This compares `map[K]V` where the map key `K` is a comparable type. **Map** provides more methods than **Any** above, but is otherwise very similar. 
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
-This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices.
+This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices. **Slice** provides more methods than **Any** above, but is otherwise very similar.
 
 ### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
 This compares `error` only.
@@ -57,6 +57,10 @@ All categories include these general methods
  * `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described below)
 
 **String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
+
+## 'Or' Conjunction
+
+**String** has `Or()` that allows multiple alternatives to be accepted. There is no need for 'and' conjunctions because you simply add more assertions.
 
 ## Assertions
 

@@ -51,8 +51,10 @@ func TestBoolNotToBeFalse(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected data not to be false.\n")
 
 	expect.Bool(boolTest(errors.New("bang"))).I("data").Not().ToBeFalse(c)
-	c.shouldHaveCalledFatalf(t, "Expected data not to be false.\n",
-		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t,
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n",
+		"Expected data not to be false.\n",
+	)
 }
 
 func ExampleBoolType_ToBe() {

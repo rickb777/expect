@@ -103,8 +103,10 @@ func TestAnyNotToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any(boolTest(errors.New("bang"))).I("data").Not().ToBe(c, false)
-	c.shouldHaveCalledFatalf(t, "Expected data bool not to be ―――\n  false\n",
-		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t,
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n",
+		"Expected data bool not to be ―――\n  false\n",
+	)
 }
 
 func TestAnyToBeBytes(t *testing.T) {

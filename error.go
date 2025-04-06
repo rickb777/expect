@@ -1,6 +1,7 @@
 package expect
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -81,14 +82,16 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 
 	if not {
 		if a.actual != nil {
-			t.Fatalf("Expected%s error ―――\n  %s\n――― not to have occurred.\n",
-				preS(a.info), blank(a.actual.Error()))
+			t.Fatal(fmt.Sprintf("Expected%s error ―――\n  %s\n――― not to have occurred.\n",
+				preS(a.info), blank(a.actual.Error())))
 		}
 	} else {
 		if a.actual == nil {
-			t.Errorf("Expected%s error to have occurred.\n", preS(a.info))
+			a.describeActual1line("Expected%s error to have occurred.\n", preS(a.info))
+			a.applyAll(t)
 		}
 	}
+
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -103,13 +106,17 @@ func (a ErrorType) ToContain(t Tester, substring string) {
 	}
 
 	if a.actual == nil {
-		t.Errorf("Expected%s error to have occurred but there was no error.\n", preS(a.info))
+		a.describeActual1line("Expected%s error to have occurred but there was no error.\n", preS(a.info))
 	} else {
 		msg := a.actual.Error()
 		match := strings.Contains(msg, substring)
 		if (!a.not && !match) || (a.not && match) {
-			t.Errorf("Expected%s error ―――\n  %s\n――― %sto contain ―――\n  %s\n",
-				preS(a.info), blank(msg), notS(a.not), substring)
+			a.describeActualMulti("Expected%s error ―――\n  %s\n", preS(a.info), blank(msg))
+			a.addExpectation("to contain ―――\n  %s\n", substring)
+		} else {
+			a.passes++
 		}
 	}
+
+	a.applyAll(t)
 }

@@ -14,8 +14,13 @@ type Stringy interface {
 // StringType is used for assertions about strings.
 type StringType[S Stringy] struct {
 	actual S
-	assertion
+	*assertion
 	trim int
+}
+
+type StringOr[S Stringy] struct {
+	main   *StringType[S]
+	passes int
 }
 
 // String creates a string assertion. Strings must contain valid UTF8 encodings.
@@ -25,32 +30,32 @@ type StringType[S Stringy] struct {
 // If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
-func String[S Stringy](value S, other ...any) StringType[S] {
-	return StringType[S]{actual: value, assertion: assertion{other: other}}
+func String[S Stringy](value S, other ...any) *StringType[S] {
+	return &StringType[S]{actual: value, assertion: &assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
 // The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a StringType[S]) Info(info any, other ...any) StringType[S] {
+func (a *StringType[S]) Info(info any, other ...any) *StringType[S] {
 	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a StringType[S]) I(info any, other ...any) StringType[S] {
+func (a *StringType[S]) I(info any, other ...any) *StringType[S] {
 	return a.Info(info, other...)
 }
 
 // Trim shortens the error message for very long strings.
 // Trimming is disabled by default.
-func (a StringType[S]) Trim(at int) StringType[S] {
+func (a *StringType[S]) Trim(at int) *StringType[S] {
 	a.trim = at
 	return a
 }
 
 // Not inverts the assertion.
-func (a StringType[S]) Not() StringType[S] {
+func (a *StringType[S]) Not() *StringType[S] {
 	a.not = !a.not
 	return a
 }
@@ -59,101 +64,121 @@ func (a StringType[S]) Not() StringType[S] {
 
 // ToBeEmpty asserts that the string has zero length.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToBeEmpty(t Tester) {
+func (a *StringType[S]) ToBeEmpty(t Tester) *StringOr[S] {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, 0, "to be empty.")
+	return a.toHaveLength(t, 0, "to be empty.")
 }
 
-//-------------------------------------------------------------------------------------------------
-// TODO ToHaveLengthGreaterThan ToHaveLengthLessThan ToMatch
 //-------------------------------------------------------------------------------------------------
 
 // ToHaveLength asserts that the string has the expected length.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToHaveLength(t Tester, expected int) {
+func (a *StringType[S]) ToHaveLength(t Tester, expected int) *StringOr[S] {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toHaveLength(t, expected, fmt.Sprintf("to have length %d.", expected))
+	return a.toHaveLength(t, expected, fmt.Sprintf("to have length %d.", expected))
 }
 
 //-------------------------------------------------------------------------------------------------
 
-func (a StringType[S]) toHaveLength(t Tester, expected int, what string) {
+func (a *StringType[S]) toHaveLength(t Tester, expected int, what string) *StringOr[S] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	actual := len(a.actual)
 
-	as := ""
-	if len(a.actual) > 0 {
-		as = fmt.Sprintf("―――\n  %v\n――― ", trim(string(a.actual), a.trim))
-	}
-
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
-		t.Errorf("Expected%s %T len:%d %s%s%s\n",
-			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
+		if len(a.actual) > 0 {
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual),
+				trim(string(a.actual), a.trim))
+			a.addExpectation("%s\n", what)
+		} else {
+			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.addExpectation("%s\n", what)
+		}
+		return a.conjunction(t, false)
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the actual string contains the substring.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToContain(t Tester, substring S) {
+func (a *StringType[S]) ToContain(t Tester, substring S) *StringOr[S] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	ac := string(a.actual)
 	ex := string(substring)
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s ―――\n  %s\n――― %sto contain ―――\n  %s\n",
-			preS(a.info), trim(ac, a.trim), notS(a.not), trim(ex, a.trim))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n  %s\n", preS(a.info), a.actual, len(a.actual), trim(ac, a.trim))
+		a.addExpectation("to contain ―――\n  %s\n", trim(ex, a.trim))
+		return a.conjunction(t, false)
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToMatch asserts that the actual string matches a regular expression.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) {
+func (a *StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) *StringOr[S] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	ac := string(a.actual)
 	match := pattern.MatchString(ac)
 
 	if (!a.not && !match) || (a.not && match) {
-		t.Errorf("Expected%s ―――\n  %s\n――― %sto match ―――\n  %s\n",
-			preS(a.info), trim(ac, a.trim), notS(a.not), pattern)
+		a.describeActualMulti("Expected%s ―――\n  %s\n", preS(a.info), trim(ac, a.trim))
+		a.addExpectation("to match ―――\n  %s\n", pattern)
+		return a.conjunction(t, false)
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected strings have the same values and types.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToBe(t Tester, expected S) {
+func (a *StringType[S]) ToBe(t Tester, expected S) *StringOr[S] {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual(t, "to be", string(expected))
+	return a.toEqual(t, "to be", string(expected))
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -161,20 +186,26 @@ func (a StringType[S]) ToBe(t Tester, expected S) {
 // ToEqual asserts that the actual and expected strings have the same values and similar types.
 // Unlike [StringType.ToBe], the concrete type may differ.
 // The tester is normally [*testing.T].
-func (a StringType[S]) ToEqual(t Tester, expected string) {
+func (a *StringType[S]) ToEqual(t Tester, expected string) *StringOr[S] {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.toEqual(t, "to equal", expected)
+	return a.toEqual(t, "to equal", expected)
 }
 
 //-------------------------------------------------------------------------------------------------
 
-func (a StringType[S]) toEqual(t Tester, what, expected string) {
+func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	actual := string(a.actual)
 
@@ -194,22 +225,47 @@ func (a StringType[S]) toEqual(t Tester, what, expected string) {
 			expected = "…" + string(ex[chop:])
 			pointer = rem + 1
 		}
-		t.Errorf("Expected%s ―――\n  %s\n%s\n  %s\n%s",
-			preS(a.info),
-			trim(actual, a.trim),
-			arrowMarker(notS(a.not), what, pointer),
-			trim(expected, a.trim),
-			firstDifferenceInfo(diff))
+		a.describeActualMulti("Expected%s ―――\n  %s\n", preS(a.info), trim(actual, a.trim))
+		a.addExpectation("%s\n  %s\n%s",
+			arrowMarker(what, pointer), trim(expected, a.trim), firstDifferenceInfo(diff))
+		return a.conjunction(t, false)
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	return a.conjunction(t, true)
 }
 
 //=================================================================================================
 
-func arrowMarker(not, label string, i int) string {
-	indicator := fmt.Sprintf("――― %s%s ―――", not, label)
-	iLength := utf8.RuneCountInString(indicator)
+func (a *StringType[S]) conjunction(t Tester, pass bool) *StringOr[S] {
+	if pass {
+		a.passes++
+	}
+
+	if t == nil {
+		return &StringOr[S]{main: a, passes: a.passes} // defer evaluation
+	}
+
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+	a.applyAll(t)
+	return nil
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (or *StringOr[S]) Or() *StringType[S] {
+	if or == nil {
+		return nil
+	}
+	return or.main
+}
+
+//=================================================================================================
+
+func arrowMarker(label string, i int) string {
+	indicator := fmt.Sprintf("%s ―――", label)
+	iLength := utf8.RuneCountInString("――― " + indicator)
 	if i <= iLength {
 		return indicator
 	}

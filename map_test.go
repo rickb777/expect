@@ -159,11 +159,10 @@ func TestMapNotToContain(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 not to contain \"a\"; keys are ―――\n"+
 		"  [a, b]\n")
 
-	expect.Map(m).Not().ToContain(c, "a", 7)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 contains ―――\n"+
+	expect.Map(m).Not().ToContain(c, "a", 1)
+	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 not to contain ―――\n"+
 		"  \"a\": 1\n"+
-		"――― but should contain ―――\n"+
-		"  \"a\": 7\n")
+		"――― but it does.\n")
 }
 
 func TestMapToContainAll(t *testing.T) {

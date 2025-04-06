@@ -12,6 +12,43 @@ type MyString string
 
 func stringTest(e error) (string, error) { return "", e }
 
+func TestStringOr(t *testing.T) {
+	c := &capture{}
+
+	var s MyString = "hello"
+	expect.String(s).ToBe(nil, "goodbye").Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBe(nil, "hello").Or().ToBe(c, "world")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("Ron").ToBe(nil, "Fred").Or().ToBe(nil, "George").Or().ToBe(c, "Ginny")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
+		"  Ron\n"+
+		"――― to be ―――\n"+
+		"  Fred\n"+
+		"――― the first difference is at index 0.\n"+
+		"\n"+
+		"――― or to be ―――\n"+
+		"  George\n"+
+		"――― the first difference is at index 0.\n"+
+		"\n"+
+		"――― or to be ―――\n"+
+		"  Ginny\n"+
+		"――― the first difference is at index 0.\n")
+
+	expect.String("abcµdef-0123456789").ToBe(nil, "abcµdfe-0123456789").Or().ToBe(c, "bacµdef-0123456789")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
+		"  abcµdef-0123456789\n"+
+		"――― to be ―――\n"+
+		"  abcµdfe-0123456789\n"+
+		"――― the first difference is at index 5.\n"+
+		"\n"+
+		"――― or to be ―――\n"+
+		"  bacµdef-0123456789\n"+
+		"――― the first difference is at index 0.\n")
+}
+
 func TestStringToBe(t *testing.T) {
 	c := &capture{}
 
@@ -91,8 +128,10 @@ func TestStringNotToBe(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to be ―――\n  hello\n")
 
 	expect.String(stringTest(errors.New("bang"))).I("data").Not().ToBe(c, "")
-	c.shouldHaveCalledFatalf(t, "Expected data ―――\n  \"\"\n――― not to be ―――\n  \"\"\n",
-		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n")
+	c.shouldHaveCalledFatalf(t,
+		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n",
+		"Expected data ―――\n  \"\"\n――― not to be ―――\n  \"\"\n",
+	)
 }
 
 func TestStringNotToEqual(t *testing.T) {
@@ -163,7 +202,7 @@ func TestStringToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToContain(c, "world")
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to contain ―――\n  world\n")
+	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\n  hello\n――― to contain ―――\n  world\n")
 }
 
 func TestStringNotToContain(t *testing.T) {
@@ -174,7 +213,7 @@ func TestStringNotToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToContain(c, "ell")
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to contain ―――\n  ell\n")
+	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\n  hello\n――― not to contain ―――\n  ell\n")
 }
 
 func TestStringToMatch(t *testing.T) {

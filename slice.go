@@ -16,7 +16,7 @@ type SliceType[T comparable] struct {
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [SliceType.Using]
 func Slice[T comparable](value []T, other ...any) SliceType[T] {
-	return SliceType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
+	return SliceType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -54,15 +54,19 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if !a.not && !isNilish(a.actual) {
-		t.Errorf("Expected%s %T len:%d ―――\n%s――― to be nil.\n",
-			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n%s", preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.addExpectation("to be nil.\n")
 	} else if a.not && isNilish(a.actual) {
-		t.Errorf("Expected%s %T not to be nil.\n",
-			preS(a.info), a.actual)
+		a.describeActual1line("Expected%s %T ", preS(a.info), a.actual)
+		a.addExpectation("to be nil.\n")
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -75,6 +79,8 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	types := gatherTypes(nil, a.actual, expected)
 	opts := append(a.opts, allowUnexported(types))
 
@@ -82,12 +88,13 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 
 	if (!a.not && !match) || (a.not && match) {
 		diff := findFirstDiff(a.actual, expected)
-		t.Errorf("Expected%s %T len:%d ―――\n%s――― %sto be len:%d ―――\n%s%s",
-			preS(a.info), a.actual, len(a.actual), verbatim(a.actual),
-			notS(a.not), len(expected), verbatim(expected), firstDifferenceInfo(diff))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n%s", preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected), firstDifferenceInfo(diff))
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -121,19 +128,23 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActu
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	actual := len(a.actual)
 
-	as := ""
-	if showActual && len(a.actual) > 0 {
-		as = fmt.Sprintf("―――\n  %v\n――― ", a.actual)
-	}
-
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
-		t.Errorf("Expected%s %T len:%d %s%s%s\n",
-			preS(a.info), a.actual, len(a.actual), as, notS(a.not), what)
+		if showActual && len(a.actual) > 0 {
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("%s\n", what)
+		} else {
+			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.addExpectation("%s\n", what)
+		}
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -144,6 +155,8 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
@@ -157,23 +170,29 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were found.\n",
-				preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expected)))
 		} else if len(found) < len(expected)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but only %s found ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s found ―――\n  %v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but %s missing ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s missing ―――\n  %v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but they were all present.\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, allN.FormatInt(len(expected)))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+			preS(a.info), a.actual, len(a.actual), a.actual)
+		a.addExpectation("to contain %s but they were all present.\n", allN.FormatInt(len(expected)))
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -184,6 +203,8 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
+
+	a.allOtherArgumentsMustBeNil(t)
 
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
@@ -196,25 +217,30 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	if !a.not && len(found) == 0 {
-		t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― to contain %s but none were present.\n",
-			preS(a.info), a.actual, len(a.actual), a.actual, anyOfN.FormatInt(len(expected)))
+		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+			preS(a.info), a.actual, len(a.actual), a.actual)
+		a.addExpectation("to contain %s but none were present.\n",
+			anyOfN.FormatInt(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s present.\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s present.\n",
 				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 		} else if len(missing) < len(expected)/2 {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but only %s missing ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s missing ―――\n  %v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			t.Errorf("Expected%s %T len:%d ―――\n  %v\n――― not to contain %s but %s found ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual,
+			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
+				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s found ―――\n  %v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		}
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
-
-// TODO ToContain

@@ -44,15 +44,21 @@ func (a FuncType) ToPanic(t Tester) {
 	defer func() {
 		if e := recover(); e != nil {
 			if a.not {
-				t.Errorf("Expected%s not to panic.\n", preS(a.info))
+				a.describeActual1line("Expected%s not to panic.\n", preS(a.info))
+				a.applyAll(t)
+			} else {
+				a.passes++
 			}
 		}
 	}()
 
-	a.actual()
+	a.actual() // function under test
 
 	if !a.not {
-		t.Errorf("Expected%s to panic.\n", preS(a.info))
+		a.describeActual1line("Expected%s to panic.\n", preS(a.info))
+		a.applyAll(t)
+	} else {
+		a.passes++
 	}
 }
 
@@ -75,17 +81,19 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 		if e := recover(); e != nil {
 			if s, ok := e.(string); ok {
 				if !strings.Contains(s, substring) {
-					t.Errorf("Expected%s to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
+					a.addExpectation("Expected%s to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
 						preS(a.info), substring, s)
 				}
 			} else {
-				t.Errorf("Expected%s to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
+				a.addExpectation("Expected%s to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
 					preS(a.info), substring, e, e)
 			}
+			a.applyAll(t)
 		}
 	}()
 
-	a.actual()
+	a.actual() // function under test
 
-	t.Errorf("Expected%s to panic.\n", preS(a.info))
+	a.addExpectation("Expected%s to panic.\n", preS(a.info))
+	a.applyAll(t)
 }

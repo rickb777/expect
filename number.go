@@ -15,7 +15,7 @@ type OrderedType[O cmp.Ordered] struct {
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
 func Number[O cmp.Ordered](value O, other ...any) OrderedType[O] {
-	return OrderedType[O]{actual: value, assertion: assertion{other: other}}
+	return OrderedType[O]{actual: value, assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -46,19 +46,25 @@ func (a OrderedType[O]) ToBe(t Tester, expected O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if a.not {
 		if a.actual == expected {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, expected)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be ―――\n  %+v\n", expected)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual != expected {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, expected)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be ―――\n  %+v\n", expected)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -70,19 +76,25 @@ func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if a.not {
 		if a.actual > threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual <= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -94,19 +106,25 @@ func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if a.not {
 		if a.actual < threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual >= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -118,19 +136,25 @@ func (a OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if a.not {
 		if a.actual <= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be less than or equal to ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual > threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be less than or equal to ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -142,19 +166,25 @@ func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if a.not {
 		if a.actual >= threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be greater than or equal to ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual < threshold {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be greater than or equal to ―――\n  %+v\n",
-				preS(a.info), a.actual, a.actual, threshold)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -167,22 +197,28 @@ func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if minimum > maximum {
-		t.Errorf("Impossible test%s %T: minimum %v > maximum %v.\n",
+		a.describeActual1line("Impossible test%s %T: minimum %v > maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
 	} else if a.not {
 		if minimum <= a.actual && a.actual <= maximum {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be between ―――\n  %+v … %v (inclusive)\n",
-				preS(a.info), a.actual, a.actual, minimum, maximum)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual < minimum || a.actual > maximum {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be between ―――\n  %+v … %v (inclusive)\n",
-				preS(a.info), a.actual, a.actual, minimum, maximum)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -195,20 +231,26 @@ func (a OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if minimum >= maximum {
-		t.Errorf("Impossible test%s %T: minimum %v >= maximum %v.\n",
+		a.describeActual1line("Impossible test%s %T: minimum %v >= maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
 	} else if a.not {
 		if minimum < a.actual && a.actual < maximum {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― not to be between ―――\n  %+v … %v (exclusive)\n",
-				preS(a.info), a.actual, a.actual, minimum, maximum)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
+		} else {
+			a.passes++
 		}
 	} else {
 		if a.actual <= minimum || a.actual >= maximum {
-			t.Errorf("Expected%s %T ―――\n  %+v\n――― to be between ―――\n  %+v … %v (exclusive)\n",
-				preS(a.info), a.actual, a.actual, minimum, maximum)
+			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
+		} else {
+			a.passes++
 		}
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }

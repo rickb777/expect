@@ -78,7 +78,7 @@ var DefaultOptions = func() gocmp.Options {
 // If there is a cycle, then the pointed at values are considered equal
 // only if both addresses were previously visited in the same path step.
 func Any[T any](value T, other ...any) AnyType[T] {
-	return AnyType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{other: other}}
+	return AnyType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -132,15 +132,17 @@ func (a AnyType[T]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	if !a.not && !isNilish(a.actual) {
-		t.Errorf("Expected%s %T ―――\n%s――― to be nil.\n",
-			preS(a.info), a.actual, verbatim(a.actual))
+		a.describeActual1line("Expected%s %T ―――\n%s――― to be nil.\n", preS(a.info), a.actual, verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		t.Errorf("Expected%s %T not to be nil.\n",
-			preS(a.info), a.actual)
+		a.describeActual1line("Expected%s %T not to be nil.\n", preS(a.info), a.actual)
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -184,6 +186,8 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 		h.Helper()
 	}
 
+	a.allOtherArgumentsMustBeNil(t)
+
 	isStruct := actual != nil && reflect.TypeOf(actual).Kind() == reflect.Struct
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, actual, expected)))
@@ -197,18 +201,20 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 
 	if !a.not && diffs != "" {
 		if isStruct {
-			t.Errorf("Expected%s struct to %s as shown (-want, +got) ―――\n%s",
-				preS(a.info), what, strings.ReplaceAll(diffs, " ", " "))
+			a.describeActual1line("Expected%s struct to %s as shown (-want, +got) ―――\n", preS(a.info), what)
+			a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
 		} else {
-			t.Errorf("Expected%s %T ―――\n%s――― to %s%s ―――\n%s",
-				preS(a.info), a.actual, verbatim(a.actual), what, expectedType, verbatim(expected))
+			a.describeActualMulti("Expected%s %T ―――\n%s", preS(a.info), a.actual, verbatim(a.actual))
+			a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
 		}
 	} else if a.not && diffs == "" {
-		t.Errorf("Expected%s %T not to %s%s ―――\n%s",
-			preS(a.info), a.actual, what, expectedType, verbatim(expected))
+		a.describeActual1line("Expected%s %T ", preS(a.info), a.actual)
+		a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
+	} else {
+		a.passes++
 	}
 
-	allOtherArgumentsMustBeNil(t, a.info, a.other...)
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------
