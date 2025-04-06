@@ -13,6 +13,13 @@ func TestFuncToPanic(t *testing.T) {
 
 	expect.Func(func() {}).Info("my func").ToPanic(c)
 	c.shouldHaveCalledErrorf(t, "Expected my func to panic.\n")
+}
+
+func TestFuncToPanicWithMessage(t *testing.T) {
+	c := &capture{}
+
+	expect.Func(func() {}).Info("my func").ToPanicWithMessage(c, "bang")
+	c.shouldHaveCalledErrorf(t, "Expected my func to panic.\n")
 
 	expect.Func(func() { panic("happy") }).Info("my func").ToPanicWithMessage(c, "ouch")
 	c.shouldHaveCalledErrorf(t, "Expected my func to panic with a message containing ―――\n"+

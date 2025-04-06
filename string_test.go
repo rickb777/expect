@@ -16,11 +16,48 @@ func TestStringOr(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).ToBe(nil, "goodbye").Or().ToBe(c, "hello")
-	c.shouldNotHaveHadAnError(t)
+
+	//----- match early -----
 
 	expect.String(s).ToBe(nil, "hello").Or().ToBe(c, "world")
 	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToEqual(nil, "hello").Or().ToBe(c, "world")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBe(c, "hello").Or().ToBeEmpty(nil)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBe(c, "hello").Or().ToHaveLength(nil, 1)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBe(nil, "hello").Or().ToContain(c, "zzz")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBe(c, "hello").Or().ToMatch(nil, regexp.MustCompile("zzz"))
+	c.shouldNotHaveHadAnError(t)
+
+	//----- match late -----
+
+	expect.String(s).ToBe(nil, "goodbye").Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToEqual(nil, "goodbye").Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToBeEmpty(nil).Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToHaveLength(nil, 1).Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToContain(nil, "xyz").Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).ToMatch(nil, regexp.MustCompile("zzz")).Or().ToBe(c, "hello")
+	c.shouldNotHaveHadAnError(t)
+
+	//----- mis-match -----
 
 	expect.String("Ron").ToBe(nil, "Fred").Or().ToBe(nil, "George").Or().ToBe(c, "Ginny")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
