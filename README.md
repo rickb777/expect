@@ -18,13 +18,19 @@
 There are **eight primary categories**, each introduce by a function:
 
 ### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...)
-This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below. This `a.Equal(b)` method if it is present - so this compares types such as `time.Time` correctly. Otherwise it behaves like `reflect.DeepEqual`.
+This compares any types, but is especially useful for structs, maps, arrays, slices. Although this will compare anything, it only provides equality tests and the error messages may be less informative than the other categories below.
+
+If the value under test is of a type with a method `a.Equal(b)` (`a` and `b` having the same type), then the `Equal` method will be used. So this compares types such as `time.Time` correctly.
+
+Otherwise it behaves like `reflect.DeepEqual`.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
 
 ### expect.[Number](https://pkg.go.dev/github.com/rickb777/expect#Number)(actual ...)
-This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type.
+This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type. 
+
+However, for near-equality testing of `float32` or `float64`, use **Any** instead because the tolerance can be specified.
 
 ### expect.[Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)(actual ...)
 This compares `bool` and any subclass.
@@ -33,7 +39,9 @@ This compares `bool` and any subclass.
 This compares `map[K]V` where the map key `K` is a comparable type. **Map** provides more methods than **Any** above, but is otherwise very similar. 
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
-This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices. **Slice** provides more methods than **Any** above, but is otherwise very similar.
+This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices.
+
+**Slice** provides more methods than **Any**, but is otherwise very similar.
 
 ### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
 This compares `error` only.
@@ -47,28 +55,24 @@ The eight primary functions above all take the actual value under test as their 
 
 Other parameters can also be passed in. If any of these other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. This allows, for example, the input to be a function with a multi-value return. 
 
-Note that **Error** is different - it considers the /last/ non-nil argument as its actual input. Any preceding arguments are ignored.
-
-## Basic Methods
-
-All categories include these general methods
-
- * `Info(...)` provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
- * `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described below)
-
-**String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
-
-## 'Or' Conjunction
-
-**Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
-
-There is no need for 'and' conjunctions because you simply add more assertions.
+Note that **Error** is different - it considers the *last* non-nil argument as its actual input. Any preceding arguments are ignored.
 
 ## Assertions
 
-The assertions are all infinitive verbs, i.e. methods such as `ToBe`.
+The assertions are all infinitive verbs, i.e. methods such as `ToBe`. Typical use is of the form
 
-All of them require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+```go
+    expect.Any(myValue).ToBe(t, expectedValue)
+    expect.String(myValue).ToBe(t, expectedValue)
+    expect.Number(myValue).ToBe(t, expectedValue)
+    expect.Bool(myValue).ToBe(t, expectedValue)
+    expect.Map(myValue).ToBe(t, expectedValue)
+    expect.Slice(myValue).ToBe(t, expectedValue)
+    expect.Error(myValue).ToBeNil(t)
+    expect.Func(myValue).ToPanic(t)
+```
+
+All of the assertions require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
 
 The assertions available are as follows.
 
@@ -127,15 +131,33 @@ Numeric inequalities are
 * `ToBeBetween(t, min, max)` i.e. min < actual < max
 * `ToBeBetweenOrEqual(t, min, max)` i.e. min <= actual <= max
 
-Note that these assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string.
+Note that these inequality assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string.
 
-Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)`. These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
+Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)` (`Not()` is described below). These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
 
 Functions that panic can be tested with a zero-argument function that calls the code under test and then uses `ToPanic()`. If `panic(value)` value is a string, `ToPanicWithMessage(t, substring)` can check the actual message. 
 
 ### Synonyms
 
 For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
+
+## 'Or' Conjunction Method
+
+**Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
+
+* If any of them succeed, the test will pass.
+* If they all fail, the error message will list all the possibilities in the expected outcome.
+
+There is no need for 'and' conjunctions because you simply add more assertions.
+
+## Other Basic Methods
+
+All categories include these general methods
+
+* `Info(...)` provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
+* `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described above)
+
+**String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
 
 ## Options for Controlling How The Comparisons Work
 
