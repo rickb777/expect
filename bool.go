@@ -82,7 +82,7 @@ func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
-		a.describeActual1line("Expected%s %sto be %v.\n", preS(a.info), notS(a.not), expected)
+		a.describeActualExpected1("%sto be %v.\n", notS(a.not), expected)
 	} else {
 		a.passes++
 	}

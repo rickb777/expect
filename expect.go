@@ -49,13 +49,20 @@ type assertion struct {
 	moreMessages      []string
 }
 
-func (a *assertion) describeActual1line(message string, args ...any) {
+func (a *assertion) describeActual(message string, args ...any) {
 	a.actualDescription = fmt.Sprintf(message, args...)
 	a.actualSeparator = false
 }
 
-func (a *assertion) describeActualMulti(message string, args ...any) {
-	a.actualDescription = fmt.Sprintf(message, args...)
+func (a *assertion) describeActualExpected1(message string, args ...any) {
+	expected := fmt.Sprintf("Expected%s ", preS(a.info))
+	a.actualDescription = expected + fmt.Sprintf(message, args...)
+	a.actualSeparator = false
+}
+
+func (a *assertion) describeActualExpectedM(message string, args ...any) {
+	expected := fmt.Sprintf("Expected%s ", preS(a.info))
+	a.actualDescription = expected + fmt.Sprintf(message, args...)
 	a.actualSeparator = true
 }
 
@@ -105,7 +112,8 @@ func (a *assertion) allOtherArgumentsMustBeNil(t Tester) {
 				if _, ok := o.(error); ok {
 					v = "error"
 				}
-				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n", preS(a.info), v, i+2, o, o))
+				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n",
+					preS(a.info), v, i+2, o, o))
 			}
 		}
 	}

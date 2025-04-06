@@ -87,7 +87,7 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 		}
 	} else {
 		if a.actual == nil {
-			a.describeActual1line("Expected%s error to have occurred.\n", preS(a.info))
+			a.describeActualExpected1("error to have occurred.\n")
 			a.applyAll(t)
 		}
 	}
@@ -106,12 +106,12 @@ func (a ErrorType) ToContain(t Tester, substring string) {
 	}
 
 	if a.actual == nil {
-		a.describeActual1line("Expected%s error to have occurred but there was no error.\n", preS(a.info))
+		a.describeActualExpected1("error to have occurred but there was no error.\n")
 	} else {
 		msg := a.actual.Error()
 		match := strings.Contains(msg, substring)
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualMulti("Expected%s error ―――\n  %s\n", preS(a.info), blank(msg))
+			a.describeActualExpectedM("error ―――\n  %s\n", blank(msg))
 			a.addExpectation("to contain ―――\n  %s\n", substring)
 		} else {
 			a.passes++

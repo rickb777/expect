@@ -50,14 +50,14 @@ func (a OrderedType[O]) ToBe(t Tester, expected O) {
 
 	if a.not {
 		if a.actual == expected {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be ―――\n  %+v\n", expected)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual != expected {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be ―――\n  %+v\n", expected)
 		} else {
 			a.passes++
@@ -80,14 +80,14 @@ func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
 
 	if a.not {
 		if a.actual > threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual <= threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
@@ -110,14 +110,14 @@ func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 
 	if a.not {
 		if a.actual < threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual >= threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
@@ -140,14 +140,14 @@ func (a OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) {
 
 	if a.not {
 		if a.actual <= threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual > threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
@@ -170,14 +170,14 @@ func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
 
 	if a.not {
 		if a.actual >= threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual < threshold {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
 		} else {
 			a.passes++
@@ -200,18 +200,18 @@ func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if minimum > maximum {
-		a.describeActual1line("Impossible test%s %T: minimum %v > maximum %v.\n",
+		a.describeActual("Impossible test%s %T: minimum %v > maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
 	} else if a.not {
 		if minimum <= a.actual && a.actual <= maximum {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual < minimum || a.actual > maximum {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
 		} else {
 			a.passes++
@@ -234,18 +234,18 @@ func (a OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if minimum >= maximum {
-		a.describeActual1line("Impossible test%s %T: minimum %v >= maximum %v.\n",
+		a.describeActual("Impossible test%s %T: minimum %v >= maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
 	} else if a.not {
 		if minimum < a.actual && a.actual < maximum {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
 		} else {
 			a.passes++
 		}
 	} else {
 		if a.actual <= minimum || a.actual >= maximum {
-			a.describeActualMulti("Expected%s %T ―――\n  %+v\n", preS(a.info), a.actual, a.actual)
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
 		} else {
 			a.passes++

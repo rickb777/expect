@@ -44,7 +44,7 @@ func (a FuncType) ToPanic(t Tester) {
 	defer func() {
 		if e := recover(); e != nil {
 			if a.not {
-				a.describeActual1line("Expected%s not to panic.\n", preS(a.info))
+				a.describeActualExpected1("not to panic.\n")
 				a.applyAll(t)
 			} else {
 				a.passes++
@@ -55,7 +55,7 @@ func (a FuncType) ToPanic(t Tester) {
 	a.actual() // function under test
 
 	if !a.not {
-		a.describeActual1line("Expected%s to panic.\n", preS(a.info))
+		a.describeActualExpected1("to panic.\n")
 		a.applyAll(t)
 	} else {
 		a.passes++
@@ -81,12 +81,12 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 		if e := recover(); e != nil {
 			if s, ok := e.(string); ok {
 				if !strings.Contains(s, substring) {
-					a.addExpectation("Expected%s to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
-						preS(a.info), substring, s)
+					a.describeActualExpected1("to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
+						substring, s)
 				}
 			} else {
-				a.addExpectation("Expected%s to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
-					preS(a.info), substring, e, e)
+				a.describeActualExpected1("to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
+					substring, e, e)
 			}
 			a.applyAll(t)
 		}
@@ -94,6 +94,6 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 
 	a.actual() // function under test
 
-	a.addExpectation("Expected%s to panic.\n", preS(a.info))
+	a.describeActualExpected1("to panic.\n")
 	a.applyAll(t)
 }

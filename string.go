@@ -101,11 +101,11 @@ func (a *StringType[S]) toHaveLength(t Tester, expected int, what string) *Strin
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if len(a.actual) > 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual),
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual),
 				trim(string(a.actual), a.trim))
 			a.addExpectation("%s\n", what)
 		} else {
-			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.describeActualExpected1("%T len:%d ", a.actual, len(a.actual))
 			a.addExpectation("%s\n", what)
 		}
 		return a.conjunction(t, false)
@@ -134,7 +134,7 @@ func (a *StringType[S]) ToContain(t Tester, substring S) *StringOr[S] {
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n  %s\n", preS(a.info), a.actual, len(a.actual), trim(ac, a.trim))
+		a.describeActualExpectedM("%T len:%d ―――\n  %s\n", a.actual, len(a.actual), trim(ac, a.trim))
 		a.addExpectation("to contain ―――\n  %s\n", trim(ex, a.trim))
 		return a.conjunction(t, false)
 	}
@@ -161,7 +161,7 @@ func (a *StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) *StringOr[S] {
 	match := pattern.MatchString(ac)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualMulti("Expected%s ―――\n  %s\n", preS(a.info), trim(ac, a.trim))
+		a.describeActualExpectedM("―――\n  %s\n", trim(ac, a.trim))
 		a.addExpectation("to match ―――\n  %s\n", pattern)
 		return a.conjunction(t, false)
 	}
@@ -225,9 +225,11 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 			expected = "…" + string(ex[chop:])
 			pointer = rem + 1
 		}
-		a.describeActualMulti("Expected%s ―――\n  %s\n", preS(a.info), trim(actual, a.trim))
+		a.describeActualExpectedM("―――\n  %s\n", trim(actual, a.trim))
 		a.addExpectation("%s\n  %s\n%s",
-			arrowMarker(what, pointer), trim(expected, a.trim), firstDifferenceInfo(diff))
+			arrowMarker(what, pointer),
+			trim(expected, a.trim),
+			firstDifferenceInfo(diff))
 		return a.conjunction(t, false)
 	}
 

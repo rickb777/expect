@@ -57,10 +57,10 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if !a.not && !isNilish(a.actual) {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n%s", preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
 		a.addExpectation("to be nil.\n")
 	} else if a.not && isNilish(a.actual) {
-		a.describeActual1line("Expected%s %T ", preS(a.info), a.actual)
+		a.describeActualExpected1("%T ", a.actual)
 		a.addExpectation("to be nil.\n")
 	} else {
 		a.passes++
@@ -88,7 +88,7 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 
 	if (!a.not && !match) || (a.not && match) {
 		diff := findFirstDiff(a.actual, expected)
-		a.describeActualMulti("Expected%s %T len:%d ―――\n%s", preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
 		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected), firstDifferenceInfo(diff))
 	} else {
 		a.passes++
@@ -134,10 +134,10 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActu
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if showActual && len(a.actual) > 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("%s\n", what)
 		} else {
-			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.describeActualExpected1("%T len:%d ", a.actual, len(a.actual))
 			a.addExpectation("%s\n", what)
 		}
 	} else {
@@ -170,23 +170,19 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expected)))
 		} else if len(found) < len(expected)/2 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s found ―――\n  %v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		} else {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s missing ―――\n  %v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-			preS(a.info), a.actual, len(a.actual), a.actual)
+		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but they were all present.\n", allN.FormatInt(len(expected)))
 	} else {
 		a.passes++
@@ -217,24 +213,19 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	if !a.not && len(found) == 0 {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-			preS(a.info), a.actual, len(a.actual), a.actual)
-		a.addExpectation("to contain %s but none were present.\n",
-			anyOfN.FormatInt(len(expected)))
+		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s present.\n",
 				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 		} else if len(missing) < len(expected)/2 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s missing ―――\n  %v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n",
-				preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s found ―――\n  %v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		}

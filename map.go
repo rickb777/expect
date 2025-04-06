@@ -60,11 +60,10 @@ func (a MapType[K, V]) ToBeNil(t Tester) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if !a.not && !isNilish(a.actual) {
-		a.describeActual1line("Expected%s %T len:%d ―――\n%s――― to be nil\n",
-			preS(a.info), a.actual, len(a.actual), verbatim(a.actual))
+		a.describeActualExpected1("%T len:%d ―――\n%s――― to be nil\n",
+			a.actual, len(a.actual), verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		a.describeActual1line("Expected%s %T not to be nil\n",
-			preS(a.info), a.actual)
+		a.describeActualExpected1("%T not to be nil\n", a.actual)
 	} else {
 		a.passes++
 	}
@@ -88,8 +87,8 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 	match := gocmp.Equal(a.actual, expected, opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActual1line("Expected%s %T len:%d ―――\n  %+v\n――― %sto be len:%d ―――\n  %+v\n",
-			preS(a.info), a.actual, len(a.actual), a.actual,
+		a.describeActualExpected1("%T len:%d ―――\n  %+v\n――― %sto be len:%d ―――\n  %+v\n",
+			a.actual, len(a.actual), a.actual,
 			notS(a.not), len(expected), expected)
 	} else {
 		a.passes++
@@ -143,10 +142,10 @@ func (a MapType[K, V]) toHaveLength(t Tester, expected int, what string) {
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if len(a.actual) > 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("%s\n", what)
 		} else {
-			a.describeActual1line("Expected%s %T len:%d ", preS(a.info), a.actual, len(a.actual))
+			a.describeActualExpected1("%T len:%d ", a.actual, len(a.actual))
 			a.addExpectation("%s\n", what)
 		}
 	} else {
@@ -188,11 +187,11 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 
 	if !a.not {
 		if !present {
-			a.describeActual1line("Expected%s %T len:%d to contain %s; keys are ―――\n  [%s]\n",
-				preS(a.info), a.actual, len(a.actual),
+			a.describeActualExpected1("%T len:%d to contain %s; keys are ―――\n  [%s]\n",
+				a.actual, len(a.actual),
 				expectedKeyS, strings.Join(toString(keys(a.actual)), ", "))
 		} else if len(expectedValue) > 0 && !gocmp.Equal(value, expectedValue[0], opts) {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %s: %+v\n", preS(a.info), a.actual, len(a.actual), expectedKeyS, value)
+			a.describeActualExpectedM("%T len:%d ―――\n  %s: %+v\n", a.actual, len(a.actual), expectedKeyS, value)
 			a.addExpectation("to contain %s%s ―――\n  %s: %+v\n", expectedKeyS, evi, expectedKeyS, expectedValue[0])
 		} else {
 			a.passes++
@@ -200,12 +199,12 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 
 	} else if present {
 		if len(expectedValue) > 0 && gocmp.Equal(value, expectedValue[0], opts) {
-			a.describeActual1line("Expected%s %T len:%d not to contain ―――\n  %s: %+v\n――― but it does.\n",
-				preS(a.info), a.actual, len(a.actual), expectedKeyS, value)
+			a.describeActualExpected1("%T len:%d not to contain ―――\n  %s: %+v\n――― but it does.\n",
+				a.actual, len(a.actual), expectedKeyS, value)
 
 		} else {
-			a.describeActual1line("Expected%s %T len:%d not to contain %s; keys are ―――\n  [%s]\n",
-				preS(a.info), a.actual, len(a.actual),
+			a.describeActualExpected1("%T len:%d not to contain %s; keys are ―――\n  [%s]\n",
+				a.actual, len(a.actual),
 				expectedKeyS, strings.Join(toString(keys(a.actual)), ", "))
 		}
 
@@ -261,17 +260,17 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expectedKey)))
 		} else if len(found) < len(expectedKey)/2 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s found ―――\n  %v\n", allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
 		} else {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s missing ―――\n  %v\n", allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but %s present.\n", allN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
 	} else {
 		a.passes++
@@ -308,17 +307,17 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 	}
 
 	if !a.not && len(found) == 0 {
-		a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expectedKey)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s present.\n", anyOfN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
 		} else if len(missing) < len(expectedKey)/2 {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s missing ―――\n  %v\n", anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			a.describeActualMulti("Expected%s %T len:%d ―――\n  %v\n", preS(a.info), a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s found ―――\n  %v\n", anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
 		}
 	} else {

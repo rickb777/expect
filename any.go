@@ -135,9 +135,9 @@ func (a AnyType[T]) ToBeNil(t Tester) {
 	a.allOtherArgumentsMustBeNil(t)
 
 	if !a.not && !isNilish(a.actual) {
-		a.describeActual1line("Expected%s %T ―――\n%s――― to be nil.\n", preS(a.info), a.actual, verbatim(a.actual))
+		a.describeActualExpected1("%T ―――\n%s――― to be nil.\n", a.actual, verbatim(a.actual))
 	} else if a.not && isNilish(a.actual) {
-		a.describeActual1line("Expected%s %T not to be nil.\n", preS(a.info), a.actual)
+		a.describeActualExpected1("%T not to be nil.\n", a.actual)
 	} else {
 		a.passes++
 	}
@@ -201,14 +201,14 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 
 	if !a.not && diffs != "" {
 		if isStruct {
-			a.describeActual1line("Expected%s struct to %s as shown (-want, +got) ―――\n", preS(a.info), what)
+			a.describeActualExpected1("struct to %s as shown (-want, +got) ―――\n", what)
 			a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
 		} else {
-			a.describeActualMulti("Expected%s %T ―――\n%s", preS(a.info), a.actual, verbatim(a.actual))
+			a.describeActualExpectedM("%T ―――\n%s", a.actual, verbatim(a.actual))
 			a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
 		}
 	} else if a.not && diffs == "" {
-		a.describeActual1line("Expected%s %T ", preS(a.info), a.actual)
+		a.describeActualExpected1("%T ", a.actual)
 		a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
 	} else {
 		a.passes++
