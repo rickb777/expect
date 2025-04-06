@@ -121,6 +121,12 @@ func (a *assertion) allOtherArgumentsMustBeNil(t Tester) {
 
 //=================================================================================================
 
+const incorrectTestConjunction = "Incorrect test conjunction.\n" +
+	"――― Only the last assertion should have a non-nil tester.\n" +
+	"――― Use nil for the preceding assertions."
+
+//=================================================================================================
+
 func makeInfo(info any, other ...any) string {
 	format, isString := info.(string)
 

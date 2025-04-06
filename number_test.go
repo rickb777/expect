@@ -10,6 +10,29 @@ type Seconds32 uint32
 
 func numberTest(e error) (int, error) { return 0, e }
 
+func TestNumberOr(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000001
+
+	//----- match early -----
+
+	expect.Number(utcTime).ToBe(nil, 1710000001).Or().ToBe(c, 1710000002)
+	c.shouldNotHaveHadAnError(t)
+
+	//----- match late -----
+
+	expect.Number(utcTime).ToBe(nil, 1710000000).Or().ToBe(c, 1710000001)
+	c.shouldNotHaveHadAnError(t)
+
+	//----- mis-match -----
+
+	expect.Number(utcTime).ToBe(c, 1710000001).Or().ToBe(c, 1710000002)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
+}
+
 func TestNumberToBe(t *testing.T) {
 	c := &capture{}
 

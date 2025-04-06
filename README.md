@@ -60,7 +60,9 @@ All categories include these general methods
 
 ## 'Or' Conjunction
 
-**String** has `Or()` that allows multiple alternatives to be accepted. There is no need for 'and' conjunctions because you simply add more assertions.
+**Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
+
+There is no need for 'and' conjunctions because you simply add more assertions.
 
 ## Assertions
 

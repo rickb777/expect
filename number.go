@@ -8,31 +8,37 @@ type OrderedType[O cmp.Ordered] struct {
 	assertion
 }
 
+type OrderedOr[O cmp.Ordered] struct {
+	main           *OrderedType[O]
+	passes         int
+	unwantedTester Tester
+}
+
 // Number creates an ordering assertion. It accepts all numbers, and also coincidentally accepts strings.
 // Its methods are the full set of ordering comparisons, i.e. >, >=, <, <=, ==, and !=.
 //
 // If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
-func Number[O cmp.Ordered](value O, other ...any) OrderedType[O] {
-	return OrderedType[O]{actual: value, assertion: assertion{otherActual: other}}
+func Number[O cmp.Ordered](value O, other ...any) *OrderedType[O] {
+	return &OrderedType[O]{actual: value, assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
 // The first parameter should be some information such as a string or a number. If this
 // is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
-func (a OrderedType[O]) Info(info any, other ...any) OrderedType[O] {
+func (a *OrderedType[O]) Info(info any, other ...any) *OrderedType[O] {
 	a.info = makeInfo(info, other...)
 	return a
 }
 
 // I is a synonym for [Info].
-func (a OrderedType[O]) I(info any, other ...any) OrderedType[O] {
+func (a *OrderedType[O]) I(info any, other ...any) *OrderedType[O] {
 	return a.Info(info, other...)
 }
 
 // Not inverts the assertion.
-func (a OrderedType[O]) Not() OrderedType[O] {
+func (a *OrderedType[O]) Not() *OrderedType[O] {
 	a.not = !a.not
 	return a
 }
@@ -41,7 +47,11 @@ func (a OrderedType[O]) Not() OrderedType[O] {
 
 // ToBe asserts that the actual and expected numbers have the same values and types.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBe(t Tester, expected O) {
+func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -52,26 +62,28 @@ func (a OrderedType[O]) ToBe(t Tester, expected O) {
 		if a.actual == expected {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be ―――\n  %+v\n", expected)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual != expected {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be ―――\n  %+v\n", expected)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBeGreaterThan asserts that the actual values is greater than the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
+func (a *OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -82,26 +94,28 @@ func (a OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) {
 		if a.actual > threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual <= threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBeLessThan asserts that the actual values is less than the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
+func (a *OrderedType[O]) ToBeLessThan(t Tester, threshold O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -112,26 +126,28 @@ func (a OrderedType[O]) ToBeLessThan(t Tester, threshold O) {
 		if a.actual < threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual >= threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBeLessThanOrEqual asserts that the actual values is less than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) {
+func (a *OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -142,26 +158,28 @@ func (a OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) {
 		if a.actual <= threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual > threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
 
 // ToBeGreaterThanOrEqual asserts that the actual values is greater than or equal to the threshold value.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
+func (a *OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -172,19 +190,17 @@ func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
 		if a.actual >= threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual < threshold {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -192,7 +208,11 @@ func (a OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) {
 // ToBeBetweenOrEqual asserts that the actual values is between two threshold values.
 // The assertion succeeds if minimum <= value <= maximum.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
+func (a *OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -202,23 +222,22 @@ func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
 	if minimum > maximum {
 		a.describeActual("Impossible test%s %T: minimum %v > maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
+		return a.conjunction(t, false)
 	} else if a.not {
 		if minimum <= a.actual && a.actual <= maximum {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual < minimum || a.actual > maximum {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
-	a.applyAll(t)
+	return a.conjunction(t, true)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -226,7 +245,11 @@ func (a OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) {
 // ToBeBetween asserts that the actual values is between two threshold values.
 // The assertion succeeds if minimum < value < maximum.
 // The tester is normally [*testing.T].
-func (a OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) {
+func (a *OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -236,21 +259,50 @@ func (a OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) {
 	if minimum >= maximum {
 		a.describeActual("Impossible test%s %T: minimum %v >= maximum %v.\n",
 			preS(a.info), a.actual, minimum, maximum)
+		return a.conjunction(t, false)
 	} else if a.not {
 		if minimum < a.actual && a.actual < maximum {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual <= minimum || a.actual >= maximum {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
-		} else {
-			a.passes++
+			return a.conjunction(t, false)
 		}
 	}
 
+	return a.conjunction(t, true)
+}
+
+//=================================================================================================
+
+func (a *OrderedType[O]) conjunction(t Tester, pass bool) *OrderedOr[O] {
+	if pass {
+		a.passes++
+	}
+
+	if t == nil {
+		return &OrderedOr[O]{main: a, passes: a.passes} // defer evaluation
+	}
+
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
 	a.applyAll(t)
+	return &OrderedOr[O]{main: a, passes: a.passes, unwantedTester: t}
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (or *OrderedOr[O]) Or() *OrderedType[O] {
+	if or != nil {
+		if or.unwantedTester == nil {
+			return or.main // following assertions are active
+		}
+		or.unwantedTester.Fatal(incorrectTestConjunction)
+	}
+	return nil // following assertions are no-op
 }

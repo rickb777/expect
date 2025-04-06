@@ -25,16 +25,16 @@ func TestStringOr(t *testing.T) {
 	expect.String(s).ToEqual(nil, "hello").Or().ToBe(c, "world")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String(s).ToBe(c, "hello").Or().ToBeEmpty(nil)
+	expect.String(s).ToBe(nil, "hello").Or().ToBeEmpty(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String(s).ToBe(c, "hello").Or().ToHaveLength(nil, 1)
+	expect.String(s).ToBe(nil, "hello").Or().ToHaveLength(c, 1)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToBe(nil, "hello").Or().ToContain(c, "zzz")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String(s).ToBe(c, "hello").Or().ToMatch(nil, regexp.MustCompile("zzz"))
+	expect.String(s).ToBe(nil, "hello").Or().ToMatch(c, regexp.MustCompile("zzz"))
 	c.shouldNotHaveHadAnError(t)
 
 	//----- match late -----
@@ -58,6 +58,11 @@ func TestStringOr(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	//----- mis-match -----
+
+	expect.String(s).ToBe(c, "hello").Or().ToBe(c, "goodbye")
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 
 	expect.String("Ron").ToBe(nil, "Fred").Or().ToBe(nil, "George").Or().ToBe(c, "Ginny")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+

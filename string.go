@@ -19,8 +19,9 @@ type StringType[S Stringy] struct {
 }
 
 type StringOr[S Stringy] struct {
-	main   *StringType[S]
-	passes int
+	main           *StringType[S]
+	passes         int
+	unwantedTester Tester
 }
 
 // String creates a string assertion. Strings must contain valid UTF8 encodings.
@@ -251,16 +252,19 @@ func (a *StringType[S]) conjunction(t Tester, pass bool) *StringOr[S] {
 		h.Helper()
 	}
 	a.applyAll(t)
-	return nil
+	return &StringOr[S]{main: a, passes: a.passes, unwantedTester: t}
 }
 
 //-------------------------------------------------------------------------------------------------
 
 func (or *StringOr[S]) Or() *StringType[S] {
-	if or == nil {
-		return nil
+	if or != nil {
+		if or.unwantedTester == nil {
+			return or.main // following assertions are active
+		}
+		or.unwantedTester.Fatal(incorrectTestConjunction)
 	}
-	return or.main
+	return nil // following assertions are no-op
 }
 
 //=================================================================================================
