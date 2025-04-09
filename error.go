@@ -61,6 +61,9 @@ func (a ErrorType) Not() ErrorType {
 // ToBeNil asserts that the error did not occur.
 // The tester is normally [*testing.T].
 func (a ErrorType) ToBeNil(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
 	a.toHaveOccurred(t, !a.not)
 }
 
@@ -69,6 +72,9 @@ func (a ErrorType) ToBeNil(t Tester) {
 // ToHaveOccurred asserts that the error occurred.
 // The tester is normally [*testing.T].
 func (a ErrorType) ToHaveOccurred(t Tester) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
 	a.toHaveOccurred(t, a.not)
 }
 

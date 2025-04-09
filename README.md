@@ -83,7 +83,7 @@ The assertions available are as follows.
 | `ToBeNil`                | Yes | -      | -      | -    | Yes | Yes   | Yes   | -    |
 | `ToBeEmpty`              | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
 | `ToHaveLength`           | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
-| `ToContain`              | -   | Yes    | -      | -    | Yes | -     | Yes   | -    |
+| `ToContain`              | -   | Yes    | -      | -    | Yes | Yes   | Yes   | -    |
 | `ToContainAll`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
 | `ToContainAny`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
 | `ToMatch`                | -   | Yes    | -      | -    | -   | -     | -     | -    |

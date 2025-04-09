@@ -149,6 +149,17 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActu
 
 //-------------------------------------------------------------------------------------------------
 
+// ToContain asserts that the slice contains the expected value.
+// The tester is normally [*testing.T].
+func (a SliceType[T]) ToContain(t Tester, expected T) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+	a.ToContainAll(t, expected)
+}
+
+//-------------------------------------------------------------------------------------------------
+
 // ToContainAll asserts that the slice contains all of the values listed.
 // The tester is normally [*testing.T].
 func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
@@ -161,7 +172,7 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
 	for _, v := range expected {
-		if sliceContains(a.actual, v) {
+		if sliceContains(a.actual, v, a.opts...) {
 			found = append(found, v)
 		} else {
 			missing = append(missing, v)
@@ -183,7 +194,8 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 		}
 	} else if a.not && len(missing) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
-		a.addExpectation("to contain %s but they were all present.\n", allN.FormatInt(len(expected)))
+		a.addExpectation("to contain %s but %s present.\n",
+			allN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 	} else {
 		a.passes++
 	}
@@ -205,7 +217,7 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
 	for _, v := range expected {
-		if sliceContains(a.actual, v) {
+		if sliceContains(a.actual, v, a.opts...) {
 			found = append(found, v)
 		} else {
 			missing = append(missing, v)
@@ -234,4 +246,15 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	a.applyAll(t)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func sliceContains[T any](list []T, wanted T, opts ...gocmp.Option) bool {
+	for _, v := range list {
+		if gocmp.Equal(v, wanted, opts...) {
+			return true
+		}
+	}
+	return false
 }

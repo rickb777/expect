@@ -3,6 +3,7 @@ package expect_test
 import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/rickb777/expect"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -163,6 +164,14 @@ func TestSliceToContainAll(t *testing.T) {
 		"  [97 98 99 100 101 102]\n"+
 		"――― to contain all 6 but only these 2 were found ―――\n"+
 		"  [100 102]\n")
+
+	expect.Slice([]*int{ptr(1), ptr(2)}).ToContainAll(c, ptr(2), ptr(1))
+	c.shouldNotHaveHadAnError(t)
+
+	a := mustParseURL("http://x.com/a")
+	b := mustParseURL("http://y.com/b")
+	expect.Slice([]*url.URL{a, b}).ToContainAll(c, mustParseURL("http://x.com/a"), mustParseURL("http://y.com/b"))
+	c.shouldNotHaveHadAnError(t)
 }
 
 func TestSliceNotToContainAll(t *testing.T) {
@@ -189,6 +198,9 @@ func TestSliceToContainAny(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
 		"  [97 98 99 100 101 102]\n"+
 		"――― to contain any of 5 but none were present.\n")
+
+	expect.Slice([]*int{ptr(1), ptr(2)}).ToContainAny(c, ptr(2), ptr(3))
+	c.shouldNotHaveHadAnError(t)
 }
 
 func TestSliceNotToContainAny(t *testing.T) {
@@ -215,3 +227,13 @@ func TestSliceNotToContainAny(t *testing.T) {
 		"――― not to contain any of 5 but these 2 were found ―――\n"+
 		"  [98 102]\n")
 }
+
+func mustParseURL(s string) *url.URL {
+	u, e := url.Parse(s)
+	if e != nil {
+		panic(e)
+	}
+	return u
+}
+
+func ptr[T any](x T) *T { return &x }

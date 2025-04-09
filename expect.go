@@ -186,14 +186,3 @@ func findFirstDiff[T comparable](a, b []T) int {
 	}
 	return math.MinInt
 }
-
-//-------------------------------------------------------------------------------------------------
-
-func sliceContains[T comparable](list []T, wanted T) bool {
-	for _, v := range list {
-		if v == wanted {
-			return true
-		}
-	}
-	return false
-}
