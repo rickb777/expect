@@ -8,6 +8,7 @@ type OrderedType[O cmp.Ordered] struct {
 	assertion
 }
 
+// OrderedOr is only used for conjunction concatenation (see [OrderedOr.Or]).
 type OrderedOr[O cmp.Ordered] struct {
 	main           *OrderedType[O]
 	passes         int

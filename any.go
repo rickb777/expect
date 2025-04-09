@@ -154,7 +154,7 @@ func (a AnyType[T]) ToBe(t Tester, expected T) {
 		h.Helper()
 	}
 
-	a.toEqual(t, "be", a.actual, expected, true)
+	a.toEqual(t, "to be", a.actual, expected, false)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -167,21 +167,20 @@ func (a AnyType[T]) ToEqual(t Tester, expected any) {
 	}
 
 	convertedActual := a.actual
-	sameType := true
+	differentType := false
 
-	if a.actual != nil &&
-		expected != nil &&
+	if a.actual != nil && expected != nil &&
 		reflect.TypeOf(a.actual).ConvertibleTo(reflect.TypeOf(expected)) {
 		convertedActual = reflect.ValueOf(a.actual).Convert(reflect.TypeOf(expected)).Interface()
-		sameType = false
+		differentType = true
 	}
 
-	a.toEqual(t, "equal", convertedActual, expected, sameType)
+	a.toEqual(t, "to equal", convertedActual, expected, differentType)
 }
 
 //-------------------------------------------------------------------------------------------------
 
-func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameType bool) {
+func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, differentType bool) {
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
@@ -194,22 +193,22 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, sameTyp
 
 	diffs := gocmp.Diff(expected, actual, opts)
 
-	expectedType := fmt.Sprintf(" %T", expected)
-	if sameType {
-		expectedType = ""
+	expectedType := ""
+	if differentType {
+		expectedType = fmt.Sprintf(" %T", expected)
 	}
 
 	if !a.not && diffs != "" {
 		if isStruct {
-			a.describeActualExpected1("struct to %s as shown (-want, +got) ―――\n", what)
+			a.describeActualExpected1("struct %s as shown (-want, +got) ―――\n", what)
 			a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
 		} else {
 			a.describeActualExpectedM("%T ―――\n%s", a.actual, verbatim(a.actual))
-			a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
+			a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim(expected))
 		}
 	} else if a.not && diffs == "" {
 		a.describeActualExpected1("%T ", a.actual)
-		a.addExpectation("to %s%s ―――\n%s", what, expectedType, verbatim(expected))
+		a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim(expected))
 	} else {
 		a.passes++
 	}

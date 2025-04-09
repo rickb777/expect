@@ -157,6 +157,12 @@ All categories include these general methods
 * `Info(...)` provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
 * `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described above)
 
+```go
+    // The `Info` method can be helpful when testing inside a loop, for example.
+	// `Not()` simply negates what follows.
+	var i int // some loop counter
+	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
+```
 **String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
 
 ## Options for Controlling How The Comparisons Work

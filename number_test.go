@@ -242,10 +242,12 @@ func TestNumberNotToBeBetweenOrEqual(t *testing.T) {
 func ExampleOrderedType_ToBe() {
 	var t *testing.T
 
-	// number matching can use any size of int or uint or float, or subtype of any of them
+	// Number matching can use any size of int or uint or float, or subtype of any of them.
+	// This example allows either of the two expected values.
 	v := 123
-	expect.Number(v).ToBe(t, 123)
+	expect.Number(v).ToBe(nil, 123).Or().ToBe(t, 125)
 
+	// The `Info` method can be helpful when testing inside a loop, for example.
 	var i int // some loop counter
 	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
 }

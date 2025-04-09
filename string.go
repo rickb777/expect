@@ -18,6 +18,7 @@ type StringType[S Stringy] struct {
 	trim int
 }
 
+// StringOr is only used for conjunction concatenation (see [StringOr.Or]).
 type StringOr[S Stringy] struct {
 	main           *StringType[S]
 	passes         int
