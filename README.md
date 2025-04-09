@@ -131,7 +131,7 @@ Numeric inequalities are
 * `ToBeBetween(t, min, max)` i.e. min < actual < max
 * `ToBeBetweenOrEqual(t, min, max)` i.e. min <= actual <= max
 
-Note that these inequality assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string.
+Note that these inequality assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string. All subtypes of ordered types are also included.
 
 Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)` (`Not()` is described below). These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
 
@@ -146,7 +146,7 @@ For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expecte
 **Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
 
 * If any of them succeed, the test will pass.
-* If they all fail, the error message will list all the possibilities in the expected outcome.
+* If all of them fail, the error message will list all the possibilities in the expected outcome.
 
 There is no need for 'and' conjunctions because you simply add more assertions.
 
@@ -173,6 +173,9 @@ By default, the three options used are
 
 This is now ready for beta testing.
 
-## History
+## Origins
 
-This API was mostly inspired by [Gomega](https://github.com/onsi/gomega), which had some great ideas but is overly complex to use.
+This API was mostly inspired by these
+
+ * [Gomega](https://github.com/onsi/gomega) had some great ideas but is overly complex to use.
+ * [Testify](https://github.com/stretchr/testify) was essentially simple to use but lacked flexibility, possibly because the API is not fluent, and had various gotchas.
