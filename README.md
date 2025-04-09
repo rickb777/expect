@@ -141,7 +141,16 @@ Functions that panic can be tested with a zero-argument function that calls the 
 
 For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expected)`.
 
-## 'Or' Conjunction Method
+## Negation Method
+
+All categories include the general method `Not()`. This inverts the assertion defined by the `ToXxxx` method that follows it.
+
+```go
+	// `Not()` simply negates what follows.
+	expect.Number(v).Not().ToBe(t, 321)
+```
+
+## Conjunction Method
 
 **Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
 
@@ -150,20 +159,27 @@ For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expecte
 
 There is no need for 'and' conjunctions because you simply add more assertions.
 
-## Other Basic Methods
+## Extra Information Methods
 
 All categories include these general methods
 
-* `Info(...)` provides information in the failure message, if there is one. There is a terse synonym `I(...)` too.
-* `Not()` inverts the assertion defined by the `ToXxxx` method that follows it (these assertions are described above)
+* `Info(...)` provides information in the failure message, if there is one. 
+* `I(...)` is a terse synonym for `Info(...)`.
 
 ```go
-    // The `Info` method can be helpful when testing inside a loop, for example.
-	// `Not()` simply negates what follows.
+	// The `Info` method can be helpful when testing inside a loop, for example.
+	// If `Not()` is also used, the natural order is to put it directly before the assertion:
 	var i int // some loop counter
 	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
 ```
+
 **String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
+
+```go
+	expect.String(s).Trim(100).ToContain(t, " a very very long string ")
+```
+
+Both the actual and expected strings are truncated if their length is too long. If there is a mis-match, the error message scrolls the truncated string to ensure that the first difference is in view.
 
 ## Options for Controlling How The Comparisons Work
 
