@@ -36,7 +36,9 @@ However, for near-equality testing of `float32` or `float64`, use **Any** instea
 This compares `bool` and any subclass.
 
 ### expect.[Map](https://pkg.go.dev/github.com/rickb777/expect#Map)(actual ...)
-This compares `map[K]V` where the map key `K` is a comparable type. **Map** provides more methods than **Any** above, but is otherwise very similar. 
+This compares `map[K]V` where the map key `K` is a comparable type.
+
+**Map** provides more methods than **Any**, but is otherwise very similar. 
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
 This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices.
@@ -53,9 +55,11 @@ This runs some function and checks whether it panicked.
 
 The eight primary functions above all take the actual value under test as their input.
 
-Other parameters can also be passed in. If any of these other parameters is non-nil (e.g. a non-nil `error`), the assertion will fail and give a corresponding error message. This allows, for example, the input to be a function with a multi-value return. 
+Other parameters can also be passed in. If any of these other parameters is a non-nil `error`, the assertion will fail and give a corresponding error message. Any other parameters are ignored; this includes any nil `error`.
 
-Note that **Error** is different - it considers the *last* non-nil argument as its actual input. Any preceding arguments are ignored.
+**Error** is slightly different - it considers the *last* non-nil `error` as its actual input. Any other parameters are ignored; this includes any nil `error`.
+
+In particular, this allows the input to be a function with a multi-value return.
 
 ## Assertions
 

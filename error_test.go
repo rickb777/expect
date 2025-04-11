@@ -30,11 +30,15 @@ func TestErrorToBeNil(t *testing.T) {
 	expect.Error(1, 2, err).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	thingUnderTest := func() (string, error) { return "foo", nil }
-	expect.Error(thingUnderTest()).I("xyz").ToBeNil(c)
+	expect.Error(e1).I("xyz").ToBeNil(c)
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
+
+	thingUnderTest1 := func() (string, bool, error) { return "foo", true, nil }
+	expect.Error(thingUnderTest1()).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToBeNil(c)
+	thingUnderTest2 := func() (string, error, bool, error) { return "foo", e1, true, nil }
+	expect.Error(thingUnderTest2()).I("xyz").ToBeNil(c)
 	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
 }
 
@@ -46,6 +50,10 @@ func TestErrorToHaveOccurred(t *testing.T) {
 
 	expect.Error(nil).I("xyz").ToHaveOccurred(c)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error to have occurred.\n")
+
+	thingUnderTest := func() (string, error, bool, error) { return "foo", e1, true, nil }
+	expect.Error(thingUnderTest()).I("xyz").ToHaveOccurred(c)
+	c.shouldNotHaveHadAnError(t)
 }
 
 func TestErrorNotToBeNil(t *testing.T) {

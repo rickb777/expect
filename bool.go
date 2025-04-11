@@ -79,7 +79,7 @@ func (a BoolType[B]) ToEqual(t Tester, expected bool) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if (!a.not && bool(a.actual) != expected) || (a.not && bool(a.actual) == expected) {
 		a.describeActualExpected1("%sto be %v.\n", notS(a.not), expected)

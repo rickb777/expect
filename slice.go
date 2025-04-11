@@ -54,7 +54,7 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if !a.not && !isNilish(a.actual) {
 		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
@@ -79,7 +79,7 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	types := gatherTypes(nil, a.actual, expected)
 	opts := append(a.opts, allowUnexported(types))
@@ -128,7 +128,7 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActu
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	actual := len(a.actual)
 
@@ -167,7 +167,7 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
@@ -212,7 +212,7 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))

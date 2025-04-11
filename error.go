@@ -12,15 +12,16 @@ type ErrorType struct {
 }
 
 // Error creates an error assertion. This considers the last error it finds in the supplied parameters.
-// All other parameters are ignored.
+// At least one of the parameters must be an error. All other parameters are ignored.
 func Error(value any, other ...any) ErrorType {
 	foundNil := false
 
 	for i := len(other) - 1; i >= 0; i-- {
-		if other[i] == nil {
-			foundNil = true
-		} else if err, ok := other[i].(error); ok {
+		switch err := other[i].(type) {
+		case error:
 			return ErrorType{actual: err}
+		case nil:
+			foundNil = true
 		}
 	}
 
@@ -28,10 +29,11 @@ func Error(value any, other ...any) ErrorType {
 		return ErrorType{}
 	}
 
-	if value == nil {
-		return ErrorType{}
-	} else if err, ok := value.(error); ok {
+	switch err := value.(type) {
+	case error:
 		return ErrorType{actual: err}
+	case nil:
+		return ErrorType{}
 	}
 
 	panic("No parameter was an error.")

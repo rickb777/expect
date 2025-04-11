@@ -58,7 +58,7 @@ func TestNumberNotToBe(t *testing.T) {
 
 	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToBe(c, 0)
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
 		"Expected data int ―――\n  0\n――― not to be ―――\n  0\n",
 	)
 }

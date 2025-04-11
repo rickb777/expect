@@ -10,7 +10,8 @@ import (
 
 type MyString string
 
-func stringTest(e error) (string, error) { return "", e }
+func stringTestE(e error) (string, error) { return "", e }
+func stringTestOK() (string, bool, error) { return "", false, nil }
 
 func TestStringOr(t *testing.T) {
 	c := &capture{}
@@ -101,6 +102,9 @@ func TestStringToBe(t *testing.T) {
 	expect.String(s).ToBe(c, "")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to be ―――\n  \"\"\n")
 
+	expect.String(stringTestOK()).I("data").ToBe(c, "")
+	c.shouldNotHaveHadAnError(t)
+
 	expect.String("abcµdef-0123456789").ToBe(c, "abcµdfe-0123456789")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
 		"  abcµdef-0123456789\n"+
@@ -169,9 +173,9 @@ func TestStringNotToBe(t *testing.T) {
 	expect.String(s).Not().ToBe(c, "hello")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to be ―――\n  hello\n")
 
-	expect.String(stringTest(errors.New("bang"))).I("data").Not().ToBe(c, "")
+	expect.String(stringTestE(errors.New("bang"))).I("data").Not().ToBe(c, "")
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got parameter 2 (*errors.errorString) ―――\n  bang\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
 		"Expected data ―――\n  \"\"\n――― not to be ―――\n  \"\"\n",
 	)
 }

@@ -97,7 +97,7 @@ func (a *StringType[S]) toHaveLength(t Tester, expected int, what string) *Strin
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	actual := len(a.actual)
 
@@ -129,7 +129,7 @@ func (a *StringType[S]) ToContain(t Tester, substring S) *StringOr[S] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	ac := string(a.actual)
 	ex := string(substring)
@@ -157,7 +157,7 @@ func (a *StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) *StringOr[S] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	ac := string(a.actual)
 	match := pattern.MatchString(ac)
@@ -207,7 +207,7 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	actual := string(a.actual)
 

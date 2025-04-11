@@ -57,7 +57,7 @@ func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if a.not {
 		if a.actual == expected {
@@ -89,7 +89,7 @@ func (a *OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) *OrderedOr[O] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if a.not {
 		if a.actual > threshold {
@@ -121,7 +121,7 @@ func (a *OrderedType[O]) ToBeLessThan(t Tester, threshold O) *OrderedOr[O] {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if a.not {
 		if a.actual < threshold {
@@ -153,7 +153,7 @@ func (a *OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) *OrderedOr[O
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if a.not {
 		if a.actual <= threshold {
@@ -185,7 +185,7 @@ func (a *OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) *OrderedO
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if a.not {
 		if a.actual >= threshold {
@@ -218,7 +218,7 @@ func (a *OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) *Order
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if minimum > maximum {
 		a.describeActual("Impossible test%s %T: minimum %v > maximum %v.\n",
@@ -255,7 +255,7 @@ func (a *OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) *OrderedOr[O]
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if minimum >= maximum {
 		a.describeActual("Impossible test%s %T: minimum %v >= maximum %v.\n",

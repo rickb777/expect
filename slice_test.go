@@ -10,7 +10,7 @@ import (
 
 type MyBytes []byte
 
-//func stringTest(e error) (string, error) { return "", e }
+//func stringTestE(e error) (string, error) { return "", e }
 
 func TestSliceToBe_byte(t *testing.T) {
 	c := &capture{}

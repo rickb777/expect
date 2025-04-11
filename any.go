@@ -132,7 +132,7 @@ func (a AnyType[T]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if !a.not && !isNilish(a.actual) {
 		a.describeActualExpected1("%T ―――\n%s――― to be nil.\n", a.actual, verbatim(a.actual))
@@ -185,7 +185,7 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, differe
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	isStruct := actual != nil && reflect.TypeOf(actual).Kind() == reflect.Struct
 

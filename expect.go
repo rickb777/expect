@@ -100,20 +100,17 @@ func join(before string, messages []string, separator string) string {
 
 //-------------------------------------------------------------------------------------------------
 
-func (a *assertion) allOtherArgumentsMustBeNil(t Tester) {
+func (a *assertion) allOtherArgumentsMustNotBeError(t Tester) {
 	if a != nil {
 		if h, ok := t.(helper); ok {
 			h.Helper()
 		}
 
 		for i, o := range a.otherActual {
-			if o != nil {
-				v := "value"
-				if _, ok := o.(error); ok {
-					v = "error"
-				}
-				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil %s but got parameter %d (%T) ―――\n  %v\n",
-					preS(a.info), v, i+2, o, o))
+			switch o.(type) {
+			case error:
+				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil error but got error parameter %d ―――\n  %v\n",
+					preS(a.info), i+2, o))
 			}
 		}
 	}

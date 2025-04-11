@@ -15,6 +15,7 @@ type capture struct {
 
 func (c *capture) reset() {
 	c.errorfCalls = 0
+	c.fatalfCalls = 0
 	c.message = nil
 }
 

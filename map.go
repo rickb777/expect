@@ -57,7 +57,7 @@ func (a MapType[K, V]) ToBeNil(t Tester) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if !a.not && !isNilish(a.actual) {
 		a.describeActualExpected1("%T len:%d ―――\n%s――― to be nil\n",
@@ -80,7 +80,7 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
@@ -136,7 +136,7 @@ func (a MapType[K, V]) toHaveLength(t Tester, expected int, what string) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	actual := len(a.actual)
 
@@ -164,7 +164,7 @@ func (a MapType[K, V]) ToContain(t Tester, expectedKey K, expectedValue ...V) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	value, present := a.actual[expectedKey]
 
@@ -240,7 +240,7 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
@@ -291,7 +291,7 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustBeNil(t)
+	a.allOtherArgumentsMustNotBeError(t)
 
 	if len(expectedKey) == 1 {
 		a.ToContain(t, expectedKey[0])
