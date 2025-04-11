@@ -16,7 +16,7 @@ type Info struct {
 
 type MoreInfo struct {
 	Extra    string
-	original Info
+	original any
 }
 
 func TestAnyToBe(t *testing.T) {
