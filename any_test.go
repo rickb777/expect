@@ -17,6 +17,7 @@ type Info struct {
 type MoreInfo struct {
 	Extra    string
 	original any
+	weights  []Weight32
 }
 
 func TestAnyToBe(t *testing.T) {
@@ -59,7 +60,7 @@ func TestAnyToBe(t *testing.T) {
 		"+ \tyang: \"b\",\n"+
 		"  }\n")
 
-	m1 := MoreInfo{Extra: "ok", original: Info{Yin: "a", yang: "b"}}
+	m1 := MoreInfo{Extra: "ok", original: Info{Yin: "a", yang: "b"}, weights: []Weight32{1, 2, 3}}
 	expect.Any(i1).ToBe(c, i1)
 	c.shouldNotHaveHadAnError(t)
 
@@ -73,6 +74,8 @@ func TestAnyToBe(t *testing.T) {
 - 		yang: "c",
 + 		yang: "b",
   	},
+- 	weights: nil,
++ 	weights: []expect_test.Weight32{1, 2, 3},
   }
 `)
 

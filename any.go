@@ -225,9 +225,7 @@ func gatherTypes(m typeSet, values ...interface{}) typeSet {
 		m = make(typeSet)
 	}
 	for _, v := range values {
-		if v != nil {
-			discoverTypes(reflect.ValueOf(v), m)
-		}
+		discoverTypes(reflect.ValueOf(v), m)
 	}
 	return m
 }
@@ -239,34 +237,38 @@ func allowUnexported(m typeSet) gocmp.Option {
 }
 
 func discoverTypes(v reflect.Value, m map[reflect.Type]bool) {
-	switch v.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	k := v.Kind()
+	for k == reflect.Ptr || k == reflect.Interface {
 		v = v.Elem()
+		k = v.Kind()
 	}
-	t := v.Type()
-	switch t.Kind() {
-	case reflect.Struct:
-		if _, exists := m[t]; !exists {
-			m[t] = true
-			for i := 0; i < v.NumField(); i++ {
-				discoverTypes(v.Field(i), m)
+
+	if v.IsValid() {
+		t := v.Type()
+		switch t.Kind() {
+		case reflect.Struct:
+			if _, exists := m[t]; !exists {
+				m[t] = true
+				for i := 0; i < v.NumField(); i++ {
+					discoverTypes(v.Field(i), m)
+				}
 			}
-		}
 
-	case reflect.Slice:
-		// exploring slices will terminate early if the slice is empty, but this doesn't
-		// matter because we traverse both actual and expected type trees
-		if v.Len() > 0 {
-			discoverTypes(v.Index(0), m)
-		}
+		case reflect.Slice:
+			// exploring slices will terminate early if the slice is empty, but this doesn't
+			// matter because we traverse both actual and expected type trees
+			if v.Len() > 0 {
+				discoverTypes(v.Index(0), m)
+			}
 
-	case reflect.Map:
-		// exploring maps will terminate early if the map is empty, but this doesn't
-		// matter because we traverse both actual and expected type trees
-		it := v.MapRange()
-		if it.Next() {
-			discoverTypes(it.Key(), m)
-			discoverTypes(it.Value(), m)
+		case reflect.Map:
+			// exploring maps will terminate early if the map is empty, but this doesn't
+			// matter because we traverse both actual and expected type trees
+			it := v.MapRange()
+			if it.Next() {
+				discoverTypes(it.Key(), m)
+				discoverTypes(it.Value(), m)
+			}
 		}
 	}
 }
