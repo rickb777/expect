@@ -3,6 +3,7 @@ package expect_test
 import (
 	"errors"
 	"github.com/rickb777/expect"
+	"regexp"
 	"testing"
 )
 
@@ -86,6 +87,19 @@ func TestErrorToContain(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to contain ―――\n  missing\n")
 
 	expect.Error(0, nil).ToContain(c, "something bad happened")
+	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")
+}
+
+func TestErrorToMatch(t *testing.T) {
+	c := &capture{}
+
+	expect.Error(e1).I("xyz").ToMatch(c, regexp.MustCompile("something bad happened"))
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Error(e1).I("xyz").ToMatch(c, regexp.MustCompile("missing"))
+	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to match ―――\n  missing\n")
+
+	expect.Error(0, nil).ToMatch(c, regexp.MustCompile("something bad happened"))
 	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")
 }
 

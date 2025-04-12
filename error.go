@@ -2,6 +2,7 @@ package expect
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -103,8 +104,6 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 }
 
 //-------------------------------------------------------------------------------------------------
-// TODO ToMatch
-//-------------------------------------------------------------------------------------------------
 
 // ToContain asserts that the error occurred and its message contains the substring.
 // The tester is normally [*testing.T].
@@ -121,6 +120,31 @@ func (a ErrorType) ToContain(t Tester, substring string) {
 		if (!a.not && !match) || (a.not && match) {
 			a.describeActualExpectedM("error ―――\n  %s\n", blank(msg))
 			a.addExpectation("to contain ―――\n  %s\n", substring)
+		} else {
+			a.passes++
+		}
+	}
+
+	a.applyAll(t)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToMatch asserts that the error occurred and its message matches a regular expression.
+// The tester is normally [*testing.T].
+func (a ErrorType) ToMatch(t Tester, pattern *regexp.Regexp) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if a.actual == nil {
+		a.describeActualExpected1("error to have occurred but there was no error.\n")
+	} else {
+		msg := a.actual.Error()
+		match := pattern.MatchString(msg)
+		if (!a.not && !match) || (a.not && match) {
+			a.describeActualExpectedM("error ―――\n  %s\n", blank(msg))
+			a.addExpectation("to match ―――\n  %s\n", pattern)
 		} else {
 			a.passes++
 		}

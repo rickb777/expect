@@ -90,7 +90,7 @@ The assertions available are as follows.
 | `ToContain`              | -   | Yes    | -      | -    | Yes | Yes   | Yes   | -    |
 | `ToContainAll`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
 | `ToContainAny`           | -   | -      | -      | -    | Yes | Yes   | -     | -    |
-| `ToMatch`                | -   | Yes    | -      | -    | -   | -     | -     | -    |
+| `ToMatch`                | -   | Yes    | -      | -    | -   | -     | Yes   | -    |
 | `ToBeTrue`               | -   | -      | -      | Yes  | -   | -     | -     | -    |
 | `ToBeFalse`              | -   | -      | -      | Yes  | -   | -     | -     | -    |
 | `ToBeGreaterThan`        | -   | -      | Yes    | -    | -   | -     | -     | -    |
