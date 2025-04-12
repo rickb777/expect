@@ -63,6 +63,45 @@ func TestNumberNotToBe(t *testing.T) {
 	)
 }
 
+func TestNumberToEqual(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000000
+	expect.Number(utcTime).ToEqual(c, 1710000000)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number(uint64(1)).ToEqual(c, float32(1.0))
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number("aardvark").ToEqual(c, 1)
+	c.shouldHaveCalledErrorf(t, "Expected string ―――\n  aardvark\n――― to be ―――\n  1\n")
+
+	expect.Number("aardvark").ToEqual(c, false)
+	c.shouldHaveCalledErrorf(t, "Expected bool ―――\n  false\n――― type must be int, uint, or float (of any length) ―――\n")
+
+	utcTime = 1710000000
+	expect.Number(utcTime).I("utcTime").ToEqual(c, 1710000001)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be ―――\n  1710000001\n")
+}
+
+func TestNumberNotToEqual(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000000
+	expect.Number(utcTime).Not().ToEqual(c, 1710000001)
+	c.shouldNotHaveHadAnError(t)
+
+	utcTime = 1710000000
+	expect.Number(utcTime).I("utcTime").Not().ToEqual(c, 1710000000)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be ―――\n  1710000000\n")
+
+	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToEqual(c, 0)
+	c.shouldHaveCalledFatalf(t,
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
+		"Expected data int ―――\n  0\n――― not to be ―――\n  0\n",
+	)
+}
+
 func TestNumberToBeGreaterThan(t *testing.T) {
 	c := &capture{}
 

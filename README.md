@@ -41,7 +41,7 @@ This compares `map[K]V` where the map key `K` is a comparable type.
 **Map** provides more methods than **Any**, but is otherwise very similar. 
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
-This compares `[]T` but only where `T` is a comparable type. Use **Any** for other slices.
+This compares `[]T` but only where `T` is any type.
 
 **Slice** provides more methods than **Any**, but is otherwise very similar.
 
@@ -83,7 +83,7 @@ The assertions available are as follows.
 |                          | Any | String | Number | Bool | Map | Slice | Error | Func |
 |--------------------------|-----|--------|--------|------|-----|-------|-------|------|
 | `ToBe`                   | Yes | Yes    | Yes    | Yes  | Yes | Yes   | -     | -    |
-| `ToEqual`                | Yes | Yes    | -      | Yes  | -   | -     | -     | -    |
+| `ToEqual`                | Yes | Yes    | Yes    | Yes  | -   | -     | -     | -    |
 | `ToBeNil`                | Yes | -      | -      | -    | Yes | Yes   | Yes   | -    |
 | `ToBeEmpty`              | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
 | `ToHaveLength`           | -   | Yes    | -      | -    | Yes | Yes   | -     | -    |
@@ -106,7 +106,7 @@ The assertions available are as follows.
 Many categories have
 
 * `ToBe(t, expected)` **tests for equality**, whereas
-* `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not
+* `ToEqual(t, expected)` tests for equality ignoring whether the concrete types match or not - `ToBe` should be preferred but `toEqual` is sometimes more convenient
 
 Another group of related assertions is
 

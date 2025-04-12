@@ -1,6 +1,9 @@
 package expect
 
-import "cmp"
+import (
+	"cmp"
+	"reflect"
+)
 
 // OrderedType is used for assertions about numbers and other ordered types.
 type OrderedType[O cmp.Ordered] struct {
@@ -67,6 +70,60 @@ func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
 		}
 	} else {
 		if a.actual != expected {
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n  %+v\n", expected)
+			return a.conjunction(t, false)
+		}
+	}
+
+	return a.conjunction(t, true)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToEqual asserts that the actual and expected numbers have the same values and similar types.
+// The expected value must be some numeric type.
+// The tester is normally [*testing.T].
+func (a *OrderedType[O]) ToEqual(t Tester, expected any) *OrderedOr[O] {
+	if a == nil {
+		return nil
+	}
+
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	a.allOtherArgumentsMustNotBeError(t)
+
+	match := false
+
+	expectedType := reflect.TypeOf(expected)
+	switch expectedType.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
+		// ok
+
+	default:
+		a.describeActualExpectedM("%T ―――\n  %+v\n", expected, expected)
+		a.addExpectation("type must be int, uint, or float (of any length) ―――\n")
+		return a.conjunction(t, false)
+	}
+
+	if expected != nil &&
+		reflect.TypeFor[O]().ConvertibleTo(expectedType) {
+		convertedActual := reflect.ValueOf(a.actual).Convert(expectedType).Interface()
+		match = convertedActual == expected
+	}
+
+	if a.not {
+		if match {
+			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n  %+v\n", expected)
+			return a.conjunction(t, false)
+		}
+	} else {
+		if !match {
 			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
 			a.addExpectation("to be ―――\n  %+v\n", expected)
 			return a.conjunction(t, false)

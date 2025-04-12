@@ -6,16 +6,16 @@ import (
 )
 
 // SliceType is used for assertions about slices.
-type SliceType[T comparable] struct {
+type SliceType[T any] struct {
 	opts   gocmp.Options
 	actual []T
 	assertion
 }
 
-// Slice creates an assertion for deep value comparison of slices of any comparable type.
+// Slice creates an assertion for deep value comparison of slices of any type.
 //
 // This uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [SliceType.Using]
-func Slice[T comparable](value []T, other ...any) SliceType[T] {
+func Slice[T any](value []T, other ...any) SliceType[T] {
 	return SliceType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
@@ -72,7 +72,8 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 //-------------------------------------------------------------------------------------------------
 
 // ToBe asserts that the actual and expected slices have the same values and types.
-// The values must be in the same order.
+// The values must be in the same order. If you pass the expected values in a slice,
+// don't forget the ellipsis.
 // The tester is normally [*testing.T].
 func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 	if h, ok := t.(helper); ok {
@@ -81,13 +82,12 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 
 	a.allOtherArgumentsMustNotBeError(t)
 
-	types := gatherTypes(nil, a.actual, expected)
-	opts := append(a.opts, allowUnexported(types))
+	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
 	match := gocmp.Equal(a.actual, expected, opts)
 
 	if (!a.not && !match) || (a.not && match) {
-		diff := findFirstDiff(a.actual, expected)
+		diff := findFirstAnyDiff(a.actual, expected, opts)
 		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
 		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected), firstDifferenceInfo(diff))
 	} else {
@@ -169,10 +169,12 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	a.allOtherArgumentsMustNotBeError(t)
 
+	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
+
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
 	for _, v := range expected {
-		if sliceContains(a.actual, v, a.opts...) {
+		if sliceContains(a.actual, v, opts) {
 			found = append(found, v)
 		} else {
 			missing = append(missing, v)
@@ -214,10 +216,12 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 
 	a.allOtherArgumentsMustNotBeError(t)
 
+	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
+
 	found := make([]T, 0, len(expected))
 	missing := make([]T, 0, len(expected))
 	for _, v := range expected {
-		if sliceContains(a.actual, v, a.opts...) {
+		if sliceContains(a.actual, v, opts) {
 			found = append(found, v)
 		} else {
 			missing = append(missing, v)

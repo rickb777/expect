@@ -2,6 +2,7 @@ package expect
 
 import (
 	"fmt"
+	gocmp "github.com/google/go-cmp/cmp"
 	"log"
 	"math"
 	"strings"
@@ -172,12 +173,28 @@ func verbatim(v any) string {
 
 //-------------------------------------------------------------------------------------------------
 
-func findFirstDiff[T comparable](a, b []T) int {
+func findFirstComparableDiff[T comparable](a, b []T) int {
 	shortest := min(len(a), len(b))
 	for i := 0; i < shortest; i++ {
 		ra := a[i]
 		rb := b[i]
 		if ra != rb {
+			return i
+		}
+	}
+	return math.MinInt
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// findFirstAnyDiff is like findFirstComparableDiff but requires using reflection to gather
+// the type set so that the gocmp.Equal function can inspect unexported fields.
+func findFirstAnyDiff[T any](a, b []T, opts ...gocmp.Option) int {
+	shortest := min(len(a), len(b))
+	for i := 0; i < shortest; i++ {
+		ra := a[i]
+		rb := b[i]
+		if !gocmp.Equal(ra, rb, opts...) {
 			return i
 		}
 	}

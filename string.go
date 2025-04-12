@@ -214,7 +214,7 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		ac := []rune(actual)
 		ex := []rune(expected)
-		diff := findFirstDiff(ac, ex)
+		diff := findFirstComparableDiff(ac, ex)
 		pointer := diff + 1
 		if diff > 100 || (100 > a.trim && a.trim > 0) {
 			rem := 70
