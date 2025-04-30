@@ -11,10 +11,21 @@ import (
 
 var Default = Build
 
-func Build() {
-	sh.RunV("go", "mod", "download")
-	sh.RunV("go", "mod", "tidy")
-	sh.RunV("go", "test", "./...")
-	sh.RunV("gofmt", "-l", "-w", "-s", ".")
-	sh.RunV("go", "vet", "./...")
+func Build() error {
+	if err := sh.RunV("go", "mod", "download"); err != nil {
+		return err
+	}
+	if err := sh.RunV("go", "mod", "tidy"); err != nil {
+		return err
+	}
+	if err := sh.RunV("go", "test", "./..."); err != nil {
+		return err
+	}
+	if err := sh.RunV("gofmt", "-l", "-w", "-s", "."); err != nil {
+		return err
+	}
+	if err := sh.RunV("go", "vet", "./..."); err != nil {
+		return err
+	}
+	return nil
 }
