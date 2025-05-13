@@ -177,7 +177,7 @@ All categories include these general methods
 	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
 ```
 
-**String** also has `Trim(n)` that truncates message strings if they exceed the specified length.
+**String** also has `Trim(n)` that truncates message strings if they exceed the specified length. When an expectation fails, the actual and expected strings are chopped at the front and/or back so that the difference is visible in the failure message and the visible parts are not longer than the trim value.
 
 ```go
 	expect.String(s).Trim(100).ToContain(t, " a very very long string ")

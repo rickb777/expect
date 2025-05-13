@@ -110,7 +110,7 @@ func (a *assertion) allOtherArgumentsMustNotBeError(t Tester) {
 		for i, o := range a.otherActual {
 			switch o.(type) {
 			case error:
-				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil error but got error parameter %d ―――\n  %v\n",
+				t.Fatal(fmt.Sprintf("Expected%s not to pass a non-nil error but got error parameter %d ―――\n%v\n",
 					preS(a.info), i+2, o))
 			}
 		}
@@ -163,8 +163,8 @@ func notS(not bool) string {
 }
 
 func verbatim(v any) string {
-	a := fmt.Sprintf("  %+v\n", v)
-	b := fmt.Sprintf("  %#v\n", v)
+	a := fmt.Sprintf("%+v\n", v)
+	b := fmt.Sprintf("%#v\n", v)
 	if a == b {
 		return blank(a)
 	}
@@ -173,21 +173,26 @@ func verbatim(v any) string {
 
 //-------------------------------------------------------------------------------------------------
 
-func findFirstComparableDiff[T comparable](a, b []T) int {
+func findFirstRuneDiff(a, b []rune) (diff, line, column int) {
+	line = 1
+	column = 1
 	shortest := min(len(a), len(b))
 	for i := 0; i < shortest; i++ {
-		ra := a[i]
-		rb := b[i]
-		if ra != rb {
-			return i
+		if a[i] != b[i] {
+			return i, line, column
+		}
+		column++
+		if a[i] == '\n' {
+			line++
+			column = 1
 		}
 	}
-	return math.MinInt
+	return math.MinInt, math.MinInt, math.MinInt
 }
 
 //-------------------------------------------------------------------------------------------------
 
-// findFirstAnyDiff is like findFirstComparableDiff but requires using reflection to gather
+// findFirstAnyDiff is like findFirstRuneDiff but requires using reflection to gather
 // the type set so that the gocmp.Equal function can inspect unexported fields.
 func findFirstAnyDiff[T any](a, b []T, opts ...gocmp.Option) int {
 	shortest := min(len(a), len(b))

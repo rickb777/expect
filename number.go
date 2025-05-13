@@ -64,14 +64,14 @@ func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
 
 	if a.not {
 		if a.actual == expected {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n  %+v\n", expected)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n%+v\n", expected)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual != expected {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n  %+v\n", expected)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n%+v\n", expected)
 			return a.conjunction(t, false)
 		}
 	}
@@ -105,7 +105,7 @@ func (a *OrderedType[O]) ToEqual(t Tester, expected any) *OrderedOr[O] {
 		// ok
 
 	default:
-		a.describeActualExpectedM("%T ―――\n  %+v\n", expected, expected)
+		a.describeActualExpectedM("%T ―――\n%+v\n", expected, expected)
 		a.addExpectation("type must be int, uint, or float (of any length) ―――\n")
 		return a.conjunction(t, false)
 	}
@@ -118,14 +118,14 @@ func (a *OrderedType[O]) ToEqual(t Tester, expected any) *OrderedOr[O] {
 
 	if a.not {
 		if match {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n  %+v\n", expected)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n%+v\n", expected)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if !match {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n  %+v\n", expected)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be ―――\n%+v\n", expected)
 			return a.conjunction(t, false)
 		}
 	}
@@ -150,14 +150,14 @@ func (a *OrderedType[O]) ToBeGreaterThan(t Tester, threshold O) *OrderedOr[O] {
 
 	if a.not {
 		if a.actual > threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be greater than ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual <= threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be greater than ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be greater than ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	}
@@ -182,14 +182,14 @@ func (a *OrderedType[O]) ToBeLessThan(t Tester, threshold O) *OrderedOr[O] {
 
 	if a.not {
 		if a.actual < threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be less than ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual >= threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be less than ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be less than ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	}
@@ -214,14 +214,14 @@ func (a *OrderedType[O]) ToBeLessThanOrEqual(t Tester, threshold O) *OrderedOr[O
 
 	if a.not {
 		if a.actual <= threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be less than or equal to ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual > threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be less than or equal to ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be less than or equal to ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	}
@@ -246,14 +246,14 @@ func (a *OrderedType[O]) ToBeGreaterThanOrEqual(t Tester, threshold O) *OrderedO
 
 	if a.not {
 		if a.actual >= threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be greater than or equal to ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual < threshold {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be greater than or equal to ―――\n  %+v\n", threshold)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be greater than or equal to ―――\n%+v\n", threshold)
 			return a.conjunction(t, false)
 		}
 	}
@@ -283,14 +283,14 @@ func (a *OrderedType[O]) ToBeBetweenOrEqual(t Tester, minimum, maximum O) *Order
 		return a.conjunction(t, false)
 	} else if a.not {
 		if minimum <= a.actual && a.actual <= maximum {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be between ―――\n%+v … %v (inclusive)\n", minimum, maximum)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual < minimum || a.actual > maximum {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be between ―――\n  %+v … %v (inclusive)\n", minimum, maximum)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be between ―――\n%+v … %v (inclusive)\n", minimum, maximum)
 			return a.conjunction(t, false)
 		}
 	}
@@ -320,14 +320,14 @@ func (a *OrderedType[O]) ToBeBetween(t Tester, minimum, maximum O) *OrderedOr[O]
 		return a.conjunction(t, false)
 	} else if a.not {
 		if minimum < a.actual && a.actual < maximum {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be between ―――\n%+v … %v (exclusive)\n", minimum, maximum)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if a.actual <= minimum || a.actual >= maximum {
-			a.describeActualExpectedM("%T ―――\n  %+v\n", a.actual, a.actual)
-			a.addExpectation("to be between ―――\n  %+v … %v (exclusive)\n", minimum, maximum)
+			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
+			a.addExpectation("to be between ―――\n%+v … %v (exclusive)\n", minimum, maximum)
 			return a.conjunction(t, false)
 		}
 	}

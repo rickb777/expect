@@ -103,7 +103,7 @@ func (a *StringType[S]) toHaveLength(t Tester, expected int, what string) *Strin
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if len(a.actual) > 0 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual),
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual),
 				trim(string(a.actual), a.trim))
 			a.addExpectation("%s\n", what)
 		} else {
@@ -136,8 +136,8 @@ func (a *StringType[S]) ToContain(t Tester, substring S) *StringOr[S] {
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualExpectedM("%T len:%d ―――\n  %s\n", a.actual, len(a.actual), trim(ac, a.trim))
-		a.addExpectation("to contain ―――\n  %s\n", trim(ex, a.trim))
+		a.describeActualExpectedM("%T len:%d ―――\n%s\n", a.actual, len(a.actual), trim(ac, a.trim))
+		a.addExpectation("to contain ―――\n%s\n", trim(ex, a.trim))
 		return a.conjunction(t, false)
 	}
 
@@ -163,8 +163,8 @@ func (a *StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) *StringOr[S] {
 	match := pattern.MatchString(ac)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualExpectedM("―――\n  %s\n", trim(ac, a.trim))
-		a.addExpectation("to match ―――\n  %s\n", pattern)
+		a.describeActualExpectedM("―――\n%s\n", trim(ac, a.trim))
+		a.addExpectation("to match ―――\n%s\n", pattern)
 		return a.conjunction(t, false)
 	}
 
@@ -211,27 +211,37 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 
 	actual := string(a.actual)
 
-	if (!a.not && actual != expected) || (a.not && actual == expected) {
+	if expected == "" && actual != "" {
+		a.describeActualExpected1("―――\n%s\n――― ", trim(actual, a.trim))
+		a.addExpectation("%s blank.\n", what)
+		return a.conjunction(t, false)
+
+	} else if !a.not && actual != expected {
 		ac := []rune(actual)
 		ex := []rune(expected)
-		diff := findFirstComparableDiff(ac, ex)
+		diff, line, column := findFirstRuneDiff(ac, ex)
 		pointer := diff + 1
-		if diff > 100 || (100 > a.trim && a.trim > 0) {
-			rem := 70
-			if 70 > a.trim && a.trim > 0 {
-				rem = a.trim
-				a.trim = 0
-			}
-			chop := (diff - rem) + 1
+		trim2 := a.trim / 2
+		if trim2 > 0 && diff >= trim2 {
+			chop := (diff - trim2) + 1
 			actual = "…" + string(ac[chop:])
 			expected = "…" + string(ex[chop:])
-			pointer = rem + 1
+			pointer = trim2 + 1
 		}
-		a.describeActualExpectedM("―――\n  %s\n", trim(actual, a.trim))
-		a.addExpectation("%s\n  %s\n%s",
-			arrowMarker(what, pointer),
+		a.describeActualExpectedM("―――\n%s\n", trim(actual, a.trim))
+		a.addExpectation("%s\n%s\n%s",
+			arrowMarker(what, pointer, line == 1),
 			trim(expected, a.trim),
-			firstDifferenceInfo(diff))
+			firstDifferenceInfo("rune", diff, line, column))
+		return a.conjunction(t, false)
+
+	} else if a.not && actual == expected {
+		thisValue := "this value"
+		if expected == "" {
+			thisValue = "blank"
+		}
+		a.describeActualExpected1("―――\n%s\n――― ", trim(actual, a.trim))
+		a.addExpectation("%s %s.\n", what, thisValue)
 		return a.conjunction(t, false)
 	}
 
@@ -270,21 +280,26 @@ func (or *StringOr[S]) Or() *StringType[S] {
 
 //=================================================================================================
 
-func arrowMarker(label string, i int) string {
+func arrowMarker(label string, i int, enabled bool) string {
 	indicator := fmt.Sprintf("%s ―――", label)
 	iLength := utf8.RuneCountInString("――― " + indicator)
-	if i <= iLength {
+	if !enabled || i <= iLength {
 		return indicator
 	}
-	nSpaces := 1 + i - iLength
+	nSpaces := i - iLength - 1
 	return indicator + strings.Repeat(" ", nSpaces) + "↕"
 }
 
-func firstDifferenceInfo(i int) string {
-	if i < 0 {
+func firstDifferenceInfo(element string, diff, line, column int) string {
+	if diff < 0 {
 		return ""
 	}
-	return fmt.Sprintf("――― the first difference is at index %d.\n", i)
+	if line > 1 || column > 1 {
+		return fmt.Sprintf("――― the first difference is at %s %d (line %d:%d).\n",
+			element, diff, line, column)
+	}
+	return fmt.Sprintf("――― the first difference is at %s %d.\n",
+		element, diff)
 }
 
 func trim(s string, trim int) string {

@@ -89,7 +89,8 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 	if (!a.not && !match) || (a.not && match) {
 		diff := findFirstAnyDiff(a.actual, expected, opts)
 		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
-		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected), firstDifferenceInfo(diff))
+		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected),
+			firstDifferenceInfo("index", diff, 0, 0))
 	} else {
 		a.passes++
 	}
@@ -134,7 +135,7 @@ func (a SliceType[T]) toHaveLength(t Tester, expected int, what string, showActu
 
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if showActual && len(a.actual) > 0 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("%s\n", what)
 		} else {
 			a.describeActualExpected1("%T len:%d ", a.actual, len(a.actual))
@@ -183,19 +184,19 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expected)))
 		} else if len(found) < len(expected)/2 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but only %s found ―――\n  %v\n",
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s found ―――\n%v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		} else {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but %s missing ―――\n  %v\n",
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s missing ―――\n%v\n",
 				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
-		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but %s present.\n",
 			allN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 	} else {
@@ -229,20 +230,20 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	if !a.not && len(found) == 0 {
-		a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s present.\n",
 				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
 		} else if len(missing) < len(expected)/2 {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but only %s missing ―――\n  %v\n",
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but only %s missing ―――\n%v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
 		} else {
-			a.describeActualExpectedM("%T len:%d ―――\n  %v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but %s found ―――\n  %v\n",
+			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
+			a.addExpectation("to contain %s but %s found ―――\n%v\n",
 				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
 		}
 	} else {

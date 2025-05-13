@@ -52,7 +52,7 @@ func TestBoolNotToBeFalse(t *testing.T) {
 
 	expect.Bool(boolTest(errors.New("bang"))).I("data").Not().ToBeFalse(c)
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
 		"Expected data not to be false.\n",
 	)
 }

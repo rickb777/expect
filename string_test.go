@@ -67,29 +67,29 @@ func TestStringOr(t *testing.T) {
 
 	expect.String("Ron").ToBe(nil, "Fred").Or().ToBe(nil, "George").Or().ToBe(c, "Ginny")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  Ron\n"+
+		"Ron\n"+
 		"――― to be ―――\n"+
-		"  Fred\n"+
-		"――― the first difference is at index 0.\n"+
+		"Fred\n"+
+		"――― the first difference is at rune 0.\n"+
 		"\n"+
 		"――― or to be ―――\n"+
-		"  George\n"+
-		"――― the first difference is at index 0.\n"+
+		"George\n"+
+		"――― the first difference is at rune 0.\n"+
 		"\n"+
 		"――― or to be ―――\n"+
-		"  Ginny\n"+
-		"――― the first difference is at index 0.\n")
+		"Ginny\n"+
+		"――― the first difference is at rune 0.\n")
 
 	expect.String("abcµdef-0123456789").ToBe(nil, "abcµdfe-0123456789").Or().ToBe(c, "bacµdef-0123456789")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  abcµdef-0123456789\n"+
+		"abcµdef-0123456789\n"+
 		"――― to be ―――\n"+
-		"  abcµdfe-0123456789\n"+
-		"――― the first difference is at index 5.\n"+
+		"abcµdfe-0123456789\n"+
+		"――― the first difference is at rune 5 (line 1:6).\n"+
 		"\n"+
 		"――― or to be ―――\n"+
-		"  bacµdef-0123456789\n"+
-		"――― the first difference is at index 0.\n")
+		"bacµdef-0123456789\n"+
+		"――― the first difference is at rune 0.\n")
 }
 
 func TestStringToBe(t *testing.T) {
@@ -100,25 +100,55 @@ func TestStringToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToBe(c, "")
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to be ―――\n  \"\"\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― to be blank.\n")
 
 	expect.String(stringTestOK()).I("data").ToBe(c, "")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String("abcµdef-0123456789").ToBe(c, "abcµdfe-0123456789")
+	expect.String("abcµdef-°123456789").ToBe(c, "abcµdfe-°123456789")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  abcµdef-0123456789\n"+
+		"abcµdef-°123456789\n"+
 		"――― to be ―――\n"+
-		"  abcµdfe-0123456789\n"+
-		"――― the first difference is at index 5.\n")
+		"abcµdfe-°123456789\n"+
+		"――― the first difference is at rune 5 (line 1:6).\n")
 
-	numbers1 := strings.Repeat("01234µ6789", 6)
-	expect.String(numbers1+"<").Trim(50).ToBe(c, numbers1+">")
+	numbers1 := strings.Repeat("°1234µ6789", 6)
+
+	expect.String(numbers1+"<vwxyz").Trim(50).ToBe(c, numbers1+">vwxyz")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ6789<\n"+
-		"――― to be ―――                                       ↕\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ6789>\n"+
-		"――― the first difference is at index 60.\n")
+		"…6789°1234µ6789°1234µ6789<vwxyz\n"+
+		"――― to be ―――            ↕\n"+
+		"…6789°1234µ6789°1234µ6789>vwxyz\n"+
+		"――― the first difference is at rune 60 (line 1:61).\n")
+
+	lines1 := "A" + numbers1 + "\nB" + numbers1 + "\nC" + numbers1 + "\nvwxyz"
+	lines2 := "D" + numbers1 + "\nE" + numbers1 + "\nF" + numbers1
+
+	expect.String(lines1+"<"+lines2).ToBe(c, lines1+">"+lines2)
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
+		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"vwxyz<D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"F°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"――― to be ―――\n"+
+		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"vwxyz>D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"F°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"――― the first difference is at rune 191 (line 4:6).\n")
+
+	expect.String(lines1+"<"+lines2).Trim(100).ToBe(c, lines1+">"+lines2)
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
+		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"vwxyz<D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ67…\n"+
+		"――― to be ―――\n"+
+		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"vwxyz>D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ67…\n"+
+		"――― the first difference is at rune 191 (line 4:6).\n")
 }
 
 func TestStringToEqual(t *testing.T) {
@@ -127,40 +157,40 @@ func TestStringToEqual(t *testing.T) {
 	expect.String([]byte("hello")).ToEqual(t, "hello")
 	c.shouldNotHaveHadAnError(t)
 
-	numbers1 := strings.Repeat("01234µ6789", 5) + "_" + "01234«-»6789"
+	numbers1 := strings.Repeat("°1234µ6789", 5) + "_" + "01234«-»6789"
 
 	expect.String(numbers1).ToEqual(t, numbers1)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.String("abcµdef-0123456789").ToEqual(c, "abcµdfe-0123456789")
+	expect.String("abcµdef-°123456789").ToEqual(c, "abcµdfe-°123456789")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  abcµdef-0123456789\n"+
+		"abcµdef-°123456789\n"+
 		"――― to equal ―――\n"+
-		"  abcµdfe-0123456789\n"+
-		"――― the first difference is at index 5.\n")
+		"abcµdfe-°123456789\n"+
+		"――― the first difference is at rune 5 (line 1:6).\n")
 
-	numbers2 := strings.Repeat("01234µ6789", 7)
+	numbers2 := strings.Repeat("°1234µ6789", 7)
 
 	expect.String(numbers1).ToEqual(c, numbers2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  01234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»6789\n"+
-		"――― to equal ―――                                    ↕\n"+
-		"  01234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789\n"+
-		"――― the first difference is at index 50.\n")
+		"°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789_01234«-»6789\n"+
+		"――― to equal ―――                                  ↕\n"+
+		"°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"――― the first difference is at rune 50 (line 1:51).\n")
 
 	expect.String(numbers2+numbers1).ToEqual(c, numbers2+numbers2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»6789\n"+
-		"――― to equal ―――                                                        ↕\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789\n"+
-		"――― the first difference is at index 120.\n")
+		"°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789_01234«-»6789\n"+
+		"――― to equal ―――                                                                                                        ↕\n"+
+		"°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"――― the first difference is at rune 120 (line 1:121).\n")
 
 	expect.String(numbers2+numbers1+numbers2).Trim(100).ToEqual(c, numbers2+numbers2+numbers2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789_01234«-»678901234µ678901234µ6…\n"+
-		"――― to equal ―――                                                        ↕\n"+
-		"  …1234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ678901234µ6789…\n"+
-		"――― the first difference is at index 120.\n")
+		"…1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789_01234«-»6789°1234µ6789°1234µ6789°1234µ6789°1234µ6…\n"+
+		"――― to equal ―――                                  ↕\n"+
+		"…1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789…\n"+
+		"――― the first difference is at rune 120 (line 1:121).\n")
 }
 
 func TestStringNotToBe(t *testing.T) {
@@ -171,12 +201,21 @@ func TestStringNotToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToBe(c, "hello")
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to be ―――\n  hello\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― not to be this value.\n")
+
+	numbers1 := strings.Repeat("°1234µ56789", 6)
+	lines := "A" + numbers1 + "\nB" + numbers1 + "\nC" + numbers1 + "\nD" + numbers1 + "\nE" + numbers1
+
+	expect.String(lines).Not().ToBe(c, lines)
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+lines+"\n――― not to be this value.\n")
+
+	expect.String(lines).Trim(100).Not().ToBe(c, lines)
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+lines[:118]+"…\n――― not to be this value.\n")
 
 	expect.String(stringTestE(errors.New("bang"))).I("data").Not().ToBe(c, "")
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
-		"Expected data ―――\n  \"\"\n――― not to be ―――\n  \"\"\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
+		"Expected data ―――\n\"\"\n――― not to be blank.\n",
 	)
 }
 
@@ -188,7 +227,7 @@ func TestStringNotToEqual(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToEqual(c, "hello")
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to equal ―――\n  hello\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― not to equal this value.\n")
 }
 
 func TestStringToHaveLength(t *testing.T) {
@@ -202,23 +241,23 @@ func TestStringToHaveLength(t *testing.T) {
 
 	expect.String("abcdef").ToHaveLength(c, 5)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
-		"  abcdef\n"+
+		"abcdef\n"+
 		"――― to have length 5.\n")
 
 	expect.String("abcdef").Not().ToHaveLength(c, 6)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
-		"  abcdef\n"+
+		"abcdef\n"+
 		"――― not to have length 6.\n")
 
-	var longString = strings.Repeat("0123456789", 10)
+	var longString = strings.Repeat("°123456789", 10)
 	expect.String(longString).ToHaveLength(c, 90)
-	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
-		"  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n"+
+	c.shouldHaveCalledErrorf(t, "Expected string len:110 ―――\n"+
+		"°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789\n"+
 		"――― to have length 90.\n")
 
 	expect.String(longString).Trim(80).ToHaveLength(c, 90)
-	c.shouldHaveCalledErrorf(t, "Expected string len:100 ―――\n"+
-		"  01234567890123456789012345678901234567890123456789012345678901234567890123456789…\n"+
+	c.shouldHaveCalledErrorf(t, "Expected string len:110 ―――\n"+
+		"°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789…\n"+
 		"――― to have length 90.\n")
 }
 
@@ -233,7 +272,7 @@ func TestStringToBeEmpty(t *testing.T) {
 
 	expect.String("abcdef").ToBeEmpty(c)
 	c.shouldHaveCalledErrorf(t, "Expected string len:6 ―――\n"+
-		"  abcdef\n"+
+		"abcdef\n"+
 		"――― to be empty.\n")
 
 	expect.String([]byte{}).Not().ToBeEmpty(c)
@@ -248,7 +287,7 @@ func TestStringToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToContain(c, "world")
-	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\n  hello\n――― to contain ―――\n  world\n")
+	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\nhello\n――― to contain ―――\nworld\n")
 }
 
 func TestStringNotToContain(t *testing.T) {
@@ -259,7 +298,7 @@ func TestStringNotToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToContain(c, "ell")
-	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\n  hello\n――― not to contain ―――\n  ell\n")
+	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\nhello\n――― not to contain ―――\nell\n")
 }
 
 func TestStringToMatch(t *testing.T) {
@@ -270,7 +309,7 @@ func TestStringToMatch(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToMatch(c, regexp.MustCompile("^x-ll-$"))
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― to match ―――\n  ^x-ll-$\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― to match ―――\n^x-ll-$\n")
 }
 
 func TestStringNotToMatch(t *testing.T) {
@@ -281,7 +320,7 @@ func TestStringNotToMatch(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToMatch(c, regexp.MustCompile("^.*ll.*$"))
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n  hello\n――― not to match ―――\n  ^.*ll.*$\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― not to match ―――\n^.*ll.*$\n")
 }
 
 func ExampleStringType_ToBe() {

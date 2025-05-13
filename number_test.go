@@ -42,7 +42,7 @@ func TestNumberToBe(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBe(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be ―――\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be ―――\n1710000001\n")
 }
 
 func TestNumberNotToBe(t *testing.T) {
@@ -54,12 +54,12 @@ func TestNumberNotToBe(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").Not().ToBe(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to be ―――\n1710000000\n")
 
 	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToBe(c, 0)
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
-		"Expected data int ―――\n  0\n――― not to be ―――\n  0\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
+		"Expected data int ―――\n0\n――― not to be ―――\n0\n",
 	)
 }
 
@@ -74,14 +74,14 @@ func TestNumberToEqual(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Number("aardvark").ToEqual(c, 1)
-	c.shouldHaveCalledErrorf(t, "Expected string ―――\n  aardvark\n――― to be ―――\n  1\n")
+	c.shouldHaveCalledErrorf(t, "Expected string ―――\naardvark\n――― to be ―――\n1\n")
 
 	expect.Number("aardvark").ToEqual(c, false)
-	c.shouldHaveCalledErrorf(t, "Expected bool ―――\n  false\n――― type must be int, uint, or float (of any length) ―――\n")
+	c.shouldHaveCalledErrorf(t, "Expected bool ―――\nfalse\n――― type must be int, uint, or float (of any length) ―――\n")
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToEqual(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be ―――\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be ―――\n1710000001\n")
 }
 
 func TestNumberNotToEqual(t *testing.T) {
@@ -93,12 +93,12 @@ func TestNumberNotToEqual(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").Not().ToEqual(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to be ―――\n1710000000\n")
 
 	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToEqual(c, 0)
 	c.shouldHaveCalledFatalf(t,
-		"Expected data not to pass a non-nil error but got error parameter 2 ―――\n  bang\n",
-		"Expected data int ―――\n  0\n――― not to be ―――\n  0\n",
+		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
+		"Expected data int ―――\n0\n――― not to be ―――\n0\n",
 	)
 }
 
@@ -111,7 +111,7 @@ func TestNumberToBeGreaterThan(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeGreaterThan(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be greater than ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be greater than ―――\n1710000000\n")
 }
 
 func TestNumberNotToBeGreaterThan(t *testing.T) {
@@ -123,7 +123,7 @@ func TestNumberNotToBeGreaterThan(t *testing.T) {
 
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThan(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000001\n――― not to be greater than ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000001\n――― not to be greater than ―――\n1710000000\n")
 }
 
 func TestNumberToBeLessThan(t *testing.T) {
@@ -135,7 +135,7 @@ func TestNumberToBeLessThan(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeLessThan(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be less than ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be less than ―――\n1710000000\n")
 }
 
 func TestNumberNotToBeLessThan(t *testing.T) {
@@ -147,7 +147,7 @@ func TestNumberNotToBeLessThan(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").Not().ToBeLessThan(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be less than ―――\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to be less than ―――\n1710000001\n")
 }
 
 func TestNumberToBeGreaterThanOrEqual(t *testing.T) {
@@ -159,7 +159,7 @@ func TestNumberToBeGreaterThanOrEqual(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqual(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― to be greater than or equal to ―――\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be greater than or equal to ―――\n1710000001\n")
 }
 
 func TestNumberNotToBeGreaterThanOrEqual(t *testing.T) {
@@ -171,7 +171,7 @@ func TestNumberNotToBeGreaterThanOrEqual(t *testing.T) {
 
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").Not().ToBeGreaterThanOrEqual(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000001\n――― not to be greater than or equal to ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000001\n――― not to be greater than or equal to ―――\n1710000000\n")
 }
 
 func TestNumberToBeLessThanOrEqual(t *testing.T) {
@@ -183,7 +183,7 @@ func TestNumberToBeLessThanOrEqual(t *testing.T) {
 
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").ToBeLessThanOrEqual(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000001\n――― to be less than or equal to ―――\n  1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000001\n――― to be less than or equal to ―――\n1710000000\n")
 }
 
 func TestNumberNotToBeLessThanOrEqual(t *testing.T) {
@@ -195,7 +195,7 @@ func TestNumberNotToBeLessThanOrEqual(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").Not().ToBeLessThanOrEqual(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n  1710000000\n――― not to be less than or equal to ―――\n  1710000001\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to be less than or equal to ―――\n1710000001\n")
 }
 
 func TestNumberToBeBetween(t *testing.T) {
@@ -208,9 +208,9 @@ func TestNumberToBeBetween(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeBetween(c, 1710000001, 1710000002)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
-		"  1710000000\n"+
+		"1710000000\n"+
 		"――― to be between ―――\n"+
-		"  1710000001 … 1710000002 (exclusive)\n")
+		"1710000001 … 1710000002 (exclusive)\n")
 
 	expect.Number(utcTime).I("utcTime").ToBeBetween(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 >= maximum 1710000000.\n")
@@ -226,9 +226,9 @@ func TestNumberNotToBeBetween(t *testing.T) {
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").Not().ToBeBetween(c, 1710000000, 1710000002)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
-		"  1710000001\n"+
+		"1710000001\n"+
 		"――― not to be between ―――\n"+
-		"  1710000000 … 1710000002 (exclusive)\n")
+		"1710000000 … 1710000002 (exclusive)\n")
 
 	expect.Number(utcTime).I("utcTime").Not().ToBeBetween(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 >= maximum 1710000000.\n")
@@ -252,9 +252,9 @@ func TestNumberToBeBetweenOrEqual(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeBetweenOrEqual(c, 1710000001, 1710000002)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
-		"  1710000000\n"+
+		"1710000000\n"+
 		"――― to be between ―――\n"+
-		"  1710000001 … 1710000002 (inclusive)\n")
+		"1710000001 … 1710000002 (inclusive)\n")
 
 	expect.Number(utcTime).I("utcTime").ToBeBetweenOrEqual(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")
@@ -270,9 +270,9 @@ func TestNumberNotToBeBetweenOrEqual(t *testing.T) {
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").Not().ToBeBetweenOrEqual(c, 1710000000, 1710000002)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n"+
-		"  1710000001\n"+
+		"1710000001\n"+
 		"――― not to be between ―――\n"+
-		"  1710000000 … 1710000002 (inclusive)\n")
+		"1710000000 … 1710000002 (inclusive)\n")
 
 	expect.Number(utcTime).I("utcTime").Not().ToBeBetweenOrEqual(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")

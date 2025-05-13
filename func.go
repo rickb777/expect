@@ -81,11 +81,11 @@ func (a FuncType) ToPanicWithMessage(t Tester, substring string) {
 		if e := recover(); e != nil {
 			if s, ok := e.(string); ok {
 				if !strings.Contains(s, substring) {
-					a.describeActualExpected1("to panic with a message containing ―――\n  %s\n――― but got ―――\n  %s\n",
+					a.describeActualExpected1("to panic with a message containing ―――\n%s\n――― but got ―――\n%s\n",
 						substring, s)
 				}
 			} else {
-				a.describeActualExpected1("to panic with a string containing ―――\n  %s\n――― but got %T ―――\n  %v\n",
+				a.describeActualExpected1("to panic with a string containing ―――\n%s\n――― but got %T ―――\n%v\n",
 					substring, e, e)
 			}
 			a.applyAll(t)

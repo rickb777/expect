@@ -91,7 +91,7 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 
 	if not {
 		if a.actual != nil {
-			t.Fatal(fmt.Sprintf("Expected%s error ―――\n  %s\n――― not to have occurred.\n",
+			t.Fatal(fmt.Sprintf("Expected%s error ―――\n%s\n――― not to have occurred.\n",
 				preS(a.info), blank(a.actual.Error())))
 		}
 	} else {
@@ -118,8 +118,8 @@ func (a ErrorType) ToContain(t Tester, substring string) {
 		msg := a.actual.Error()
 		match := strings.Contains(msg, substring)
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualExpectedM("error ―――\n  %s\n", blank(msg))
-			a.addExpectation("to contain ―――\n  %s\n", substring)
+			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.addExpectation("to contain ―――\n%s\n", substring)
 		} else {
 			a.passes++
 		}
@@ -143,8 +143,8 @@ func (a ErrorType) ToMatch(t Tester, pattern *regexp.Regexp) {
 		msg := a.actual.Error()
 		match := pattern.MatchString(msg)
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualExpectedM("error ―――\n  %s\n", blank(msg))
-			a.addExpectation("to match ―――\n  %s\n", pattern)
+			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.addExpectation("to match ―――\n%s\n", pattern)
 		} else {
 			a.passes++
 		}

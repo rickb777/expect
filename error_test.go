@@ -32,7 +32,7 @@ func TestErrorToBeNil(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(e1).I("xyz").ToBeNil(c)
-	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\nsomething bad happened\n――― not to have occurred.\n")
 
 	thingUnderTest1 := func() (string, bool, error) { return "foo", true, nil }
 	expect.Error(thingUnderTest1()).I("xyz").ToBeNil(c)
@@ -40,7 +40,7 @@ func TestErrorToBeNil(t *testing.T) {
 
 	thingUnderTest2 := func() (string, error, bool, error) { return "foo", e1, true, nil }
 	expect.Error(thingUnderTest2()).I("xyz").ToBeNil(c)
-	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\nsomething bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToHaveOccurred(t *testing.T) {
@@ -74,7 +74,7 @@ func TestErrorNotToHaveOccurred(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(e1).I("xyz").Not().ToHaveOccurred(c)
-	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\n  something bad happened\n――― not to have occurred.\n")
+	c.shouldHaveCalledFatalf(t, "Expected xyz error ―――\nsomething bad happened\n――― not to have occurred.\n")
 }
 
 func TestErrorToContain(t *testing.T) {
@@ -84,7 +84,7 @@ func TestErrorToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(e1).I("xyz").ToContain(c, "missing")
-	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to contain ―――\n  missing\n")
+	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\nsomething bad happened\n――― to contain ―――\nmissing\n")
 
 	expect.Error(0, nil).ToContain(c, "something bad happened")
 	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")
@@ -97,7 +97,7 @@ func TestErrorToMatch(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(e1).I("xyz").ToMatch(c, regexp.MustCompile("missing"))
-	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\n  something bad happened\n――― to match ―――\n  missing\n")
+	c.shouldHaveCalledErrorf(t, "Expected xyz error ―――\nsomething bad happened\n――― to match ―――\nmissing\n")
 
 	expect.Error(0, nil).ToMatch(c, regexp.MustCompile("something bad happened"))
 	c.shouldHaveCalledErrorf(t, "Expected error to have occurred but there was no error.\n")

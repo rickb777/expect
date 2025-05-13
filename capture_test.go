@@ -47,7 +47,7 @@ func (c *capture) shouldHaveCalledErrorf(t *testing.T, message ...string) {
 	if c.errorfCalls == 0 {
 		t.Errorf("failed to call Error (and %d calls to Fatal)", c.fatalfCalls)
 	} else if !sliceEquals(c.message, message) {
-		t.Errorf("%s\n―――%d―――", c.message, len(c.message))
+		t.Error(strings.Join(c.message, "\n~~\n"))
 	}
 	c.reset()
 }
@@ -57,7 +57,7 @@ func (c *capture) shouldHaveCalledErrorfRE(t *testing.T, message string) {
 	if c.errorfCalls != 1 {
 		t.Errorf("failed to call Error once (and %d calls to Fatal)", c.fatalfCalls)
 	} else if !regexp.MustCompile(message).MatchString(c.message[0]) {
-		t.Error(strings.Join(c.message, "\n"))
+		t.Error(strings.Join(c.message, "\n~~\n"))
 	}
 	c.reset()
 }
@@ -67,7 +67,7 @@ func (c *capture) shouldHaveCalledFatalf(t *testing.T, message ...string) {
 	if c.fatalfCalls == 0 {
 		t.Errorf("failed to call Fatal (and %d calls to Error)", c.errorfCalls)
 	} else if !sliceEquals(c.message, message) {
-		t.Error(strings.Join(c.message, "\n"))
+		t.Error(strings.Join(c.message, "\n~~\n"))
 	}
 	c.reset()
 }
