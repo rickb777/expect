@@ -96,7 +96,7 @@ func TestStringToBe(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).ToBe(t, "hello")
+	expect.String(s).ToBe(c, "hello")
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToBe(c, "")
@@ -154,12 +154,12 @@ func TestStringToBe(t *testing.T) {
 func TestStringToEqual(t *testing.T) {
 	c := &capture{}
 
-	expect.String([]byte("hello")).ToEqual(t, "hello")
+	expect.String([]byte("hello")).ToEqual(c, "hello")
 	c.shouldNotHaveHadAnError(t)
 
 	numbers1 := strings.Repeat("°1234µ6789", 5) + "_" + "01234«-»6789"
 
-	expect.String(numbers1).ToEqual(t, numbers1)
+	expect.String(numbers1).ToEqual(c, numbers1)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String("abcµdef-°123456789").ToEqual(c, "abcµdfe-°123456789")
@@ -197,11 +197,20 @@ func TestStringNotToBe(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).Not().ToBe(t, "world")
+	expect.String(s).Not().ToBe(c, "world")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String("").Not().ToBe(c, "world")
+	c.shouldNotHaveHadAnError(t)
+
+	expect.String(s).Not().ToBe(c, "")
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToBe(c, "hello")
 	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― not to be this value.\n")
+
+	expect.String("").Not().ToBe(c, "")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n\"\"\n――― not to be blank.\n")
 
 	numbers1 := strings.Repeat("°1234µ56789", 6)
 	lines := "A" + numbers1 + "\nB" + numbers1 + "\nC" + numbers1 + "\nD" + numbers1 + "\nE" + numbers1
@@ -223,7 +232,7 @@ func TestStringNotToEqual(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).Not().ToEqual(t, "world")
+	expect.String(s).Not().ToEqual(c, "world")
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToEqual(c, "hello")
@@ -294,7 +303,7 @@ func TestStringNotToContain(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).Not().ToContain(t, "world")
+	expect.String(s).Not().ToContain(c, "world")
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToContain(c, "ell")
@@ -305,7 +314,7 @@ func TestStringToMatch(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).ToMatch(t, regexp.MustCompile("^.*ll.*$"))
+	expect.String(s).ToMatch(c, regexp.MustCompile("^.*ll.*$"))
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).ToMatch(c, regexp.MustCompile("^x-ll-$"))
@@ -316,7 +325,7 @@ func TestStringNotToMatch(t *testing.T) {
 	c := &capture{}
 
 	var s MyString = "hello"
-	expect.String(s).Not().ToMatch(t, regexp.MustCompile("world"))
+	expect.String(s).Not().ToMatch(c, regexp.MustCompile("world"))
 	c.shouldNotHaveHadAnError(t)
 
 	expect.String(s).Not().ToMatch(c, regexp.MustCompile("^.*ll.*$"))

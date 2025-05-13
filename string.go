@@ -211,7 +211,7 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 
 	actual := string(a.actual)
 
-	if expected == "" && actual != "" {
+	if !a.not && expected == "" && actual != "" {
 		a.describeActualExpected1("―――\n%s\n――― ", trim(actual, a.trim))
 		a.addExpectation("%s blank.\n", what)
 		return a.conjunction(t, false)
