@@ -2,6 +2,7 @@
 
 [![GoDoc](https://img.shields.io/badge/api-Godoc-blue.svg)](https://pkg.go.dev/github.com/rickb777/expect)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rickb777/expect)](https://goreportcard.com/report/github.com/rickb777/expect)
+[![Build](https://github.com/rickb777/expect/actions/workflows/go.yml/badge.svg)](https://github.com/rickb777/expect/actions)
 [![Issues](https://img.shields.io/github/issues/rickb777/expect.svg)](https://github.com/rickb777/expect/issues)
 
 ## Simple easy-to-use assertions to use in Go tests.
