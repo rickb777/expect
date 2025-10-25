@@ -37,8 +37,9 @@ func String[S Stringy](value S, other ...any) *StringType[S] {
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// The first parameter should be some information such as a string or a number. If this
-// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+// The first parameter should be some information such as a string or a number or even a struct.
+// If info is a format string, more parameters can follow and will be formatted accordingly (see
+// [fmt.Sprintf]).
 func (a *StringType[S]) Info(info any, other ...any) *StringType[S] {
 	a.info = makeInfo(info, other...)
 	return a

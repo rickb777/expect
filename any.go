@@ -34,7 +34,12 @@ var DefaultOptions = func() gocmp.Options {
 	return gocmp.Options{cmpopts.EquateApprox(ApproximateFloatFraction, 0), cmpopts.EquateEmpty()}
 }
 
-// Any creates an assertion for deep value comparison of any type. This is very flexible but only
+// Any is an alias for [Value], returning an [AnyType] matcher.
+func Any[T any](value T, other ...any) AnyType[T] {
+	return Value(value, other...)
+}
+
+// Value creates an assertion for deep value comparison of any type. This is very flexible but only
 // provides methods to determine whether a value is equal (or not equal) to what's expected
 // (see [AnyType.ToBe], [AnyType.ToBeNil] and [AnyType.ToEqual]).
 //
@@ -77,13 +82,14 @@ var DefaultOptions = func() gocmp.Options {
 // is checked to detect whether the address has already been visited.
 // If there is a cycle, then the pointed at values are considered equal
 // only if both addresses were previously visited in the same path step.
-func Any[T any](value T, other ...any) AnyType[T] {
+func Value[T any](value T, other ...any) AnyType[T] {
 	return AnyType[T]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// The first parameter should be some information such as a string or a number. If this
-// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+// The first parameter should be some information such as a string or a number or even a struct.
+// If info is a format string, more parameters can follow and will be formatted accordingly (see
+// [fmt.Sprintf]).
 func (a AnyType[T]) Info(info any, other ...any) AnyType[T] {
 	a.info = makeInfo(info, other...)
 	return a
@@ -160,6 +166,7 @@ func (a AnyType[T]) ToBe(t Tester, expected T) {
 //-------------------------------------------------------------------------------------------------
 
 // ToEqual asserts that the actual and expected data have the same values and similar types.
+// The actual value must be a type that is convertible to the type of the expected value.
 // The tester is normally [*testing.T].
 func (a AnyType[T]) ToEqual(t Tester, expected any) {
 	if h, ok := t.(helper); ok {

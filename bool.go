@@ -16,8 +16,9 @@ func Bool[B ~bool](value B, other ...any) BoolType[B] {
 }
 
 // Info adds a description of the assertion to be included in any error message.
-// The first parameter should be some information such as a string or a number. If this
-// is a format string, more parameters can follow and will be formatted accordingly (see [fmt.Sprintf]).
+// The first parameter should be some information such as a string or a number or even a struct.
+// If info is a format string, more parameters can follow and will be formatted accordingly (see
+// [fmt.Sprintf]).
 func (a BoolType[B]) Info(info any, other ...any) BoolType[B] {
 	a.info = makeInfo(info, other...)
 	return a

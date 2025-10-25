@@ -137,7 +137,7 @@ func makeInfo(info any, other ...any) string {
 	}
 
 	if isString {
-		return fmt.Sprintf(info.(string), other...)
+		return fmt.Sprintf(format, other...)
 	}
 
 	args := append([]any{info}, other...)

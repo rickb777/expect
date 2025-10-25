@@ -160,6 +160,9 @@ func TestAnyToEqualOrNot(t *testing.T) {
 	expect.Any(weight).Not().ToEqual(c, 1000)
 	c.shouldNotHaveHadAnError(t)
 
+	expect.Any(weight).Not().ToEqual(c, struct{}{})
+	c.shouldNotHaveHadAnError(t)
+
 	weight = 1001
 	expect.Any(weight).I("weight").Not().ToEqual(c, 1001)
 	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 not to equal int ―――\n1001\n")
