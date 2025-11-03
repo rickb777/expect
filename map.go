@@ -2,10 +2,11 @@ package expect
 
 import (
 	"fmt"
-	gocmp "github.com/google/go-cmp/cmp"
-	"github.com/rickb777/plural"
 	"slices"
 	"strings"
+
+	gocmp "github.com/google/go-cmp/cmp"
+	"github.com/rickb777/plural"
 )
 
 // MapType is used for assertions about maps.

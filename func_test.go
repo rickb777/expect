@@ -1,8 +1,9 @@
 package expect_test
 
 import (
-	"github.com/rickb777/expect"
 	"testing"
+
+	"github.com/rickb777/expect"
 )
 
 func TestFuncToPanic(t *testing.T) {

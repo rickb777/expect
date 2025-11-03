@@ -2,9 +2,10 @@ package expect_test
 
 import (
 	"errors"
-	"github.com/rickb777/expect"
 	"regexp"
 	"testing"
+
+	"github.com/rickb777/expect"
 )
 
 var e1 = errors.New("something bad happened")

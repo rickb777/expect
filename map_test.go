@@ -1,9 +1,10 @@
 package expect_test
 
 import (
+	"testing"
+
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/rickb777/expect"
-	"testing"
 )
 
 func TestMapToBe_string_int(t *testing.T) {

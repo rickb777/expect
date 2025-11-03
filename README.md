@@ -8,58 +8,69 @@
 
 ## Simple easy-to-use assertions to use in Go tests.
 
- * Fluent API
- * Clear error messages
- * Works with Go `testing` API
- * Also works independently
- * Type safety thanks to Go generics
- * No dependencies other than `github.com/google/go-cmp`
+* Fluent API
+* Clear error messages
+* Works with Go `testing` API
+* Also works independently
+* Type safety thanks to Go generics
+* No dependencies other than `github.com/google/go-cmp`
 
 ## Assertion Categories
 
 There are **eight primary categories**, each introduce by a function:
 
 ### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...) | expect.[Value](https://pkg.go.dev/github.com/rickb777/expect#Value)(actual ...)
-This compares equality for values of any type, but is especially useful for structs, maps, arrays, and slices. It only provides equality tests; the other seven categories below provide a much wider range.
 
- * If the value under test is of a type with a method `a.Equal(b)` (`a` and `b` having the same type), then the `Equal` method will be used. So this compares types such as `time.Time` correctly.
+This compares equality for values of any type, but is especially useful for structs, maps, arrays, and slices. It only provides equality tests; the other seven categories below provide a much wider
+range.
 
- * Otherwise it behaves like `reflect.DeepEqual`.
+* If the value under test is of a type with a method `a.Equal(b)` (`a` and `b` having the same type), then the `Equal` method will be used. So this compares types such as `time.Time` correctly.
+
+* Otherwise it behaves like `reflect.DeepEqual`.
 
 The **Any** function is an alias of **Value**; use whichever you prefer.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
+
 This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
 
 ### expect.[Number](https://pkg.go.dev/github.com/rickb777/expect#Number)(actual ...)
-This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an ordered type. 
+
+This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an
+ordered type.
 
 However, for near-equality testing of `float32` or `float64`, use **Any** instead because the tolerance [can be specified](#readme-options-for-controlling-how-the-comparisons-work).
 
 ### expect.[Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)(actual ...)
+
 This compares `bool` and any subclass.
 
 ### expect.[Map](https://pkg.go.dev/github.com/rickb777/expect#Map)(actual ...)
+
 This compares `map[K]V` where the map key `K` is a comparable type.
 
-**Map** provides more methods than **Any**, but is otherwise very similar. 
+**Map** provides more methods than **Any**, but is otherwise very similar.
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
+
 This compares `[]T` where `T` is any type.
 
 **Slice** provides more methods than **Any**, but is otherwise very similar.
 
 ### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
+
 This compares `error` only.
 
 ### expect.[Func](https://pkg.go.dev/github.com/rickb777/expect#Func)(func)
+
 This runs some function and checks whether it panicked.
 
 ## Application
 
 The eight primary functions above all take the **actual value** under test as their input.
 
-Other parameters can also be passed in. If any of these other parameters is a non-nil `error`, the assertion will fail and give a corresponding error message. Any other parameters are ignored; this includes any nil `error`.
+Other parameters can also be passed in. If any of these other parameters is a non-nil `error`, the assertion will fail and give a corresponding error message. Any other parameters are ignored; this
+includes any nil `error`.
 
 **Error** is slightly different - it considers the *last* non-nil `error` as its actual input. Any other parameters are ignored; this includes any nil `error`.
 
@@ -71,16 +82,17 @@ The assertions are all infinitive verbs, i.e. methods such as `ToBe`. Typical us
 
 ```go
     expect.Value(myValue).ToBe(t, expectedValue)
-    expect.String(myValue).ToBe(t, expectedValue)
-    expect.Number(myValue).ToBe(t, expectedValue)
-    expect.Bool(myValue).ToBe(t, expectedValue)
-    expect.Map(myValue).ToBe(t, expectedValue)
-    expect.Slice(myValue).ToBe(t, expectedValue)
-    expect.Error(myValue).ToBeNil(t)
-    expect.Func(myFunc).ToPanic(t)
+expect.String(myValue).ToBe(t, expectedValue)
+expect.Number(myValue).ToBe(t, expectedValue)
+expect.Bool(myValue).ToBe(t, expectedValue)
+expect.Map(myValue).ToBe(t, expectedValue)
+expect.Slice(myValue).ToBe(t, expectedValue)
+expect.Error(myValue).ToBeNil(t)
+expect.Func(myFunc).ToPanic(t)
 ```
 
-All of the assertions require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need to embed this API in other assertion logic.
+All of the assertions require a `t Tester` parameter (see [Tester](https://pkg.go.dev/github.com/rickb777/expect#Tester)). Normally this will be `*testing.T` but you can use your own type if you need
+to embed this API in other assertion logic.
 
 The assertions available are intended to be obvious to use because they relate to the type being tested. They are as follows.
 
@@ -120,7 +132,8 @@ Another group of related assertions is
 
 Containment tests are achieved using
 
-* `ToContain(t, substring)` verifies that the substring is included within the actual string or error message. Maps are special: they can have an optional value, so `ToContain(t, key, [value])` tests that the key is present and that the the value, if present, must match what is held in the map.
+* `ToContain(t, substring)` verifies that the substring is included within the actual string or error message. Maps are special: they can have an optional value, so `ToContain(t, key, [value])` tests
+  that the key is present and that the the value, if present, must match what is held in the map.
 * `ToContainAll(t, ...)` verifies that all the values are present, in any order
 * `ToContainAny(t, ...)` verifies that any of the values is present
 * `ToMatch(t, ...)` verifies that the string matches a regular expression
@@ -143,7 +156,8 @@ Note that these inequality assertions actually apply to all *ordered types*, whi
 
 Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)` (`Not()` is described below). These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
 
-Functions that panic can be tested with a zero-argument function that calls the code under test and then uses `ToPanic()`. If `panic(value)` value is a string, `ToPanicWithMessage(t, substring)` can check the actual message. 
+Functions that panic can be tested with a zero-argument function that calls the code under test and then uses `ToPanic()`. If `panic(value)` value is a string, `ToPanicWithMessage(t, substring)` can
+check the actual message.
 
 ### Synonyms
 
@@ -154,8 +168,8 @@ For **Map**, `ToHaveSize(t, expected)` is a synonym for `ToHaveLength(t, expecte
 All categories include the general method `Not()`. This inverts the assertion defined by the `ToXxxx` method that follows it.
 
 ```go
-	// `Not()` simply negates what follows.
-	expect.Number(v).Not().ToBe(t, 321)
+    // `Not()` simply negates what follows.
+expect.Number(v).Not().ToBe(t, 321)
 ```
 
 ## Conjunction Method
@@ -171,33 +185,35 @@ There is no need for 'and' conjunctions because you simply add more assertions.
 
 All categories include these general methods
 
-* `Info(...)` provides information in the failure message, if there is one. 
+* `Info(...)` provides information in the failure message, if there is one.
 * `I(...)` is a terse synonym for `Info(...)`.
 
 ```go
-	// The `Info` method can be helpful when testing inside a loop, for example.
-	// If `Not()` is also used, the natural order is to put `Not()` directly before the assertion:
-	var i int // some loop counter
-	expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
+    // The `Info` method can be helpful when testing inside a loop, for example.
+// If `Not()` is also used, the natural order is to put `Not()` directly before the assertion:
+var i int // some loop counter
+expect.Number(v).Info("loop %d", i).Not().ToBe(t, 321)
 ```
 
-**String** also has `Trim(n)` that truncates message strings if they exceed the specified length. When an expectation fails, the actual and expected strings are chopped at the front and/or back so that the difference is visible in the failure message and the visible parts are not longer than the trim value.
+**String** also has `Trim(n)` that truncates message strings if they exceed the specified length. When an expectation fails, the actual and expected strings are chopped at the front and/or back so
+that the difference is visible in the failure message and the visible parts are not longer than the trim value.
 
 ```go
-	expect.String(s).Trim(100).ToContain(t, " a very very long string ")
+    expect.String(s).Trim(100).ToContain(t, " a very very long string ")
 ```
 
 Both the actual and expected strings are truncated if their length is too long. If there is a mis-match, the error message scrolls the truncated string to ensure that the first difference is in view.
 
 ## Options for Controlling How The Comparisons Work
 
-**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
+**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for
+example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
 
 By default, the three options used are
 
- * All fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise. 
- * Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
- * Maps/slices that are empty are treated the same as those that are nil.
+* All fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise.
+* Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
+* Maps/slices that are empty are treated the same as those that are nil.
 
 ## Status
 
@@ -207,5 +223,5 @@ This has been quite stable for some time and is available as a beta release.
 
 This API was mostly inspired by these
 
- * [Gomega](https://github.com/onsi/gomega) had some great ideas but is overly complex to use.
- * [Testify](https://github.com/stretchr/testify) was essentially simple to use but lacked flexibility, possibly because the API is not fluent, and had various gotchas.
+* [Gomega](https://github.com/onsi/gomega) had some great ideas but is overly complex to use.
+* [Testify](https://github.com/stretchr/testify) was essentially simple to use but lacked flexibility, possibly because the API is not fluent, and had various gotchas.

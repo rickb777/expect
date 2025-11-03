@@ -2,10 +2,11 @@ package expect
 
 import (
 	"fmt"
-	gocmp "github.com/google/go-cmp/cmp"
 	"log"
 	"math"
 	"strings"
+
+	gocmp "github.com/google/go-cmp/cmp"
 )
 
 // Tester reports test errors and failures. Notably, [testing.T] implements this interface.

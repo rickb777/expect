@@ -2,8 +2,9 @@ package expect_test
 
 import (
 	"errors"
-	"github.com/rickb777/expect"
 	"testing"
+
+	"github.com/rickb777/expect"
 )
 
 func boolTest(e error) (bool, error) { return false, e }

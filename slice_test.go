@@ -1,11 +1,12 @@
 package expect_test
 
 import (
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/rickb777/expect"
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/rickb777/expect"
 )
 
 type MyBytes []byte

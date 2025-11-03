@@ -2,10 +2,11 @@ package expect_test
 
 import (
 	"errors"
-	"github.com/rickb777/expect"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/rickb777/expect"
 )
 
 type MyString string

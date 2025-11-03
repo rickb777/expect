@@ -2,6 +2,7 @@ package expect
 
 import (
 	"fmt"
+
 	gocmp "github.com/google/go-cmp/cmp"
 )
 
