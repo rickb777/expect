@@ -28,8 +28,7 @@ func Coverage() error {
 	if err := sh.RunV("go", "test", "-cover", "./...", "-coverprofile", "coverage.out", "-coverpkg", "./..."); err != nil {
 		return err
 	}
-	// replace coverage.out with the analysis of coverage.out
-	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out", "-o", "coverage.out"); err != nil {
+	if err := sh.RunV("go", "tool", "cover", "-func", "coverage.out", "-o", "report.out"); err != nil {
 		return err
 	}
 	return nil
