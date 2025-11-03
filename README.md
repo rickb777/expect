@@ -26,7 +26,7 @@ This compares equality for values of any type, but is especially useful for stru
 
  * Otherwise it behaves like `reflect.DeepEqual`.
 
-The [Any] function is an alias of [Value]; use whichever you prefer.
+The **Any** function is an alias of **Value**; use whichever you prefer.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
