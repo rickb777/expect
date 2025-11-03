@@ -2,10 +2,11 @@ package expect
 
 import (
 	"fmt"
-	gocmp "github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"reflect"
 	"strings"
+
+	gocmp "github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 // AnyType is used for equality assertions for any type.
@@ -16,12 +17,14 @@ type AnyType[T any] struct {
 }
 
 // ApproximateFloatFraction provides an option that compares any (a, b float32) or (a, b float64)
-// pair. Change this if needed. See [cmpopts.EquateApprox] and [DefaultOptions].
+// pair. This is initialised to 1e-6, which means that a pair of floats are considered effectively
+// equal if their fractional difference is less than one part in a million.
+// Change this if needed. See [cmpopts.EquateApprox] and [DefaultOptions].
 //
 // If more than one argument is passed, all subsequent arguments will be required to be nil/zero.
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
-var ApproximateFloatFraction = 1e-4
+var ApproximateFloatFraction = 1e-6
 
 // DefaultOptions returns options used by [gocmp.Equal] for comparing values.
 // The default options
@@ -29,7 +32,7 @@ var ApproximateFloatFraction = 1e-4
 //   - sets the threshold for float comparison to [ApproximateFloatFraction]
 //   - sets empty and nil maps or slices to be treated the same
 //
-// You can also use [AnyType.Using] instead.
+// You can also use [AnyType.Using], [MapType.Using] and [SliceType.Using] instead.
 var DefaultOptions = func() gocmp.Options {
 	return gocmp.Options{cmpopts.EquateApprox(ApproximateFloatFraction, 0), cmpopts.EquateEmpty()}
 }
@@ -46,7 +49,7 @@ func Any[T any](value T, other ...any) AnyType[T] {
 // For alternative comparisons, see the more-specialized [String], [Number], [Bool], [Slice],
 // [Map], [Error] and [Func] functions.
 //
-// Any uses [gocmp.Equal] so the manner of comparison can be tweaked using that API - see also [AnyType.Using]
+// [AnyType] uses [gocmp.Equal] so the manner of comparison can be tweaked using that API (see [AnyType.Using])
 //
 //   - If the values have an Equal method of the form "(T) Equal(T) bool" or
 //     "(T) Equal(I) bool" where T is assignable to I, then it uses the result of

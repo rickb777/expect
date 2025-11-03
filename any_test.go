@@ -2,9 +2,10 @@ package expect_test
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/rickb777/expect"
-	"testing"
 )
 
 type Weight32 uint32
@@ -80,8 +81,12 @@ func TestAnyToBe(t *testing.T) {
 `)
 
 	var fa = 0.01347258873283863
-	var fb = 0.013473
+	var fb = 0.01347258
 	expect.Any(fa).ToBe(c, fb)
+	c.shouldNotHaveHadAnError(t)
+
+	fb = 0.0134725887
+	expect.Any(fa).Using(cmpopts.EquateApprox(1e-8, 0)).ToBe(c, fb)
 	c.shouldNotHaveHadAnError(t)
 
 	var undefined any
