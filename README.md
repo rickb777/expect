@@ -19,7 +19,7 @@
 
 There are **eight primary categories**, each introduce by a function:
 
-### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...) | expect.[Value](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...)
+### expect.[Any](https://pkg.go.dev/github.com/rickb777/expect#Any)(actual ...) | expect.[Value](https://pkg.go.dev/github.com/rickb777/expect#Value)(actual ...)
 This compares equality for values of any type, but is especially useful for structs, maps, arrays, and slices. It only provides equality tests; the other seven categories below provide a much wider range.
 
  * If the value under test is of a type with a method `a.Equal(b)` (`a` and `b` having the same type), then the `Equal` method will be used. So this compares types such as `time.Time` correctly.
