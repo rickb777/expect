@@ -1,6 +1,31 @@
 package expect
 
-import "testing"
+import (
+	"io"
+	"testing"
+)
+
+func TestSimpleTester(t *testing.T) {
+	var a, b int
+
+	st := SimpleTester(
+		func(v ...any) {
+			a++
+		},
+		func(v ...any) {
+			b++
+		})
+
+	String("foo").ToBe(st, "bar")
+	Error(io.EOF).Not().ToHaveOccurred(st)
+
+	if a != 1 {
+		t.Errorf("a = %d; want 1", a)
+	}
+	if b != 1 {
+		t.Errorf("b = %d; want 1", b)
+	}
+}
 
 func TestMakeInfo_justNumbers(t *testing.T) {
 	s := makeInfo(1, 2, 3)

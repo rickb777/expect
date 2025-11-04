@@ -142,6 +142,27 @@ func TestSliceToBeEmpty(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:0 not to be empty.\n")
 }
 
+func TestSliceToContain(t *testing.T) {
+	c := &capture{}
+
+	var s = MyBytes("abcdef")
+	expect.Slice(s).ToContain(c, 'd')
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Slice(s).ToContain(c, 'z')
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
+		"[97 98 99 100 101 102]\n"+
+		"――― to contain it but none were found.\n")
+
+	expect.Slice([]*int{ptr(1), ptr(2)}).ToContain(c, ptr(2))
+	c.shouldNotHaveHadAnError(t)
+
+	a := mustParseURL("http://x.com/a")
+	b := mustParseURL("http://y.com/b")
+	expect.Slice([]*url.URL{a, b}).ToContain(c, mustParseURL("http://y.com/b"))
+	c.shouldNotHaveHadAnError(t)
+}
+
 func TestSliceToContainAll(t *testing.T) {
 	c := &capture{}
 
