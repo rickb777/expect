@@ -336,10 +336,16 @@ func TestStringNotToMatch(t *testing.T) {
 func ExampleStringType_ToBe() {
 	var t *testing.T
 
-	// string matching can use any string, or subtype of string
-	s := "hello"
-	expect.String(s).ToBe(t, "hello")
+	// String matching can use any string, or subtype of string, or slice of bytes or runes
+	s := "So shaken as we are, so wan with care"
+	expect.String(s).ToBe(t, "So shaker as we are, so wen with core")
 
+	// Trim is useful for very long strings because it helps make the test
+	// failure messages easier to read
+	s100 := strings.Repeat(s, 100)
+	expect.String(s100).Trim(100).ToBe(t, s100+"|")
+
+	// Info is useful in loops etc to give more context in test failure messages
 	var i int // some loop counter
 	expect.String(s).Info("loop %d", i).Not().ToBe(t, "goodbye")
 }
@@ -349,9 +355,6 @@ func ExampleStringType_ToMatch() {
 
 	s := "hello"
 	expect.String(s).ToMatch(t, regexp.MustCompile("^he"))
-
-	var i int // some loop counter
-	expect.String(s).Info("loop %d", i).Not().ToMatch(t, regexp.MustCompile(".*bye$"))
 }
 
 func ExampleStringType_ToContain() {
@@ -359,7 +362,4 @@ func ExampleStringType_ToContain() {
 
 	s := "Once more unto the breach"
 	expect.String(s).ToContain(t, "unto")
-
-	var i int // some loop counter
-	expect.String(s).Info("loop %d", i).Not().ToContain(t, "foobar")
 }

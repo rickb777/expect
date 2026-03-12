@@ -6,6 +6,6 @@ require github.com/google/go-cmp v0.7.0
 
 require github.com/rickb777/plural v1.4.9
 
-require github.com/magefile/mage v1.16.0
+require github.com/magefile/mage v1.16.1
 
 tool github.com/magefile/mage

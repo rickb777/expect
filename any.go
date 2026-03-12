@@ -31,10 +31,15 @@ var ApproximateFloatFraction = 1e-6
 //
 //   - sets the threshold for float comparison to [ApproximateFloatFraction]
 //   - sets empty and nil maps or slices to be treated the same
+//   - treats pairs of floating point NaNs as equal
 //
 // You can also use [AnyType.Using], [MapType.Using] and [SliceType.Using] instead.
 var DefaultOptions = func() gocmp.Options {
-	return gocmp.Options{cmpopts.EquateApprox(ApproximateFloatFraction, 0), cmpopts.EquateEmpty()}
+	return gocmp.Options{
+		cmpopts.EquateApprox(ApproximateFloatFraction, 0),
+		cmpopts.EquateEmpty(),
+		cmpopts.EquateNaNs(),
+	}
 }
 
 // Any is an alias for [Value], returning an [AnyType] matcher.
@@ -144,7 +149,7 @@ func (a AnyType[T]) ToBeNil(t Tester) {
 	a.allOtherArgumentsMustNotBeError(t)
 
 	if !a.not && !isNilish(a.actual) {
-		a.describeActualExpected1("%T ―――\n%s――― to be nil.\n", a.actual, verbatim(a.actual))
+		a.describeActualExpected1("%T ―――\n%s――― to be nil.\n", a.actual, verbatim2(a.actual))
 	} else if a.not && isNilish(a.actual) {
 		a.describeActualExpected1("%T not to be nil.\n", a.actual)
 	} else {
@@ -213,12 +218,12 @@ func (a AnyType[T]) toEqual(t Tester, what string, actual, expected any, differe
 			a.describeActualExpected1("struct %s as shown (-want, +got) ―――\n", what)
 			a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
 		} else {
-			a.describeActualExpectedM("%T ―――\n%s", a.actual, verbatim(a.actual))
-			a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim(expected))
+			a.describeActualExpectedM("%T ―――\n%s", a.actual, verbatim2(a.actual))
+			a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim2(expected))
 		}
 	} else if a.not && diffs == "" {
 		a.describeActualExpected1("%T ", a.actual)
-		a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim(expected))
+		a.addExpectation("%s%s ―――\n%s", what, expectedType, verbatim2(expected))
 	} else {
 		a.passes++
 	}

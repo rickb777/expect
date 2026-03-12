@@ -50,8 +50,11 @@ func (a *StringType[S]) I(info any, other ...any) *StringType[S] {
 	return a.Info(info, other...)
 }
 
-// Trim shortens the error message for very long strings.
-// Trimming is disabled by default.
+// Trim shortens the error message for very long strings. When necessary, trimming happens
+// at both ends of the string so that the point of difference is visible. Trimming is disabled
+// by default but can be really useful for test failures when there are long strings.
+// It is safe to use trim even if the strings are shorter than the specified length, in
+// which case it has no effect.
 func (a *StringType[S]) Trim(at int) *StringType[S] {
 	a.trim = at
 	return a

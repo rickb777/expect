@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"reflect"
 	"strings"
-
-	gocmp "github.com/google/go-cmp/cmp"
 )
 
 // Tester reports test errors and failures. Notably, [testing.T] implements this interface.
@@ -163,13 +162,44 @@ func notS(not bool) string {
 	return ""
 }
 
-func verbatim(v any) string {
+func verbatim1(v any) string {
+	return fmt.Sprintf("%+v\n", v)
+}
+
+func verbatim2(v any) string {
 	a := fmt.Sprintf("%+v\n", v)
-	b := fmt.Sprintf("%#v\n", v)
-	if a == b {
-		return blank(a)
-	}
+	b := alternativeRepresentation(v)
 	return a + b
+}
+
+func alternativeRepresentation(v any) string {
+	t := reflect.TypeOf(v)
+	k0 := t.Kind()
+
+	if isBuiltIn(k0) {
+		return ""
+	}
+
+	switch k0 {
+	//case reflect.Map:
+	//k1 := t.Key().Kind()
+	//k2 := t.Elem().Kind()
+
+	case reflect.Slice:
+		k1 := t.Elem().Kind()
+		switch k1 {
+		case reflect.Uint8:
+			return fmt.Sprintf("%q\n", v)
+		case reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return fmt.Sprintf("%#v\n", v)
+		}
+
+	}
+	return ""
+}
+
+func isBuiltIn(k reflect.Kind) bool {
+	return (k >= reflect.Bool && k <= reflect.Complex128) || k == reflect.String
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -189,20 +219,4 @@ func findFirstRuneDiff(a, b []rune) (diff, line, column int) {
 		}
 	}
 	return math.MinInt, math.MinInt, math.MinInt
-}
-
-//-------------------------------------------------------------------------------------------------
-
-// findFirstAnyDiff is like findFirstRuneDiff but requires using reflection to gather
-// the type set so that the gocmp.Equal function can inspect unexported fields.
-func findFirstAnyDiff[T any](a, b []T, opts ...gocmp.Option) int {
-	shortest := min(len(a), len(b))
-	for i := 0; i < shortest; i++ {
-		ra := a[i]
-		rb := b[i]
-		if !gocmp.Equal(ra, rb, opts...) {
-			return i
-		}
-	}
-	return math.MinInt
 }

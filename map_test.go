@@ -15,10 +15,13 @@ func TestMapToBe_string_int(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).I("Table").ToBe(c, map[string]int{"a": 1, "c": 3})
-	c.shouldHaveCalledErrorfRE(t, "^Expected Table map\\[string\\]int len:2 ―――\n"+
-		"map\\[[ab]:[12] [ab]:[12]\\]\n"+
-		"――― to be len:2 ―――\n"+
-		"map\\[[ac]:[13] [ac]:[13]\\]\n$")
+	c.shouldHaveCalledErrorf(t, `Expected Table map len:2 (-want, +got) ―――
+  map[string]int{
+  	"a": 1,
++ 	"b": 2,
+- 	"c": 3,
+  }
+`)
 
 }
 
@@ -34,11 +37,11 @@ func TestMapToBe_struct_struct(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).I("foo").ToBe(c, map[Thing]Info{})
-	c.shouldHaveCalledErrorf(t, "Expected foo map[expect_test.Thing]expect_test.Info len:1 ―――\n"+
-		"map[{A:1}:{Yin:i yang:}]\n"+
-		"――― to be len:0 ―――\n"+
-		"map[]\n")
-
+	c.shouldHaveCalledErrorf(t, `Expected foo map len:1 to be len:0 (-want, +got) ―――
+  map[expect_test.Thing]expect_test.Info{
++ 	{A: 1}: {Yin: "i"},
+  }
+`)
 }
 
 func TestMapNotToBe(t *testing.T) {
@@ -49,10 +52,8 @@ func TestMapNotToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).I("a1b2").Not().ToBe(c, m)
-	c.shouldHaveCalledErrorfRE(t, "^Expected a1b2 map\\[string\\]int len:2 ―――\n"+
-		"map\\[[ab]:[12] [ab]:[12]\\]\n"+
-		"――― not to be len:2 ―――\n"+
-		"map\\[[ac]:[13] [ab]:[12]\\]\n$")
+	c.shouldHaveCalledErrorfRE(t, "^Expected a1b2 map\\[string\\]int not to be len:2 ―――\n"+
+		"map\\[[ab]:[12] [ab]:[12]\\]\n$")
 }
 
 func TestMapToBeNilOrNot(t *testing.T) {
@@ -67,7 +68,6 @@ func TestMapToBeNilOrNot(t *testing.T) {
 	expect.Map(m).I("stuff").ToBeNil(c)
 	c.shouldHaveCalledErrorf(t, "Expected stuff map[string]int len:1 ―――\n"+
 		"map[a:1]\n"+
-		"map[string]int{\"a\":1}\n"+
 		"――― to be nil\n")
 
 	expect.Map(m).Not().ToBeNil(c)

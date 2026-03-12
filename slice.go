@@ -2,6 +2,7 @@ package expect
 
 import (
 	"fmt"
+	"strings"
 
 	gocmp "github.com/google/go-cmp/cmp"
 )
@@ -59,7 +60,7 @@ func (a SliceType[T]) ToBeNil(t Tester) {
 	a.allOtherArgumentsMustNotBeError(t)
 
 	if !a.not && !isNilish(a.actual) {
-		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
+		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim2(a.actual))
 		a.addExpectation("to be nil.\n")
 	} else if a.not && isNilish(a.actual) {
 		a.describeActualExpected1("%T ", a.actual)
@@ -86,13 +87,17 @@ func (a SliceType[T]) ToBe(t Tester, expected ...T) {
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
-	match := gocmp.Equal(a.actual, expected, opts)
+	diffs := gocmp.Diff(expected, a.actual, opts)
 
-	if (!a.not && !match) || (a.not && match) {
-		diff := findFirstAnyDiff(a.actual, expected, opts)
-		a.describeActualExpectedM("%T len:%d ―――\n%s", a.actual, len(a.actual), verbatim(a.actual))
-		a.addExpectation("to be len:%d ―――\n%s%s", len(expected), verbatim(expected),
-			firstDifferenceInfo("index", diff, 0, 0))
+	if !a.not && diffs != "" {
+		if len(a.actual) != len(expected) {
+			a.describeActualExpected1("slice len:%d to be len:%d (-want, +got) ―――\n", len(a.actual), len(expected))
+		} else {
+			a.describeActualExpected1("slice len:%d (-want, +got) ―――\n", len(a.actual))
+		}
+		a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
+	} else if a.not && diffs == "" {
+		a.describeActualExpected1("%T not to be len:%d ―――\n%s", a.actual, len(a.actual), verbatim2(a.actual))
 	} else {
 		a.passes++
 	}
@@ -174,15 +179,7 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
-	found := make([]T, 0, len(expected))
-	missing := make([]T, 0, len(expected))
-	for _, v := range expected {
-		if sliceContains(a.actual, v, opts) {
-			found = append(found, v)
-		} else {
-			missing = append(missing, v)
-		}
-	}
+	found, missing := partitionSlice(a.actual, expected, opts)
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
@@ -221,15 +218,7 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
-	found := make([]T, 0, len(expected))
-	missing := make([]T, 0, len(expected))
-	for _, v := range expected {
-		if sliceContains(a.actual, v, opts) {
-			found = append(found, v)
-		} else {
-			missing = append(missing, v)
-		}
-	}
+	found, missing := partitionSlice(a.actual, expected, opts)
 
 	if !a.not && len(found) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
@@ -253,6 +242,21 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 	}
 
 	a.applyAll(t)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func partitionSlice[T any](actual, expected []T, opts gocmp.Options) (found, missing []T) {
+	found = make([]T, 0, len(expected))
+	missing = make([]T, 0, len(expected))
+	for _, v := range expected {
+		if sliceContains(actual, v, opts) {
+			found = append(found, v)
+		} else {
+			missing = append(missing, v)
+		}
+	}
+	return found, missing
 }
 
 //-------------------------------------------------------------------------------------------------

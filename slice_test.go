@@ -16,26 +16,34 @@ type MyBytes []byte
 func TestSliceToBe_byte(t *testing.T) {
 	c := &capture{}
 
-	var s = MyBytes("abcdef")
-	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, MyBytes("abcdef")...)
+	var s = MyBytes("abcµdef")
+	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, MyBytes("abcµdef")...)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Slice(s).I("MyBytes").ToBe(c, MyBytes(nil)...)
-	c.shouldHaveCalledErrorf(t, "Expected MyBytes []uint8 len:6 ―――\n"+
-		"[97 98 99 100 101 102]\n"+
-		"[]byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
-		"――― to be len:0 ―――\n"+
-		"[]\n"+
-		"[]byte(nil)\n")
+	c.shouldHaveCalledErrorf(t, `Expected MyBytes slice len:8 to be len:0 (-want, +got) ―――
+  []uint8(
+- 	nil,
++ 	"abcµdef",
+  )
+`)
 
-	expect.Slice(s).ToBe(c, MyBytes("abcµdef")...)
-	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
-		"[97 98 99 100 101 102]\n"+
-		"[]byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
-		"――― to be len:8 ―――\n"+
-		"[97 98 99 194 181 100 101 102]\n"+
-		"[]byte{0x61, 0x62, 0x63, 0xc2, 0xb5, 0x64, 0x65, 0x66}\n"+
-		"――― the first difference is at index 3.\n")
+	expect.Slice(s).ToBe(c, MyBytes("abcdµœf")...)
+	c.shouldHaveCalledErrorf(t, `Expected slice len:8 to be len:9 (-want, +got) ―――
+  []uint8{
+  	0x61,
+  	0x62,
+  	0x63,
+- 	0x64,
+  	0xc2,
+  	0xb5,
+- 	0xc5,
++ 	0x64,
+- 	0x93,
++ 	0x65,
+  	0x66,
+  }
+`)
 }
 
 func TestSliceToBe_struct(t *testing.T) {
@@ -43,19 +51,20 @@ func TestSliceToBe_struct(t *testing.T) {
 
 	i1 := Info{Yin: "a", yang: "b"}
 	i2 := Info{Yin: "c", yang: "d"}
+	i3 := Info{Yin: "e", yang: "f"}
 
-	var s = []Info{i1, i2}
-	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, i1, i2)
+	var s = []Info{i1, i2, i3}
+	expect.Slice(s).Using(cmpopts.EquateEmpty()).ToBe(c, i1, i2, i3)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Slice(s).I("Foo").ToBe(c, i2)
-	c.shouldHaveCalledErrorf(t, "Expected Foo []expect_test.Info len:2 ―――\n"+
-		"[{Yin:a yang:b} {Yin:c yang:d}]\n"+
-		"[]expect_test.Info{expect_test.Info{Yin:\"a\", yang:\"b\"}, expect_test.Info{Yin:\"c\", yang:\"d\"}}\n"+
-		"――― to be len:1 ―――\n"+
-		"[{Yin:c yang:d}]\n"+
-		"[]expect_test.Info{expect_test.Info{Yin:\"c\", yang:\"d\"}}\n"+
-		"――― the first difference is at index 0.\n")
+	expect.Slice(s).I("Foo").ToBe(c, i1, i3)
+	c.shouldHaveCalledErrorf(t, `Expected Foo slice len:3 to be len:2 (-want, +got) ―――
+  []expect_test.Info{
+  	{Yin: "a", yang: "b"},
++ 	{Yin: "c", yang: "d"},
+  	{Yin: "e", yang: "f"},
+  }
+`)
 }
 
 func TestSliceNotToBe(t *testing.T) {
@@ -66,34 +75,49 @@ func TestSliceNotToBe(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Slice(s).Not().ToBe(c, s...)
-	c.shouldHaveCalledErrorf(t, "Expected []uint8 len:6 ―――\n"+
+	c.shouldHaveCalledErrorf(t, "Expected []uint8 not to be len:6 ―――\n"+
 		"[97 98 99 100 101 102]\n"+
-		"[]byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n"+
-		"――― not to be len:6 ―――\n"+
-		"[97 98 99 100 101 102]\n"+
-		"[]byte{0x61, 0x62, 0x63, 0x64, 0x65, 0x66}\n")
+		"\"abcdef\"\n")
+
+	i1 := Info{Yin: "a", yang: "b"}
+	i2 := Info{Yin: "c", yang: "d"}
+	i3 := Info{Yin: "e", yang: "f"}
+	s2 := []Info{i1, i2, i3}
+
+	expect.Slice(s2).Not().ToBe(c, i1, i2, i3)
+	c.shouldHaveCalledErrorf(t, "Expected []expect_test.Info not to be len:3 ―――\n"+
+		"[{Yin:a yang:b} {Yin:c yang:d} {Yin:e yang:f}]\n")
 }
 
 func TestSliceToBeNilOrNot(t *testing.T) {
 	c := &capture{}
 
-	s := []int{1, 2, 3}
 	var empty []int
 
 	expect.Slice(empty).ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Slice(s).I("stuff").ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected stuff []int len:3 ―――\n"+
-		"[1 2 3]\n"+
-		"[]int{1, 2, 3}\n"+
-		"――― to be nil.\n")
-
-	expect.Slice(s).Not().ToBeNil(c)
-	c.shouldNotHaveHadAnError(t)
-
 	expect.Slice(empty).I("stuff").Not().ToBeNil(c)
 	c.shouldHaveCalledErrorf(t, "Expected stuff []int not to be nil.\n")
+
+	s1 := []int{1, 2, 2 << 20}
+	expect.Slice(s1).I("stuff").ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff []int len:3 ―――\n"+
+		"[1 2 2097152]\n"+
+		"――― to be nil.\n")
+
+	expect.Slice(s1).Not().ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
+
+	s2 := []uint32{1, 2, 2 << 20}
+	expect.Slice(s2).I("stuff").ToBeNil(c)
+	c.shouldHaveCalledErrorf(t, "Expected stuff []uint32 len:3 ―――\n"+
+		"[1 2 2097152]\n"+
+		"[]uint32{0x1, 0x2, 0x200000}\n"+
+		"――― to be nil.\n")
+
+	expect.Slice(s2).Not().ToBeNil(c)
+	c.shouldNotHaveHadAnError(t)
 }
 
 func TestSliceToHaveLength(t *testing.T) {
@@ -259,3 +283,17 @@ func mustParseURL(s string) *url.URL {
 }
 
 func ptr[T any](x T) *T { return &x }
+
+func ExampleSliceType_ToBe() {
+	var t *testing.T
+
+	slice := []int{1, 2, 2 << 20}
+
+	expect.Slice(slice).ToBe(t, 1, 2, 2<<20)
+	expect.Slice(slice).Not().ToBe(t, 1, 2)
+
+	var i int // some loop counter
+
+	// Info gives more information when the test fails, such as within a loop
+	expect.Slice(slice).Info("loop %d", i).ToBe(t, 1, 2)
+}

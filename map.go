@@ -63,7 +63,7 @@ func (a MapType[K, V]) ToBeNil(t Tester) {
 
 	if !a.not && !isNilish(a.actual) {
 		a.describeActualExpected1("%T len:%d ―――\n%s――― to be nil\n",
-			a.actual, len(a.actual), verbatim(a.actual))
+			a.actual, len(a.actual), verbatim2(a.actual))
 	} else if a.not && isNilish(a.actual) {
 		a.describeActualExpected1("%T not to be nil\n", a.actual)
 	} else {
@@ -86,12 +86,17 @@ func (a MapType[K, V]) ToBe(t Tester, expected map[K]V) {
 
 	opts := append(a.opts, allowUnexported(gatherTypes(nil, a.actual, expected)))
 
-	match := gocmp.Equal(a.actual, expected, opts)
+	diffs := gocmp.Diff(expected, a.actual, opts)
 
-	if (!a.not && !match) || (a.not && match) {
-		a.describeActualExpected1("%T len:%d ―――\n%+v\n――― %sto be len:%d ―――\n%+v\n",
-			a.actual, len(a.actual), a.actual,
-			notS(a.not), len(expected), expected)
+	if !a.not && diffs != "" {
+		if len(a.actual) != len(expected) {
+			a.describeActualExpected1("map len:%d to be len:%d (-want, +got) ―――\n", len(a.actual), len(expected))
+		} else {
+			a.describeActualExpected1("map len:%d (-want, +got) ―――\n", len(a.actual))
+		}
+		a.addExpectation("%s", strings.ReplaceAll(diffs, " ", " "))
+	} else if a.not && diffs == "" {
+		a.describeActualExpected1("%T not to be len:%d ―――\n%s", a.actual, len(a.actual), verbatim1(a.actual))
 	} else {
 		a.passes++
 	}
@@ -249,16 +254,7 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 		return
 	}
 
-	found := make([]K, 0, len(expectedKey))
-	missing := make([]K, 0, len(expectedKey))
-	for _, k := range expectedKey {
-		_, present := a.actual[k]
-		if present {
-			found = append(found, k)
-		} else {
-			missing = append(missing, k)
-		}
-	}
+	found, missing := partitionMap(a.actual, expectedKey)
 
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
@@ -300,16 +296,7 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 		return
 	}
 
-	found := make([]K, 0, len(expectedKey))
-	missing := make([]K, 0, len(expectedKey))
-	for _, k := range expectedKey {
-		_, present := a.actual[k]
-		if present {
-			found = append(found, k)
-		} else {
-			missing = append(missing, k)
-		}
-	}
+	found, missing := partitionMap(a.actual, expectedKey)
 
 	if !a.not && len(found) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
@@ -333,6 +320,22 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 	}
 
 	a.applyAll(t)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func partitionMap[K comparable, V any](actual map[K]V, expectedKey []K) (found, missing []K) {
+	found = make([]K, 0, len(expectedKey))
+	missing = make([]K, 0, len(expectedKey))
+	for _, k := range expectedKey {
+		_, present := actual[k]
+		if present {
+			found = append(found, k)
+		} else {
+			missing = append(missing, k)
+		}
+	}
+	return found, missing
 }
 
 //-------------------------------------------------------------------------------------------------

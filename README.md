@@ -32,7 +32,7 @@ The **Any** function is an alias of **Value**; use whichever you prefer.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 
-This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start.
+This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start. It also accepts slices of bytes or runes.
 
 ### expect.[Number](https://pkg.go.dev/github.com/rickb777/expect#Number)(actual ...)
 
@@ -81,7 +81,7 @@ In particular, this allows the input to be a function with a multi-value return.
 The assertions are all infinitive verbs, i.e. methods such as `ToBe`. Typical use is of the form
 
 ```go
-    expect.Value(myValue).ToBe(t, expectedValue)
+expect.Value(myValue).ToBe(t, expectedValue)
 expect.String(myValue).ToBe(t, expectedValue)
 expect.Number(myValue).ToBe(t, expectedValue)
 expect.Bool(myValue).ToBe(t, expectedValue)

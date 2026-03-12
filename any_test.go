@@ -54,12 +54,13 @@ func TestAnyToBe(t *testing.T) {
 
 	i2 := Info{Yin: "a", yang: "U"}
 	expect.Any(i1).Info("foo").ToBe(c, i2)
-	c.shouldHaveCalledErrorf(t, "Expected foo struct to be as shown (-want, +got) ―――\n"+
-		"  expect_test.Info{\n"+
-		"  \tYin:  \"a\",\n"+
-		"- \tyang: \"U\",\n"+
-		"+ \tyang: \"b\",\n"+
-		"  }\n")
+	c.shouldHaveCalledErrorf(t, `Expected foo struct to be as shown (-want, +got) ―――
+  expect_test.Info{
+  	Yin:  "a",
+- 	yang: "U",
++ 	yang: "b",
+  }
+`)
 
 	m1 := MoreInfo{Extra: "ok", original: Info{Yin: "a", yang: "b"}, weights: []Weight32{1, 2, 3}}
 	expect.Any(i1).ToBe(c, i1)
@@ -117,7 +118,7 @@ func TestAnyNotToBe(t *testing.T) {
 	)
 }
 
-func TestAnyToBeBytes(t *testing.T) {
+func TestAnyToBe_bytes(t *testing.T) {
 	c := &capture{}
 
 	data := []byte("hello world")
@@ -126,12 +127,32 @@ func TestAnyToBeBytes(t *testing.T) {
 
 	data = []byte("hello world")
 	expect.Any(data).I("data").ToBe(c, []byte("hello dlrow"))
-	c.shouldHaveCalledErrorf(t, "Expected data []uint8 ―――\n"+
-		"[104 101 108 108 111 32 119 111 114 108 100]\n"+
-		"[]byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64}\n"+
-		"――― to be ―――\n"+
-		"[104 101 108 108 111 32 100 108 114 111 119]\n"+
-		"[]byte{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x64, 0x6c, 0x72, 0x6f, 0x77}\n")
+	c.shouldHaveCalledErrorf(t, `Expected data []uint8 ―――
+[104 101 108 108 111 32 119 111 114 108 100]
+"hello world"
+――― to be ―――
+[104 101 108 108 111 32 100 108 114 111 119]
+"hello dlrow"
+`)
+
+	// Any and Slice are inconsistent - this ought to be fixed.
+	expect.Slice(data).I("data").ToBe(c, []byte("hello dlrow")...)
+	c.shouldHaveCalledErrorf(t, `Expected data slice len:11 (-want, +got) ―――
+  []uint8{
+  	... // 4 identical elements
+  	0x6f,
+  	0x20,
+- 	0x64,
++ 	0x77,
+- 	0x6c,
++ 	0x6f,
+  	0x72,
+- 	0x6f,
++ 	0x6c,
+- 	0x77,
++ 	0x64,
+  }
+`)
 }
 
 func TestAnyToBeNilOrNot(t *testing.T) {
@@ -142,7 +163,7 @@ func TestAnyToBeNilOrNot(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any("hello").I("weight").ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\nhello\n\"hello\"\n――― to be nil.\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\nhello\n――― to be nil.\n")
 
 	expect.Any(1).Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
@@ -160,7 +181,7 @@ func TestAnyToEqualOrNot(t *testing.T) {
 
 	weight = 1001
 	expect.Any(weight).I("weight").ToEqual(c, 1000)
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n1001\n0x3e9\n――― to equal int ―――\n1000\n")
+	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n1001\n――― to equal int ―――\n1000\n")
 
 	expect.Any(weight).Not().ToEqual(c, 1000)
 	c.shouldNotHaveHadAnError(t)
