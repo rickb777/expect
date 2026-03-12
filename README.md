@@ -217,7 +217,7 @@ By default, the three options used are
 
 ## Status
 
-This has been quite stable for some time and is available as a beta release.
+This has been quite stable for some time and is available for general use.
 
 ## Origins
 
