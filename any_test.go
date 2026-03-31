@@ -13,6 +13,7 @@ type Weight32 uint32
 type Info struct {
 	Yin  string
 	yang string
+	opt  *string
 }
 
 type MoreInfo struct {
@@ -46,7 +47,11 @@ func TestAnyToBe(t *testing.T) {
 
 	weight = 101
 	expect.Any(weight).I("weight").ToBe(c, 100)
-	c.shouldHaveCalledErrorf(t, "Expected weight int ―――\n101\n――― to be ―――\n100\n")
+	c.shouldHaveCalledErrorf(t, `Expected weight int ―――
+101
+――― to be ―――
+100
+`)
 
 	i1 := Info{Yin: "a", yang: "b"}
 	expect.Any(i1).ToBe(c, i1)
@@ -59,6 +64,7 @@ func TestAnyToBe(t *testing.T) {
   	Yin:  "a",
 - 	yang: "U",
 + 	yang: "b",
+  	opt:  nil,
   }
 `)
 
@@ -75,6 +81,7 @@ func TestAnyToBe(t *testing.T) {
   		Yin:  "a",
 - 		yang: "c",
 + 		yang: "b",
+  		opt:  nil,
   	},
 - 	weights: nil,
 + 	weights: []expect_test.Weight32{1, 2, 3},
@@ -104,7 +111,9 @@ func TestAnyNotToBe(t *testing.T) {
 
 	weight = 101
 	expect.Any(weight).I("weight").Not().ToBe(c, 101)
-	c.shouldHaveCalledErrorf(t, "Expected weight int not to be ―――\n101\n")
+	c.shouldHaveCalledErrorf(t, `Expected weight int not to be ―――
+101
+`)
 
 	var fa = 0.01347258873283863
 	var fb = 0.013573
@@ -163,7 +172,10 @@ func TestAnyToBeNilOrNot(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Any("hello").I("weight").ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected weight string ―――\nhello\n――― to be nil.\n")
+	c.shouldHaveCalledErrorf(t, `Expected weight string ―――
+hello
+――― to be nil.
+`)
 
 	expect.Any(1).Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
@@ -181,7 +193,11 @@ func TestAnyToEqualOrNot(t *testing.T) {
 
 	weight = 1001
 	expect.Any(weight).I("weight").ToEqual(c, 1000)
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 ―――\n1001\n――― to equal int ―――\n1000\n")
+	c.shouldHaveCalledErrorf(t, `Expected weight expect_test.Weight32 ―――
+1001
+――― to equal int ―――
+1000
+`)
 
 	expect.Any(weight).Not().ToEqual(c, 1000)
 	c.shouldNotHaveHadAnError(t)
@@ -191,7 +207,9 @@ func TestAnyToEqualOrNot(t *testing.T) {
 
 	weight = 1001
 	expect.Any(weight).I("weight").Not().ToEqual(c, 1001)
-	c.shouldHaveCalledErrorf(t, "Expected weight expect_test.Weight32 not to equal int ―――\n1001\n")
+	c.shouldHaveCalledErrorf(t, `Expected weight expect_test.Weight32 not to equal int ―――
+1001
+`)
 }
 
 func ExampleAnyType_ToBe() {

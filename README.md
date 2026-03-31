@@ -116,6 +116,7 @@ The assertions available are intended to be obvious to use because they relate t
 | `ToBeBetween`            | -     | -      | Yes    | -    | -   | -     | -     | -    |
 | `ToBeBetweenOrEqual`     | -     | -      | Yes    | -    | -   | -     | -     | -    |
 | `ToHaveOccurred`         | -     | -      | -      | -    | -   | -     | Yes   | -    |
+| `ToWrap`                 | -     | -      | -      | -    | -   | -     | Yes   | -    |
 | `ToPanic`                | -     | -      | -      | -    | -   | -     | -     | Yes  |
 | `ToPanicWithMessage`     | -     | -      | -      | -    | -   | -     | -     | Yes  |
 
@@ -155,6 +156,7 @@ Numeric inequalities are
 Note that these inequality assertions actually apply to all *ordered types*, which includes all int/uint types, float32/float64 and also string. All subtypes of ordered types are also included.
 
 Errors are handled with `ToHaveOccurred(t)`, or more typically `Not().ToHaveOccurred(t)` (`Not()` is described below). These are equivalent to `Not().ToBeNil(t)` and `ToBeNil(t)`, respectively.
+Other methods are `ToContain(t, errMsg)`, `ToMatch(t, pattern)` and `ToWrap(t, subError)`.
 
 Functions that panic can be tested with a zero-argument function that calls the code under test and then uses `ToPanic()`. If `panic(value)` value is a string, `ToPanicWithMessage(t, substring)` can
 check the actual message.
@@ -174,7 +176,7 @@ expect.Number(v).Not().ToBe(t, 321)
 
 ## Conjunction Method
 
-**Number** and **String** have `Or()` that allows multiple alternatives to be accepted.
+**Number** and **String** have `Or()` that allows multiple alternatives to be accepted. Please see the examples.
 
 * If any of them succeed, the test will pass.
 * If all of them fail, the error message will list all the possibilities in the expected outcome.

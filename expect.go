@@ -6,6 +6,9 @@ import (
 	"math"
 	"reflect"
 	"strings"
+	"unicode"
+
+	gocmp "github.com/google/go-cmp/cmp"
 )
 
 // Tester reports test errors and failures. Notably, [testing.T] implements this interface.
@@ -167,33 +170,44 @@ func verbatim1(v any) string {
 }
 
 func verbatim2(v any) string {
-	a := fmt.Sprintf("%+v\n", v)
-	b := alternativeRepresentation(v)
-	return a + b
-}
-
-func alternativeRepresentation(v any) string {
 	t := reflect.TypeOf(v)
 	k0 := t.Kind()
 
 	if isBuiltIn(k0) {
-		return ""
+		return fmt.Sprintf("%+v\n", v)
 	}
 
 	switch k0 {
-	//case reflect.Map:
-	//k1 := t.Key().Kind()
-	//k2 := t.Elem().Kind()
+	case reflect.Map:
+		//k1 := t.Key().Kind()
+		//k2 := t.Elem().Kind()
+		return gocmpDiffAsVerbatimString(v)
 
 	case reflect.Slice:
 		k1 := t.Elem().Kind()
 		switch k1 {
 		case reflect.Uint8:
-			return fmt.Sprintf("%q\n", v)
+			return fmt.Sprintf("%+v\n%q\n", v, v)
 		case reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return fmt.Sprintf("%#v\n", v)
+			return fmt.Sprintf("%+v\n%#v\n", v, v)
+		case reflect.Struct, reflect.Slice, reflect.Array, reflect.Map, reflect.Pointer:
+			return gocmpDiffAsVerbatimString(v)
 		}
+	}
 
+	return fmt.Sprintf("%+v\n", v)
+}
+
+type private struct{}
+
+func gocmpDiffAsVerbatimString(v any) string {
+	// this uses gocmp.Diff just as a value renderer because it is rather good
+	s := gocmp.Diff(private{}, v, DefaultOptions())
+	for _, line := range strings.Split(s, "\n") {
+		if strings.HasPrefix(line, "+") {
+			r1 := strings.TrimLeftFunc(line[1:], unicode.IsSpace)
+			return strings.TrimRight(r1, ",") + "\n"
+		}
 	}
 	return ""
 }

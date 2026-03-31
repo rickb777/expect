@@ -23,16 +23,18 @@ func TestFuncToPanicWithMessage(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected my func to panic.\n")
 
 	expect.Func(func() { panic("happy") }).Info("my func").ToPanicWithMessage(c, "ouch")
-	c.shouldHaveCalledErrorf(t, "Expected my func to panic with a message containing ―――\n"+
-		"ouch\n"+
-		"――― but got ―――\n"+
-		"happy\n")
+	c.shouldHaveCalledErrorf(t, `Expected my func to panic with a message containing ―――
+ouch
+――― but got ―――
+happy
+`)
 
 	expect.Func(func() { panic(123) }).Info("my func").ToPanicWithMessage(c, "ouch")
-	c.shouldHaveCalledErrorf(t, "Expected my func to panic with a string containing ―――\n"+
-		"ouch\n"+
-		"――― but got int ―――\n"+
-		"123\n")
+	c.shouldHaveCalledErrorf(t, `Expected my func to panic with a string containing ―――
+ouch
+――― but got int ―――
+123
+`)
 }
 
 func TestFuncNotToPanic(t *testing.T) {

@@ -66,9 +66,10 @@ func TestMapToBeNilOrNot(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).I("stuff").ToBeNil(c)
-	c.shouldHaveCalledErrorf(t, "Expected stuff map[string]int len:1 ―――\n"+
-		"map[a:1]\n"+
-		"――― to be nil\n")
+	c.shouldHaveCalledErrorf(t, `Expected stuff map[string]int len:1 ―――
+map[string]int{"a": 1}
+――― to be nil
+`)
 
 	expect.Map(m).Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
@@ -91,14 +92,16 @@ func TestMapToHaveLength(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToHaveLength(c, 5)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:1 ―――\n"+
-		"map[a:1]\n"+
-		"――― to have length 5.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:1 ―――
+map[a:1]
+――― to have length 5.
+`)
 
 	expect.Map(m).Not().ToHaveLength(c, 1)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:1 ―――\n"+
-		"map[a:1]\n"+
-		"――― not to have length 1.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:1 ―――
+map[a:1]
+――― not to have length 1.
+`)
 }
 
 func TestMapToBeEmpty(t *testing.T) {
@@ -117,9 +120,10 @@ func TestMapToBeEmpty(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToBeEmpty(c)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:1 ―――\n"+
-		"map[a:1]\n"+
-		"――― to be empty.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:1 ―――
+map[a:1]
+――― to be empty.
+`)
 
 	expect.Map(empty).Not().ToBeEmpty(c)
 	c.shouldHaveCalledErrorf(t, "Expected map[int]int len:0 not to be empty.\n")
@@ -136,14 +140,16 @@ func TestMapToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToContain(c, "c")
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 to contain \"c\"; keys are ―――\n"+
-		"[a, b]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:2 to contain "c"; keys are ―――
+[a, b]
+`)
 
 	expect.Map(m).ToContain(c, "a", 7)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 ―――\n"+
-		"\"a\": 1\n"+
-		"――― to contain \"a\" and it should match ―――\n"+
-		"\"a\": 7\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:2 ―――
+"a": 1
+――― to contain "a" and it should match ―――
+"a": 7
+`)
 }
 
 func TestMapNotToContain(t *testing.T) {
@@ -157,13 +163,15 @@ func TestMapNotToContain(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).Not().ToContain(c, "a")
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 not to contain \"a\"; keys are ―――\n"+
-		"[a, b]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:2 not to contain "a"; keys are ―――
+[a, b]
+`)
 
 	expect.Map(m).Not().ToContain(c, "a", 1)
-	c.shouldHaveCalledErrorf(t, "Expected map[string]int len:2 not to contain ―――\n"+
-		"\"a\": 1\n"+
-		"――― but it does.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[string]int len:2 not to contain ―――
+"a": 1
+――― but it does.
+`)
 }
 
 func TestMapToContainAll(t *testing.T) {
@@ -177,21 +185,24 @@ func TestMapToContainAll(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToContainAll(c, 'z', 'y', 'x', 'w', 'v')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― to contain all 5 but none were found.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― to contain all 5 but none were found.
+`)
 
 	expect.Map(m).ToContainAll(c, 'b', 'c', 'a', 'h', 'j')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― to contain all 5 but these 2 were missing ―――\n"+
-		"[104 106]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― to contain all 5 but these 2 were missing ―――
+[104 106]
+`)
 
 	expect.Map(m).ToContainAll(c, 'c', 'f', 'a', 'j', 'l', 'n')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― to contain all 6 but only these 2 were found ―――\n"+
-		"[99 97]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― to contain all 6 but only these 2 were found ―――
+[99 97]
+`)
 }
 
 func TestMapNotToContainAll(t *testing.T) {
@@ -202,9 +213,10 @@ func TestMapNotToContainAll(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).Not().ToContainAll(c, 'a', 'b', 'c')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― not to contain all 3 but they were all present.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― not to contain all 3 but they were all present.
+`)
 }
 
 func TestMapToContainAny(t *testing.T) {
@@ -218,9 +230,10 @@ func TestMapToContainAny(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).ToContainAny(c, 'z', 'y', 'x', 'w', 'v')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― to contain any of 5 but none were present.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― to contain any of 5 but none were present.
+`)
 }
 
 func TestMapNotToContainAny(t *testing.T) {
@@ -231,27 +244,31 @@ func TestMapNotToContainAny(t *testing.T) {
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Map(m).Not().ToContainAny(c, 'a', 'j', 'z')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― not to contain any of 3 but this was found ―――\n"+
-		"[97]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― not to contain any of 3 but this was found ―――
+[97]
+`)
 
 	expect.Map(m).Not().ToContainAny(c, 'a', 'c', 'e')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― not to contain any of 3 but they were all present.\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― not to contain any of 3 but they were all present.
+`)
 
 	expect.Map(m).Not().ToContainAny(c, 'd', 'a', 'l', 'b')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― not to contain any of 4 but only this was missing ―――\n"+
-		"[108]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― not to contain any of 4 but only this was missing ―――
+[108]
+`)
 
 	expect.Map(m).Not().ToContainAny(c, 'b', 'm', 'c', 'h', 'j')
-	c.shouldHaveCalledErrorf(t, "Expected map[uint8]int len:5 ―――\n"+
-		"map[97:1 98:2 99:3 100:4 101:5]\n"+
-		"――― not to contain any of 5 but these 2 were found ―――\n"+
-		"[98 99]\n")
+	c.shouldHaveCalledErrorf(t, `Expected map[uint8]int len:5 ―――
+map[97:1 98:2 99:3 100:4 101:5]
+――― not to contain any of 5 but these 2 were found ―――
+[98 99]
+`)
 }
 
 func ExampleMapType_ToBe() {

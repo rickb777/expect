@@ -83,6 +83,13 @@ func TestNumberToEqual(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToEqual(c, 1710000001)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be ―――\n1710000001\n")
+
+	//----- mis-match -----
+
+	expect.Number(utcTime).ToEqual(c, 1710000000).Or().ToEqual(c, 1710000001)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToEqual(t *testing.T) {
@@ -113,6 +120,14 @@ func TestNumberToBeGreaterThan(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeGreaterThan(c, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be greater than ―――\n1710000000\n")
+
+	//----- mis-match -----
+
+	utcTime = 1710000002
+	expect.Number(utcTime).ToBeGreaterThan(c, 1710000000).Or().ToBeGreaterThan(c, 1710000001)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeGreaterThan(t *testing.T) {
@@ -137,6 +152,13 @@ func TestNumberToBeLessThan(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeLessThan(c, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be less than ―――\n1710000000\n")
+
+	//----- mis-match -----
+
+	expect.Number(utcTime).ToBeLessThan(c, 1710000002).Or().ToBeLessThan(c, 1710000001)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeLessThan(t *testing.T) {
@@ -161,6 +183,14 @@ func TestNumberToBeGreaterThanOrEqual(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBeGreaterThanOrEqual(c, 1710000001)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be greater than or equal to ―――\n1710000001\n")
+
+	//----- mis-match -----
+
+	utcTime = 1710000002
+	expect.Number(utcTime).ToBeGreaterThanOrEqual(c, 1710000000).Or().ToBeGreaterThanOrEqual(c, 1710000001)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeGreaterThanOrEqual(t *testing.T) {
@@ -185,6 +215,14 @@ func TestNumberToBeLessThanOrEqual(t *testing.T) {
 	utcTime = 1710000001
 	expect.Number(utcTime).I("utcTime").ToBeLessThanOrEqual(c, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000001\n――― to be less than or equal to ―――\n1710000000\n")
+
+	//----- mis-match -----
+
+	utcTime = 1710000000
+	expect.Number(utcTime).ToBeLessThanOrEqual(c, 1710000002).Or().ToBeLessThanOrEqual(c, 1710000003)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeLessThanOrEqual(t *testing.T) {
@@ -215,6 +253,14 @@ func TestNumberToBeBetween(t *testing.T) {
 
 	expect.Number(utcTime).I("utcTime").ToBeBetween(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 >= maximum 1710000000.\n")
+
+	//----- mis-match -----
+
+	utcTime = 1710000002
+	expect.Number(utcTime).ToBeBetween(c, 1710000000, 1710000004).Or().ToBeBetween(c, 1710000005, 1710000007)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeBetween(t *testing.T) {
@@ -259,6 +305,14 @@ func TestNumberToBeBetweenOrEqual(t *testing.T) {
 
 	expect.Number(utcTime).I("utcTime").ToBeBetweenOrEqual(c, 1710000002, 1710000000)
 	c.shouldHaveCalledErrorf(t, "Impossible test utcTime expect_test.Seconds32: minimum 1710000002 > maximum 1710000000.\n")
+
+	//----- mis-match -----
+
+	utcTime = 1710000002
+	expect.Number(utcTime).ToBeBetweenOrEqual(c, 1710000000, 1710000004).Or().ToBeBetweenOrEqual(c, 1710000005, 1710000007)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBeBetweenOrEqual(t *testing.T) {

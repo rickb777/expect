@@ -1,6 +1,7 @@
 package expect
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -102,6 +103,32 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 		}
 	}
 
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// ToWrap asserts that the error occurred and that it wraps a specified error.
+// See [errors.Is].
+// The tester is normally [*testing.T].
+func (a ErrorType) ToWrap(t Tester, suberror error) {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	if a.actual == nil {
+		a.describeActualExpected1("error to have occurred but there was no error.\n")
+	} else {
+		match := errors.Is(a.actual, suberror)
+		msg := a.actual.Error()
+		if (!a.not && !match) || (a.not && match) {
+			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.addExpectation("to wrap ―――\n%T %q\n", suberror, suberror.Error())
+		} else {
+			a.passes++
+		}
+	}
+
+	a.applyAll(t)
 }
 
 //-------------------------------------------------------------------------------------------------

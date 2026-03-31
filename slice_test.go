@@ -79,14 +79,16 @@ func TestSliceNotToBe(t *testing.T) {
 		"[97 98 99 100 101 102]\n"+
 		"\"abcdef\"\n")
 
+	tx := "xyz"
 	i1 := Info{Yin: "a", yang: "b"}
 	i2 := Info{Yin: "c", yang: "d"}
-	i3 := Info{Yin: "e", yang: "f"}
+	i3 := Info{Yin: "e", yang: "f", opt: &tx}
 	s2 := []Info{i1, i2, i3}
 
 	expect.Slice(s2).Not().ToBe(c, i1, i2, i3)
-	c.shouldHaveCalledErrorf(t, "Expected []expect_test.Info not to be len:3 ―――\n"+
-		"[{Yin:a yang:b} {Yin:c yang:d} {Yin:e yang:f}]\n")
+	c.shouldHaveCalledErrorf(t, `Expected []expect_test.Info not to be len:3 ―――
+[]expect_test.Info{{Yin: "a", yang: "b"}, {Yin: "c", yang: "d"}, {Yin: "e", yang: "f", opt: &"xyz"}}
+`)
 }
 
 func TestSliceToBeNilOrNot(t *testing.T) {

@@ -269,6 +269,13 @@ func TestStringToHaveLength(t *testing.T) {
 	c.shouldHaveCalledErrorf(t, "Expected string len:110 ―――\n"+
 		"°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789…\n"+
 		"――― to have length 90.\n")
+
+	//----- mis-match -----
+
+	expect.String(longString).ToHaveLength(c, 110).Or().ToHaveLength(c, 90)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestStringToBeEmpty(t *testing.T) {
@@ -298,6 +305,13 @@ func TestStringToContain(t *testing.T) {
 
 	expect.String(s).ToContain(c, "world")
 	c.shouldHaveCalledErrorf(t, "Expected expect_test.MyString len:5 ―――\nhello\n――― to contain ―――\nworld\n")
+
+	//----- mis-match -----
+
+	expect.String(s).ToContain(c, "hello").Or().ToContain(c, "goodbye")
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestStringNotToContain(t *testing.T) {
@@ -320,6 +334,13 @@ func TestStringToMatch(t *testing.T) {
 
 	expect.String(s).ToMatch(c, regexp.MustCompile("^x-ll-$"))
 	c.shouldHaveCalledErrorf(t, "Expected ―――\nhello\n――― to match ―――\n^x-ll-$\n")
+
+	//----- mis-match -----
+
+	expect.String(s).ToMatch(c, regexp.MustCompile("^.*ll.*$")).Or().ToMatch(c, regexp.MustCompile("^.*oo.*$"))
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestStringNotToMatch(t *testing.T) {
