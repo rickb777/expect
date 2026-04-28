@@ -32,14 +32,13 @@ The **Any** function is an alias of **Value**; use whichever you prefer.
 
 ### expect.[String](https://pkg.go.dev/github.com/rickb777/expect#String)(actual ...)
 
-This compares `string` and any subclass. It is more informative than **Any**, highlighting where the differences start. It also accepts slices of bytes or runes.
+This compares `string` and any subclass. It also accepts slices of bytes or runes. It is more informative than **Value**: assertion failures highlight where the differences start where appropriate, and show visible newlines.
 
 ### expect.[Number](https://pkg.go.dev/github.com/rickb777/expect#Number)(actual ...)
 
-This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons. It also supports  `string` because that is also is an
-ordered type.
+This compares `int` and all the signed/unsigned int and float length variants, plus all their subtypes. This provides inequality comparisons.
 
-However, for near-equality testing of `float32` or `float64`, use **Any** instead because the tolerance [can be specified](#readme-options-for-controlling-how-the-comparisons-work).
+For near-equality testing of `float32` or `float64`, set the required tolerance using [ApproximateFloatFraction](https://pkg.go.dev/github.com/rickb777/expect#ApproximateFloatFraction).
 
 ### expect.[Bool](https://pkg.go.dev/github.com/rickb777/expect#Bool)(actual ...)
 
@@ -49,13 +48,13 @@ This compares `bool` and any subclass.
 
 This compares `map[K]V` where the map key `K` is a comparable type.
 
-**Map** provides more methods than **Any**, but is otherwise very similar.
+**Map** provides more methods than **Value**, but is otherwise very similar.
 
 ### expect.[Slice](https://pkg.go.dev/github.com/rickb777/expect#Slice)(actual ...)
 
 This compares `[]T` where `T` is any type.
 
-**Slice** provides more methods than **Any**, but is otherwise very similar.
+**Slice** provides more methods than **Value**, but is otherwise very similar.
 
 ### expect.[Error](https://pkg.go.dev/github.com/rickb777/expect#Error)(... actual)
 
@@ -208,14 +207,16 @@ Both the actual and expected strings are truncated if their length is too long. 
 
 ## Options for Controlling How The Comparisons Work
 
-**Any**, **Map**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for
+**Value**, **Map**, **Number**, and **Slice** use [cmp.Equal](https://pkg.go.dev/github.com/google/go-cmp/cmp) under the hood. This is flexible, allowing for options to control how the comparison proceeds - for
 example when considering how close floating point numbers need to be to be considered equal. There is a `Using(...)` method to specify what options it should use.
 
-By default, the three options used are
+By default, these options are used:
 
-* All fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise.
-* Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
 * Maps/slices that are empty are treated the same as those that are nil.
+* Floating point numbers are compared within the tolerance set by `ApproximateFloatFraction`.
+* Floating point numbers that are NaN are considered equal to other NaNs.
+
+Also, all fields in structs are compared, regardless of whether they exported or unexported; all structs in maps and slices are treated likewise.
 
 ## Status
 

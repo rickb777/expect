@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	. "github.com/rickb777/expect/internal"
 )
 
 // ErrorType is used for assertions about errors.
@@ -94,7 +96,7 @@ func (a ErrorType) toHaveOccurred(t Tester, not bool) {
 	if not {
 		if a.actual != nil {
 			t.Fatal(fmt.Sprintf("Expected%s error ―――\n%s\n――― not to have occurred.\n",
-				preS(a.info), blank(a.actual.Error())))
+				preS(a.info), Blank(a.actual.Error())))
 		}
 	} else {
 		if a.actual == nil {
@@ -121,7 +123,7 @@ func (a ErrorType) ToWrap(t Tester, suberror error) {
 		match := errors.Is(a.actual, suberror)
 		msg := a.actual.Error()
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.describeActualExpectedM("error ―――\n%s\n", Blank(msg))
 			a.addExpectation("to wrap ―――\n%T %q\n", suberror, suberror.Error())
 		} else {
 			a.passes++
@@ -146,7 +148,7 @@ func (a ErrorType) ToContain(t Tester, substring string) {
 		msg := a.actual.Error()
 		match := strings.Contains(msg, substring)
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.describeActualExpectedM("error ―――\n%s\n", Blank(msg))
 			a.addExpectation("to contain ―――\n%s\n", substring)
 		} else {
 			a.passes++
@@ -171,7 +173,7 @@ func (a ErrorType) ToMatch(t Tester, pattern *regexp.Regexp) {
 		msg := a.actual.Error()
 		match := pattern.MatchString(msg)
 		if (!a.not && !match) || (a.not && match) {
-			a.describeActualExpectedM("error ―――\n%s\n", blank(msg))
+			a.describeActualExpectedM("error ―――\n%s\n", Blank(msg))
 			a.addExpectation("to match ―――\n%s\n", pattern)
 		} else {
 			a.passes++

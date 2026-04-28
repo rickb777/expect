@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/rickb777/expect"
 )
 
@@ -44,6 +45,60 @@ func TestNumberToBe(t *testing.T) {
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").ToBe(c, 1710000001)
 	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be ―――\n1710000001\n")
+
+	expect.Number(1.1).ToBe(c, 1.1)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.ApproximateFloatFraction = 1e-6
+	expect.Number(1.1).ToBe(c, 1.100001) // almost the same
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number(1.1).Using(cmpopts.EquateApprox(1e-7, 0)).ToBe(c, 1.100001) // almost the same
+	c.shouldHaveCalledErrorf(t, "Expected float64 ―――\n1.1\n――― to be ―――\n1.100001\n")
+
+	expect.Number(1.1).ToBe(c, 1.10001)
+	c.shouldHaveCalledErrorf(t, "Expected float64 ―――\n1.1\n――― to be ―――\n1.10001\n")
+}
+
+func TestNumberToEqual(t *testing.T) {
+	c := &capture{}
+
+	var utcTime Seconds32 = 1710000000
+	expect.Number(utcTime).ToEqual(c, 1710000000)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number(uint64(1)).ToEqual(c, float32(1.0))
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number("aardvark").ToEqual(c, 1)
+	c.shouldHaveCalledErrorf(t, "Expected string ―――\naardvark\n――― to equal ―――\n1\n")
+
+	expect.Number("aardvark").ToEqual(c, false)
+	c.shouldHaveCalledErrorf(t, "Expected bool ―――\nfalse\n――― type must be int, uint, or float (of any length) ―――\n")
+
+	utcTime = 1710000000
+	expect.Number(utcTime).I("utcTime").ToEqual(c, 1710000001)
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to equal ―――\n1710000001\n")
+
+	expect.Number(1.1).ToEqual(c, 1.1)
+	c.shouldNotHaveHadAnError(t)
+
+	expect.ApproximateFloatFraction = 1e-6
+	expect.Number(1.1).ToEqual(c, 1.100001) // almost the same
+	c.shouldNotHaveHadAnError(t)
+
+	expect.Number(1.1).Using(cmpopts.EquateApprox(1e-7, 0)).ToEqual(c, 1.100001) // almost the same
+	c.shouldHaveCalledErrorf(t, "Expected float64 ―――\n1.1\n――― to equal ―――\n1.100001\n")
+
+	expect.Number(1.1).ToEqual(c, 1.10001)
+	c.shouldHaveCalledErrorf(t, "Expected float64 ―――\n1.1\n――― to equal ―――\n1.10001\n")
+
+	//----- mis-match -----
+
+	expect.Number(utcTime).ToEqual(c, 1710000000).Or().ToEqual(c, 1710000001)
+	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
+		"――― Only the last assertion should have a non-nil tester.\n"+
+		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToBe(t *testing.T) {
@@ -62,34 +117,13 @@ func TestNumberNotToBe(t *testing.T) {
 		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
 		"Expected data int ―――\n0\n――― not to be ―――\n0\n",
 	)
-}
 
-func TestNumberToEqual(t *testing.T) {
-	c := &capture{}
+	expect.ApproximateFloatFraction = 1e-6
+	expect.Number(1.1).Not().ToBe(c, 1.100001)
+	c.shouldHaveCalledErrorf(t, "Expected float64 ―――\n1.1\n――― not to be ―――\n1.100001\n")
 
-	var utcTime Seconds32 = 1710000000
-	expect.Number(utcTime).ToEqual(c, 1710000000)
+	expect.Number(1.1).Not().ToBe(c, 1.10001)
 	c.shouldNotHaveHadAnError(t)
-
-	expect.Number(uint64(1)).ToEqual(c, float32(1.0))
-	c.shouldNotHaveHadAnError(t)
-
-	expect.Number("aardvark").ToEqual(c, 1)
-	c.shouldHaveCalledErrorf(t, "Expected string ―――\naardvark\n――― to be ―――\n1\n")
-
-	expect.Number("aardvark").ToEqual(c, false)
-	c.shouldHaveCalledErrorf(t, "Expected bool ―――\nfalse\n――― type must be int, uint, or float (of any length) ―――\n")
-
-	utcTime = 1710000000
-	expect.Number(utcTime).I("utcTime").ToEqual(c, 1710000001)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― to be ―――\n1710000001\n")
-
-	//----- mis-match -----
-
-	expect.Number(utcTime).ToEqual(c, 1710000000).Or().ToEqual(c, 1710000001)
-	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
-		"――― Only the last assertion should have a non-nil tester.\n"+
-		"――― Use nil for the preceding assertions.")
 }
 
 func TestNumberNotToEqual(t *testing.T) {
@@ -101,12 +135,15 @@ func TestNumberNotToEqual(t *testing.T) {
 
 	utcTime = 1710000000
 	expect.Number(utcTime).I("utcTime").Not().ToEqual(c, 1710000000)
-	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to be ―――\n1710000000\n")
+	c.shouldHaveCalledErrorf(t, "Expected utcTime expect_test.Seconds32 ―――\n1710000000\n――― not to equal ―――\n1710000000\n")
+
+	expect.Number("aardvark").Not().ToEqual(c, 1)
+	c.shouldNotHaveHadAnError(t)
 
 	expect.Number(numberTest(errors.New("bang"))).I("data").Not().ToEqual(c, 0)
 	c.shouldHaveCalledFatalf(t,
 		"Expected data not to pass a non-nil error but got error parameter 2 ―――\nbang\n",
-		"Expected data int ―――\n0\n――― not to be ―――\n0\n",
+		"Expected data int ―――\n0\n――― not to equal ―――\n0\n",
 	)
 }
 

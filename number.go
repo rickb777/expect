@@ -3,11 +3,14 @@ package expect
 import (
 	"cmp"
 	"reflect"
+
+	gocmp "github.com/google/go-cmp/cmp"
 )
 
 // OrderedType is used for assertions about numbers and other ordered types.
 type OrderedType[O cmp.Ordered] struct {
 	actual O
+	opts   gocmp.Options
 	assertion
 }
 
@@ -25,7 +28,7 @@ type OrderedOr[O cmp.Ordered] struct {
 // This is convenient if you want to make an assertion on a method/function that returns a value and an error,
 // a common pattern in Go.
 func Number[O cmp.Ordered](value O, other ...any) *OrderedType[O] {
-	return &OrderedType[O]{actual: value, assertion: assertion{otherActual: other}}
+	return &OrderedType[O]{actual: value, opts: DefaultOptions(), assertion: assertion{otherActual: other}}
 }
 
 // Info adds a description of the assertion to be included in any error message.
@@ -42,6 +45,13 @@ func (a *OrderedType[O]) I(info any, other ...any) *OrderedType[O] {
 	return a.Info(info, other...)
 }
 
+// Using replaces the default comparison options with those specified here.
+// You can also set [DefaultOptions] instead.
+func (a *OrderedType[O]) Using(opt ...gocmp.Option) *OrderedType[O] {
+	a.opts = opt
+	return a
+}
+
 // Not inverts the assertion.
 func (a *OrderedType[O]) Not() *OrderedType[O] {
 	a.not = !a.not
@@ -53,31 +63,11 @@ func (a *OrderedType[O]) Not() *OrderedType[O] {
 // ToBe asserts that the actual and expected numbers have the same values and types.
 // The tester is normally [*testing.T].
 func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
-	if a == nil {
-		return nil
-	}
-
 	if h, ok := t.(helper); ok {
 		h.Helper()
 	}
 
-	a.allOtherArgumentsMustNotBeError(t)
-
-	if a.not {
-		if a.actual == expected {
-			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n%+v\n", expected)
-			return a.conjunction(t, false)
-		}
-	} else {
-		if a.actual != expected {
-			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n%+v\n", expected)
-			return a.conjunction(t, false)
-		}
-	}
-
-	return a.conjunction(t, true)
+	return a.toEqual(t, "to be", expected)
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -86,6 +76,16 @@ func (a *OrderedType[O]) ToBe(t Tester, expected O) *OrderedOr[O] {
 // The expected value must be some numeric type.
 // The tester is normally [*testing.T].
 func (a *OrderedType[O]) ToEqual(t Tester, expected any) *OrderedOr[O] {
+	if h, ok := t.(helper); ok {
+		h.Helper()
+	}
+
+	return a.toEqual(t, "to equal", expected)
+}
+
+//-------------------------------------------------------------------------------------------------
+
+func (a *OrderedType[O]) toEqual(t Tester, what string, expected any) *OrderedOr[O] {
 	if a == nil {
 		return nil
 	}
@@ -98,35 +98,39 @@ func (a *OrderedType[O]) ToEqual(t Tester, expected any) *OrderedOr[O] {
 
 	match := false
 
-	expectedType := reflect.TypeOf(expected)
-	switch expectedType.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64:
-		// ok
+	if expected != nil {
+		expectedType := reflect.TypeOf(expected)
+		switch expectedType.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if reflect.TypeFor[O]().ConvertibleTo(expectedType) {
+				convertedActual := reflect.ValueOf(a.actual).Convert(expectedType).Interface()
+				match = convertedActual == expected
+			}
 
-	default:
-		a.describeActualExpectedM("%T ―――\n%+v\n", expected, expected)
-		a.addExpectation("type must be int, uint, or float (of any length) ―――\n")
-		return a.conjunction(t, false)
-	}
+		case reflect.Float32, reflect.Float64:
+			if reflect.TypeFor[O]().ConvertibleTo(expectedType) {
+				convertedActual := reflect.ValueOf(a.actual).Convert(expectedType).Interface()
+				match = gocmp.Equal(expected, convertedActual, a.opts)
+			}
 
-	if expected != nil &&
-		reflect.TypeFor[O]().ConvertibleTo(expectedType) {
-		convertedActual := reflect.ValueOf(a.actual).Convert(expectedType).Interface()
-		match = convertedActual == expected
+		default:
+			a.describeActualExpectedM("%T ―――\n%+v\n", expected, expected)
+			a.addExpectation("type must be int, uint, or float (of any length) ―――\n")
+			return a.conjunction(t, false)
+		}
 	}
 
 	if a.not {
 		if match {
 			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n%+v\n", expected)
+			a.addExpectation("%s ―――\n%+v\n", what, expected)
 			return a.conjunction(t, false)
 		}
 	} else {
 		if !match {
 			a.describeActualExpectedM("%T ―――\n%+v\n", a.actual, a.actual)
-			a.addExpectation("to be ―――\n%+v\n", expected)
+			a.addExpectation("%s ―――\n%+v\n", what, expected)
 			return a.conjunction(t, false)
 		}
 	}

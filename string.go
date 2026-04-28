@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"unicode/utf8"
+
+	. "github.com/rickb777/expect/internal"
 )
 
 type Stringy interface {
@@ -108,7 +110,7 @@ func (a *StringType[S]) toHaveLength(t Tester, expected int, what string) *Strin
 	if (!a.not && actual != expected) || (a.not && actual == expected) {
 		if len(a.actual) > 0 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual),
-				trim(string(a.actual), a.trim))
+				ShowNewlines(trim(string(a.actual), a.trim)))
 			a.addExpectation("%s\n", what)
 		} else {
 			a.describeActualExpected1("%T len:%d ", a.actual, len(a.actual))
@@ -140,8 +142,10 @@ func (a *StringType[S]) ToContain(t Tester, substring S) *StringOr[S] {
 	match := strings.Contains(ac, ex)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualExpectedM("%T len:%d ―――\n%s\n", a.actual, len(a.actual), trim(ac, a.trim))
-		a.addExpectation("to contain ―――\n%s\n", trim(ex, a.trim))
+		a.describeActualExpectedM("%T len:%d ―――\n%s\n", a.actual, len(a.actual),
+			ShowNewlines(trim(ac, a.trim)))
+		a.addExpectation("to contain ―――\n%s\n",
+			ShowNewlines(trim(ex, a.trim)))
 		return a.conjunction(t, false)
 	}
 
@@ -167,7 +171,7 @@ func (a *StringType[S]) ToMatch(t Tester, pattern *regexp.Regexp) *StringOr[S] {
 	match := pattern.MatchString(ac)
 
 	if (!a.not && !match) || (a.not && match) {
-		a.describeActualExpectedM("―――\n%s\n", trim(ac, a.trim))
+		a.describeActualExpectedM("―――\n%s\n", ShowNewlines(trim(ac, a.trim)))
 		a.addExpectation("to match ―――\n%s\n", pattern)
 		return a.conjunction(t, false)
 	}
@@ -216,7 +220,7 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 	actual := string(a.actual)
 
 	if !a.not && expected == "" && actual != "" {
-		a.describeActualExpected1("―――\n%s\n――― ", trim(actual, a.trim))
+		a.describeActualExpected1("―――\n%s\n――― ", ShowNewlines(trim(actual, a.trim)))
 		a.addExpectation("%s blank.\n", what)
 		return a.conjunction(t, false)
 
@@ -232,10 +236,10 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 			expected = "…" + string(ex[chop:])
 			pointer = trim2 + 1
 		}
-		a.describeActualExpectedM("―――\n%s\n", trim(actual, a.trim))
+		a.describeActualExpectedM("―――\n%s\n", ShowNewlines(trim(actual, a.trim)))
 		a.addExpectation("%s\n%s\n%s",
 			arrowMarker(what, pointer, line == 1),
-			trim(expected, a.trim),
+			ShowNewlines(trim(expected, a.trim)),
 			firstDifferenceInfo("rune", diff, line, column))
 		return a.conjunction(t, false)
 
@@ -244,7 +248,7 @@ func (a *StringType[S]) toEqual(t Tester, what, expected string) *StringOr[S] {
 		if expected == "" {
 			thisValue = "blank"
 		}
-		a.describeActualExpected1("―――\n%s\n――― ", trim(actual, a.trim))
+		a.describeActualExpected1("―――\n%s\n――― ", ShowNewlines(trim(actual, a.trim)))
 		a.addExpectation("%s %s.\n", what, thisValue)
 		return a.conjunction(t, false)
 	}
@@ -311,12 +315,5 @@ func trim(s string, trim int) string {
 		rs := []rune(s)
 		return string(rs[:trim]) + "…"
 	}
-	return blank(s)
-}
-
-func blank(s string) string {
-	if len(s) == 0 {
-		return `""`
-	}
-	return s
+	return Blank(s)
 }

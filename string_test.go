@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/rickb777/expect"
+	. "github.com/rickb777/expect/internal"
 )
 
 type MyString string
@@ -127,27 +128,27 @@ func TestStringToBe(t *testing.T) {
 
 	expect.String(lines1+"<"+lines2).ToBe(c, lines1+">"+lines2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"vwxyz<D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"vwxyz<D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
 		"F°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
 		"――― to be ―――\n"+
-		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"vwxyz>D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
-		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"A°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"B°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"C°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"vwxyz>D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"E°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
 		"F°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
 		"――― the first difference is at rune 191 (line 4:6).\n")
 
 	expect.String(lines1+"<"+lines2).Trim(100).ToBe(c, lines1+">"+lines2)
 	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
-		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
 		"vwxyz<D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ67…\n"+
 		"――― to be ―――\n"+
-		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789\n"+
+		"…789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
 		"vwxyz>D°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ67…\n"+
 		"――― the first difference is at rune 191 (line 4:6).\n")
 }
@@ -192,6 +193,15 @@ func TestStringToEqual(t *testing.T) {
 		"――― to equal ―――                                  ↕\n"+
 		"…1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789…\n"+
 		"――― the first difference is at rune 120 (line 1:121).\n")
+
+	expect.String(numbers2+numbers1+"\n"+numbers2).Trim(100).ToEqual(c, numbers2+numbers2+"\n"+numbers2)
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+
+		"…1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789_01234«-»6789␤\n"+
+		"°1234µ6789°1234µ6789°1234µ6789°1234µ…\n"+
+		"――― to equal ―――                                  ↕\n"+
+		"…1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789°1234µ6789␤\n"+
+		"°1234µ6789°1234µ6789°1234µ678…\n"+
+		"――― the first difference is at rune 120 (line 1:121).\n")
 }
 
 func TestStringNotToBe(t *testing.T) {
@@ -217,10 +227,10 @@ func TestStringNotToBe(t *testing.T) {
 	lines := "A" + numbers1 + "\nB" + numbers1 + "\nC" + numbers1 + "\nD" + numbers1 + "\nE" + numbers1
 
 	expect.String(lines).Not().ToBe(c, lines)
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+lines+"\n――― not to be this value.\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+ShowNewlines(lines)+"\n――― not to be this value.\n")
 
 	expect.String(lines).Trim(100).Not().ToBe(c, lines)
-	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+lines[:118]+"…\n――― not to be this value.\n")
+	c.shouldHaveCalledErrorf(t, "Expected ―――\n"+ShowNewlines(lines[:118])+"…\n――― not to be this value.\n")
 
 	expect.String(stringTestE(errors.New("bang"))).I("data").Not().ToBe(c, "")
 	c.shouldHaveCalledFatalf(t,
@@ -259,20 +269,20 @@ func TestStringToHaveLength(t *testing.T) {
 		"abcdef\n"+
 		"――― not to have length 6.\n")
 
-	var longString = strings.Repeat("°123456789", 10)
-	expect.String(longString).ToHaveLength(c, 90)
-	c.shouldHaveCalledErrorf(t, "Expected string len:110 ―――\n"+
-		"°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789\n"+
-		"――― to have length 90.\n")
+	var longString = strings.Repeat("°123456789\n", 6)
+	expect.String(longString).ToHaveLength(c, 49)
+	c.shouldHaveCalledErrorf(t, "Expected string len:72 ―――\n"+
+		"°123456789␤\n°123456789␤\n°123456789␤\n°123456789␤\n°123456789␤\n°123456789␤\n\n"+
+		"――― to have length 49.\n")
 
-	expect.String(longString).Trim(80).ToHaveLength(c, 90)
-	c.shouldHaveCalledErrorf(t, "Expected string len:110 ―――\n"+
-		"°123456789°123456789°123456789°123456789°123456789°123456789°123456789°123456789…\n"+
-		"――― to have length 90.\n")
+	expect.String(longString).Trim(40).ToHaveLength(c, 49)
+	c.shouldHaveCalledErrorf(t, "Expected string len:72 ―――\n"+
+		"°123456789␤\n°123456789␤\n°123456789␤\n°123456…\n"+
+		"――― to have length 49.\n")
 
 	//----- mis-match -----
 
-	expect.String(longString).ToHaveLength(c, 110).Or().ToHaveLength(c, 90)
+	expect.String(longString).ToHaveLength(c, 72).Or().ToHaveLength(c, 49)
 	c.shouldHaveCalledFatalf(t, "Incorrect test conjunction.\n"+
 		"――― Only the last assertion should have a non-nil tester.\n"+
 		"――― Use nil for the preceding assertions.")
