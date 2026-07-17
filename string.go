@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	. "github.com/rickb777/expect/internal"
+	. "github.com/rickb777/expect/internal" //nolint:staticcheck
 )
 
 type Stringy interface {

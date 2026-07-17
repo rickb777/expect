@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	. "github.com/rickb777/expect/internal"
+	. "github.com/rickb777/expect/internal" //nolint:staticcheck
 )
 
 // ErrorType is used for assertions about errors.

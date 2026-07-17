@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	gocmp "github.com/google/go-cmp/cmp"
-	"github.com/rickb777/plural"
+	"github.com/rickb777/plural/v2"
 )
 
 // MapType is used for assertions about maps.
@@ -259,20 +259,20 @@ func (a MapType[K, V]) ToContainAll(t Tester, expectedKey ...K) {
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expectedKey)))
+			a.addExpectation("to contain %s but none were found.\n", allN.Countable(len(expectedKey)))
 		} else if len(found) < len(expectedKey)/2 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s found ―――\n%v\n",
-				allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
+				allN.Countable(len(expectedKey)), theseWere.Countable(len(found)), found)
 		} else {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s missing ―――\n%v\n",
-				allN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
+				allN.Countable(len(expectedKey)), theseWere.Countable(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but %s present.\n",
-			allN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
+			allN.Countable(len(expectedKey)), theyWereAll.Countable(len(expectedKey)))
 	} else {
 		a.passes++
 	}
@@ -300,20 +300,20 @@ func (a MapType[K, V]) ToContainAny(t Tester, expectedKey ...K) {
 
 	if !a.not && len(found) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
-		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expectedKey)))
+		a.addExpectation("to contain %s but none were present.\n", anyOfN.Countable(len(expectedKey)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s present.\n",
-				anyOfN.FormatInt(len(expectedKey)), theyWereAll.FormatInt(len(expectedKey)))
+				anyOfN.Countable(len(expectedKey)), theyWereAll.Countable(len(expectedKey)))
 		} else if len(missing) < len(expectedKey)/2 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s missing ―――\n%v\n",
-				anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(missing)), missing)
+				anyOfN.Countable(len(expectedKey)), theseWere.Countable(len(missing)), missing)
 		} else {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s found ―――\n%v\n",
-				anyOfN.FormatInt(len(expectedKey)), theseWere.FormatInt(len(found)), found)
+				anyOfN.Countable(len(expectedKey)), theseWere.Countable(len(found)), found)
 		}
 	} else {
 		a.passes++

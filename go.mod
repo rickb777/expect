@@ -8,4 +8,6 @@ require github.com/rickb777/plural v1.4.10
 
 require github.com/magefile/mage v1.17.2
 
+require github.com/rickb777/plural/v2 v2.1.0 // indirect
+
 tool github.com/magefile/mage

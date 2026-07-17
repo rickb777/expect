@@ -10,7 +10,7 @@ import (
 	"github.com/rickb777/expect"
 )
 
-var e1 = errors.New("something bad happened")
+var errBad = errors.New("something bad happened")
 
 func TestErrorNoErrorProvided(t *testing.T) {
 	c := &capture{}
@@ -34,7 +34,7 @@ func TestErrorToBeNil(t *testing.T) {
 	expect.Error(1, 2, err).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToBeNil(c)
+	expect.Error(errBad).I("xyz").ToBeNil(c)
 	c.shouldHaveCalledFatalf(t, `Expected xyz error ―――
 something bad happened
 ――― not to have occurred.
@@ -44,7 +44,7 @@ something bad happened
 	expect.Error(thingUnderTest1()).I("xyz").ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
-	thingUnderTest2 := func() (string, error, bool, error) { return "foo", e1, true, nil }
+	thingUnderTest2 := func() (string, error, bool, error) { return "foo", errBad, true, nil }
 	expect.Error(thingUnderTest2()).I("xyz").ToBeNil(c)
 	c.shouldHaveCalledFatalf(t, `Expected xyz error ―――
 something bad happened
@@ -55,13 +55,13 @@ something bad happened
 func TestErrorToHaveOccurred(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(1, 2, 3, e1).I("xyz").ToHaveOccurred(c)
+	expect.Error(1, 2, 3, errBad).I("xyz").ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(nil).I("xyz").ToHaveOccurred(c)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error to have occurred.\n")
 
-	thingUnderTest := func() (string, error, bool, error) { return "foo", e1, true, nil }
+	thingUnderTest := func() (string, error, bool, error) { return "foo", errBad, true, nil }
 	expect.Error(thingUnderTest()).I("xyz").ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 }
@@ -69,7 +69,7 @@ func TestErrorToHaveOccurred(t *testing.T) {
 func TestErrorNotToBeNil(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(e1).I("xyz").Not().ToBeNil(c)
+	expect.Error(errBad).I("xyz").Not().ToBeNil(c)
 	c.shouldNotHaveHadAnError(t)
 
 	expect.Error(nil).I("xyz").Not().ToBeNil(c)
@@ -82,7 +82,7 @@ func TestErrorNotToHaveOccurred(t *testing.T) {
 	expect.Error(nil).I("xyz").Not().ToHaveOccurred(c)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").Not().ToHaveOccurred(c)
+	expect.Error(errBad).I("xyz").Not().ToHaveOccurred(c)
 	c.shouldHaveCalledFatalf(t, `Expected xyz error ―――
 something bad happened
 ――― not to have occurred.
@@ -95,7 +95,7 @@ func TestErrorToWrap(t *testing.T) {
 	expect.Error(nil).I("xyz").ToWrap(c, io.EOF)
 	c.shouldHaveCalledErrorf(t, "Expected xyz error to have occurred but there was no error.\n")
 
-	expect.Error(e1).I("xyz").Not().ToWrap(c, io.EOF)
+	expect.Error(errBad).I("xyz").Not().ToWrap(c, io.EOF)
 	c.shouldNotHaveHadAnError(t)
 
 	e2 := fmt.Errorf("foo %w", io.EOF)
@@ -103,7 +103,7 @@ func TestErrorToWrap(t *testing.T) {
 	expect.Error(e3).I("xyz").ToWrap(c, io.EOF)
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToWrap(c, io.EOF)
+	expect.Error(errBad).I("xyz").ToWrap(c, io.EOF)
 	c.shouldHaveCalledErrorf(t, `Expected xyz error ―――
 something bad happened
 ――― to wrap ―――
@@ -121,10 +121,10 @@ bar foo EOF
 func TestErrorToContain(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(e1).I("xyz").ToContain(c, "something bad happened")
+	expect.Error(errBad).I("xyz").ToContain(c, "something bad happened")
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToContain(c, "missing")
+	expect.Error(errBad).I("xyz").ToContain(c, "missing")
 	c.shouldHaveCalledErrorf(t, `Expected xyz error ―――
 something bad happened
 ――― to contain ―――
@@ -138,10 +138,10 @@ missing
 func TestErrorToMatch(t *testing.T) {
 	c := &capture{}
 
-	expect.Error(e1).I("xyz").ToMatch(c, regexp.MustCompile("something bad happened"))
+	expect.Error(errBad).I("xyz").ToMatch(c, regexp.MustCompile("something bad happened"))
 	c.shouldNotHaveHadAnError(t)
 
-	expect.Error(e1).I("xyz").ToMatch(c, regexp.MustCompile("missing"))
+	expect.Error(errBad).I("xyz").ToMatch(c, regexp.MustCompile("missing"))
 	c.shouldHaveCalledErrorf(t, `Expected xyz error ―――
 something bad happened
 ――― to match ―――

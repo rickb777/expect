@@ -253,7 +253,7 @@ func allowUnexported(m typeSet) gocmp.Option {
 
 func discoverTypes(v reflect.Value, m map[reflect.Type]bool) {
 	k := v.Kind()
-	for k == reflect.Ptr || k == reflect.Interface {
+	for k == reflect.Pointer || k == reflect.Interface {
 		v = v.Elem()
 		k = v.Kind()
 	}

@@ -184,20 +184,20 @@ func (a SliceType[T]) ToContainAll(t Tester, expected ...T) {
 	if !a.not && len(missing) > 0 {
 		if len(found) == 0 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
-			a.addExpectation("to contain %s but none were found.\n", allN.FormatInt(len(expected)))
+			a.addExpectation("to contain %s but none were found.\n", allN.Countable(len(expected)))
 		} else if len(found) < len(expected)/2 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s found ―――\n%v\n",
-				allN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
+				allN.Countable(len(expected)), theseWere.Countable(len(found)), found)
 		} else {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s missing ―――\n%v\n",
-				allN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
+				allN.Countable(len(expected)), theseWere.Countable(len(missing)), missing)
 		}
 	} else if a.not && len(missing) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 		a.addExpectation("to contain %s but %s present.\n",
-			allN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
+			allN.Countable(len(expected)), theyWereAll.Countable(len(expected)))
 	} else {
 		a.passes++
 	}
@@ -222,20 +222,20 @@ func (a SliceType[T]) ToContainAny(t Tester, expected ...T) {
 
 	if !a.not && len(found) == 0 {
 		a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
-		a.addExpectation("to contain %s but none were present.\n", anyOfN.FormatInt(len(expected)))
+		a.addExpectation("to contain %s but none were present.\n", anyOfN.Countable(len(expected)))
 	} else if a.not && len(found) > 0 {
 		if len(missing) == 0 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s present.\n",
-				anyOfN.FormatInt(len(expected)), theyWereAll.FormatInt(len(expected)))
+				anyOfN.Countable(len(expected)), theyWereAll.Countable(len(expected)))
 		} else if len(missing) < len(expected)/2 {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but only %s missing ―――\n%v\n",
-				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(missing)), missing)
+				anyOfN.Countable(len(expected)), theseWere.Countable(len(missing)), missing)
 		} else {
 			a.describeActualExpectedM("%T len:%d ―――\n%v\n", a.actual, len(a.actual), a.actual)
 			a.addExpectation("to contain %s but %s found ―――\n%v\n",
-				anyOfN.FormatInt(len(expected)), theseWere.FormatInt(len(found)), found)
+				anyOfN.Countable(len(expected)), theseWere.Countable(len(found)), found)
 		}
 	} else {
 		a.passes++
